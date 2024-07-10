@@ -1008,75 +1008,79 @@ export class AtendimentoFormComponent implements OnInit {
     this.message = '';
     this.loading = true;
     event.preventDefault();
+    if (this.object.id && this.obrigaCiap2 != 0 && this.allItemsCondicaoAvaliada.length === 0) {
+      this.message = 'É necessário informar a Avaliação/Classificação CIAP 2';
+      this.loading = false
+    } else {
+      this.service.save(this.form.getRawValue(), this.method).subscribe(
+        (res: any) => {
+          this.object.id = res.id;
+          this.findHistoricoPorAtendimento();
+          if (res.ano_receita) this.object.ano_receita = res.ano_receita;
 
-    this.service.save(this.form.getRawValue(), this.method).subscribe(
-      (res: any) => {
-        this.object.id = res.id;
-        this.findHistoricoPorAtendimento();
-        if (res.ano_receita) this.object.ano_receita = res.ano_receita;
+          if (res.numeroReceita) this.object.numero_receita = res.numeroReceita;
 
-        if (res.numeroReceita) this.object.numero_receita = res.numeroReceita;
+          if (res.idEstabelecimento) {
+            this.object.unidade_receita = res.idEstabelecimento;
+          }
 
-        if (res.idEstabelecimento) {
-          this.object.unidade_receita = res.idEstabelecimento;
-        }
+          if (res.dadosFicha) this.object.dadosFicha = res.dadosFicha;
 
-        if (res.dadosFicha) this.object.dadosFicha = res.dadosFicha;
+          if (this.form.value.id) {
+            this.message = 'Atendimento alterado com sucesso';
 
-        if (this.form.value.id) {
-          this.message = 'Atendimento alterado com sucesso';
+            if (
+              !Util.isEmpty(this.object.ano_receita) &&
+              !Util.isEmpty(this.object.numero_receita) &&
+              !Util.isEmpty(this.object.unidade_receita)
+            )
+              this.abreReceitaMedica(
+                this.object.ano_receita,
+                this.object.numero_receita,
+                this.object.unidade_receita,
+              );
+          } else {
+            this.abreFichaDigital(this.object.id, false);
+          }
+
+          if (!this.message) {
+            this.message = 'Cadastro efetuado com sucesso!';
+            this.openConfirmacao(this.contentConfirmacao);
+          }
 
           if (
-            !Util.isEmpty(this.object.ano_receita) &&
-            !Util.isEmpty(this.object.numero_receita) &&
-            !Util.isEmpty(this.object.unidade_receita)
-          )
-            this.abreReceitaMedica(
-              this.object.ano_receita,
-              this.object.numero_receita,
-              this.object.unidade_receita,
-            );
-        } else {
-          this.abreFichaDigital(this.object.id, false);
-        }
-
-        if (!this.message) {
-          this.message = 'Cadastro efetuado com sucesso!';
-          this.openConfirmacao(this.contentConfirmacao);
-        }
-
-        if (
-          this.tipoFicha == 7 ||
-          this.tipoFichaSelecionada === '7' ||
-          this.isVisible === true
-        ) {
-          this.findParticipanteAtividadeColetivaPorAtendimento();
-          this.findProfissionaisAtividadeColetivaPorAtendimento();
-        }
-
-        if (this.tipoFicha == 8) {
-          this.findtiposFornecimentoOdontoPorAtendimento();
-          this.findtiposVigilanciaOdontoPorAtendimento();
-        }
-
-        if (this.object.situacao) {
-          if (this.object.situacao == 'X') {
-            this.message = 'Atendimento cancelado com sucesso';
-            this.object = new Atendimento();
-          } else if (this.object.situacao == 'C' || this.object.situacao == '0')
-            this.message = 'Atendimento alterado com sucesso';
-          else {
-            this.message = 'Atendimento finalizado com sucesso';
-            this.object = new Atendimento();
+            this.tipoFicha == 7 ||
+            this.tipoFichaSelecionada === '7' ||
+            this.isVisible === true
+          ) {
+            this.findParticipanteAtividadeColetivaPorAtendimento();
+            this.findProfissionaisAtividadeColetivaPorAtendimento();
           }
-        }
-        this.loading = false;
-      },
-      (erro) => {
-        setTimeout(() => (this.loading = false), 300);
-        this.errors = Util.customHTTPResponse(erro);
-      },
-    );
+
+          if (this.tipoFicha == 8) {
+            this.findtiposFornecimentoOdontoPorAtendimento();
+            this.findtiposVigilanciaOdontoPorAtendimento();
+          }
+
+          if (this.object.situacao) {
+            if (this.object.situacao == 'X') {
+              this.message = 'Atendimento cancelado com sucesso';
+              this.object = new Atendimento();
+            } else if (this.object.situacao == 'C' || this.object.situacao == '0')
+              this.message = 'Atendimento alterado com sucesso';
+            else {
+              this.message = 'Atendimento finalizado com sucesso';
+              this.object = new Atendimento();
+            }
+          }
+          this.loading = false;
+        },
+        (erro) => {
+          setTimeout(() => (this.loading = false), 300);
+          this.errors = Util.customHTTPResponse(erro);
+        },
+      );
+    }
   }
 
   findPacienteData(idPaciente) {
