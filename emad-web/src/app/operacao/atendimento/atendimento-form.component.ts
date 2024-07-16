@@ -952,7 +952,8 @@ export class AtendimentoFormComponent implements OnInit {
 
         this.allItemsEncaminhamento = [];
         this.allItemsHipotese = [];
-        this.allItemsMedicamento = [];
+        this.allItemsMedicamento = [];      
+         
 
         this.errors.push({
           message: 'Atendimento não encontrado',
@@ -1066,14 +1067,27 @@ export class AtendimentoFormComponent implements OnInit {
             if (this.object.situacao == 'X') {
               this.message = 'Atendimento cancelado com sucesso';
               this.object = new Atendimento();
+              this.allItemsEncaminhamento = [];
+              this.allItemsHipotese = [];
+              this.allItemsMedicamento = [];      
+              this.allItemsExame = [];   
+              this.allItemsVacina = [];   
+              this.allItemsCondicaoAvaliada = [];   
             } else if (this.object.situacao == 'C' || this.object.situacao == '0')
               this.message = 'Atendimento alterado com sucesso';
             else {
               this.message = 'Atendimento finalizado com sucesso';
               this.object = new Atendimento();
-            }
+              this.allItemsEncaminhamento = [];
+              this.allItemsHipotese = [];
+              this.allItemsMedicamento = [];      
+              this.allItemsExame = [];   
+              this.allItemsVacina = [];   
+              this.allItemsCondicaoAvaliada = [];   
+            }            
           }
           this.loading = false;
+
         },
         (erro) => {
           setTimeout(() => (this.loading = false), 300);
@@ -2011,7 +2025,6 @@ export class AtendimentoFormComponent implements OnInit {
 
   //ATIVIDADE COLETIVA
   back() {
-    this.modalFormularioRef.close();
     const route = 'atendimentos/pesquisa/true';
     this.router.navigate([route]);
   }
