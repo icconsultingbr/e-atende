@@ -1073,6 +1073,7 @@ export class AtendimentoFormComponent implements OnInit {
               this.allItemsExame = [];   
               this.allItemsVacina = [];   
               this.allItemsCondicaoAvaliada = [];   
+              this.closeFinalizarAtendimento();
             } else if (this.object.situacao == 'C' || this.object.situacao == '0')
               this.message = 'Atendimento alterado com sucesso';
             else {
@@ -1084,6 +1085,7 @@ export class AtendimentoFormComponent implements OnInit {
               this.allItemsExame = [];   
               this.allItemsVacina = [];   
               this.allItemsCondicaoAvaliada = [];   
+              this.closeFinalizarAtendimento();
             }            
           }
           this.loading = false;
