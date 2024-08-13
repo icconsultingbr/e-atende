@@ -22,6 +22,7 @@ import { isSameDay } from 'date-fns';
 import { endOfDay } from 'date-fns';
 import { startOfDay } from 'date-fns';
 import { TipoAtendimento } from '../../../utils/enums/agendamentos/tipo-atendimento';
+import { AgendamentoDto } from './dtos/Agendamento';
 
 
 const colors: Record<string, EventColor> = {
@@ -123,7 +124,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
     this.carregarTipoAtendimento();
     this.fomularioAgendamento()
     this.dataAtual = encodeURIComponent(moment().format('YYYY-MM-DDTHH:mm'));
- 
+
     this.form.get('tipoAtendimento').valueChanges.subscribe((value) => {
       if (!value) {
         return;
@@ -161,8 +162,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
       this.consultaAgendaPaciente(moment(dtIn), moment(dtFim));
       this.form.patchValue({ formaAtendimento: 1 })
     });
-  }  
-  
+  }
+
   handleOpenAbrirModalConfirmacaoExlusao(idAgendamento: number): void {
     this.eventoIdExclusao = idAgendamento;
     this.modalConfirmarExclusaoAgendamento = this.modalService.open(this.modalConfirmarExclusao, { centered: true });
@@ -197,7 +198,6 @@ export class PlanoTerapeuticoComponent implements OnInit {
       }, 4000);
     })
   }
-
   focoCampoData(value: string) {
     if (value == 'dataInicial') {
       const dtSelecionada = this.form.get('dataInicial').value;
@@ -205,7 +205,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
       if (dtSelecionada < dtAtual) {
         this.alerta('error', 'A data selecionada não pode ser menor que a data atual.', 5000)
         this.form.get('dataInicial').reset()
-        
+
       }
     }
     if (value == 'dataFinal') {
@@ -221,19 +221,19 @@ export class PlanoTerapeuticoComponent implements OnInit {
   alerta(tipo: string, msg: string, timeout: number): void {
     let type = '';
     if (tipo === 'error') {
-        type = 'danger';
+      type = 'danger';
     } else if (tipo === 'sucesso') {
-        type = 'success';
+      type = 'success';
     } else if (tipo === 'informacao') {
-        type = 'info';
+      type = 'info';
     }
 
     this.msgAlert = [{ type, msg }];
 
     setTimeout(() => {
-        this.msgAlert = [];
+      this.msgAlert = [];
     }, timeout);
-}
+  }
 
   fomularioAgendamento() {
     this.form = this.fb.group({
@@ -246,18 +246,18 @@ export class PlanoTerapeuticoComponent implements OnInit {
       tipoAtendimento: ['', [Validators.required,]],
       dataInicial: ['', [Validators.required,]],
       dataFinal: ['', Validators.required],
-      especialidade: [{value: '', disabled: true}],
+      especialidade: [{ value: '', disabled: true }],
       observacao: [''],
     });
     this.form.get('tipoAtendimento').valueChanges.subscribe(value => {
       if (value == 1) {
-          this.form.get('especialidade').enable();
-          this.form.get('especialidade').setValidators([Validators.required]);
+        this.form.get('especialidade').enable();
+        this.form.get('especialidade').setValidators([Validators.required]);
       } else {
-         if (value == 2) {
+        if (value == 2) {
           this.form.get('especialidade').disable();
           this.form.get('especialidade').clearValidators();
-         }
+        }
       }
     });
   }
@@ -292,7 +292,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
         idProfissional: this.dadosAgendamento.idProfissional,
         profissionalNome: this.dadosAgendamento.profissionalNome,
         nomePaciente: this.dadosAgendamento.pacienteNome,
-        especialidade:this.dadosAgendamento.especialidadeNome,
+        especialidade: this.dadosAgendamento.especialidadeNome,
         especialidadeId: this.dadosAgendamento.especialidadeId,
         formaAtendimento: this.dadosAgendamento.formaAtendimento,
         tipoAtendimento: this.dadosAgendamento.tipoAtendimento,
@@ -306,10 +306,10 @@ export class PlanoTerapeuticoComponent implements OnInit {
       } else {
         this.idEstabelecimento = this.dadosAgendamento.equipeEstabelecimetoId
       }
-      
+
       this.openEditModalAgendamento()
     });
-    
+
   }
 
   buscaPaciente() {
@@ -326,7 +326,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
           params = '?' + params;
         }
       }
-    } 
+    }
 
     this.service.list('paciente' + params).subscribe(result => {
       this.allItems = result.items;
@@ -358,33 +358,33 @@ export class PlanoTerapeuticoComponent implements OnInit {
       this.idEspecialidade = this.form.get('especialidade').value
     }
 
-    if(this.form.get('dataInicial').value && this.form.get('dataFinal').value){
+    if (this.form.get('dataInicial').value && this.form.get('dataFinal').value) {
       this.service.list(`profissional/agendamento/especialidade/${this.idEspecialidade}?dataInicial=${dataInicial}&dataFinal=${dataFinal}`).subscribe((result) => {
         if (result.length > 0) {
           this.listaProfissional = result;
           this.showMensagemErro = false;
         } else {
-          if( dataInicial && dataFinal && this.idEspecialidade){
+          if (dataInicial && dataFinal && this.idEspecialidade) {
             this.alerta('error', 'Não há profissional disponível para a especialidade desejada na data selecionada.', 5000);
           }
         }
       });
     }
   }
-  
+
   listaEquipeDisponivel() {
     this.listaEquipe = []
     const dataInicial = encodeURIComponent(moment(this.form.get('dataInicial').value).format("YYYY-MM-DD HH:mm:ss"));
     const dataFinal = encodeURIComponent(moment(this.form.get('dataFinal').value).format("YYYY-MM-DD HH:mm:ss"));
     const idEspecialidade = this.form.get('especialidade').value;
     const idEstabelecimento = this.pacienteSelecionado && this.pacienteSelecionado.idEstabelecimento;
-    
+
     this.service.list(`equipe/agendamento?dataInicial=${dataInicial}&dataFinal=${dataFinal}&idEstabelecimento=${idEstabelecimento}`).subscribe((result) => {
       if (result.length > 0) {
         this.listaEquipe = result;
       } else {
-        if(idEspecialidade)
-        this.alerta('error', 'Não há equipe disponível para a especialidade desejada na data selecionada.', 5000);
+        if (idEspecialidade)
+          this.alerta('error', 'Não há equipe disponível para a especialidade desejada na data selecionada.', 5000);
       }
     })
   }
@@ -406,7 +406,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
       if (conflitos.length > 0) {
         this.mensagemErro = 'Paciente possui agendamento para a data e hora informada.'
-      }else{
+      } else {
         this.mensagemErro = '';
       }
 
@@ -439,7 +439,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
   consultaAgendamentos() {
     this.loading = true
-    this.service.list('agendamento').subscribe((result) => {
+    this.service.list('agendamento').subscribe((result: AgendamentoDto[]) => {
       const eventosCalendario: CalendarEvent[] = [];
 
       result.forEach((evento) => {
@@ -451,9 +451,9 @@ export class PlanoTerapeuticoComponent implements OnInit {
           color = { ...colors.equipe }
         } else if (evento.idProfissional) {
           title = `${evento.pacienteNome} (${evento.profissionalNome})`
-          color = { ...colors.profissional }       
+          color = { ...colors.profissional }
         }
-
+        const today = new Date();
         eventosCalendario.push({
           id: evento.idAgendamento,
           title,
@@ -471,12 +471,12 @@ export class PlanoTerapeuticoComponent implements OnInit {
                 this.editar(Number(event.id));
               },
             },
-            {
+            ...(new Date(evento.dataFinal) > today ? [{
               label: '<i class="fas fa-fw fa-trash-alt"></i>',
               onClick: ({ event }: { event: CalendarEvent }): void => {
                 this.handleOpenAbrirModalConfirmacaoExlusao(parseInt(event.id as string));
               }
-            }
+            }] : [])
           ]
         });
       });
@@ -523,13 +523,13 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   openEditModalAgendamento(): void {
-   this.openModal(this.modalEditarAgendamento)
+    this.openModal(this.modalEditarAgendamento)
 
-   if(this.dataAtual > this.form.get('dataInicial').value){
-    this.form.disable()
-   } else {
-    this.form.enable()
-   }
+    if (this.dataAtual > this.form.get('dataInicial').value) {
+      this.form.disable()
+    } else {
+      this.form.enable()
+    }
   }
 
   openModal(content: any) {
