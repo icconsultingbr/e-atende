@@ -418,6 +418,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   confirmaPaciente() {
+    this.form.enable()
+    this.openModal(this.modalAdicionarAgendamento)
     this.form.patchValue({
       nomePaciente: this.pacienteSelecionado.nome,
       idPaciente: this.pacienteSelecionado.id
