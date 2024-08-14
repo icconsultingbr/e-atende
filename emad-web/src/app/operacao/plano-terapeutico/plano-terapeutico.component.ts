@@ -196,7 +196,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
         ...body,
         id: idAgendamento,
         usuarioCancelamentoId: 1,
-        justificativaCancelamento: 'Cancelamento de agendamento',
+        justificativaCancelamento: this.form.get('justificativaCancelamento').value,
         situacao: 0,
         deletedAt: moment(new Date).format('YYYY-MM-DDTHH:mm')
       }
@@ -261,6 +261,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
       dataFinal: ['', Validators.required],
       especialidade: [{ value: '', disabled: true }],
       observacao: [''],
+      justificativaCancelamento: [''],
     });
     this.form.get('tipoAtendimento').valueChanges.subscribe(value => {
       if (value == 1) {
@@ -273,6 +274,14 @@ export class PlanoTerapeuticoComponent implements OnInit {
         }
       }
     });
+  }
+
+  isJustificativaCancelamento() {
+    const justificativaCancelamentoExists = this.form.get('justificativaCancelamento').value
+    if (justificativaCancelamentoExists === '') {
+      return true
+    }
+    return false
   }
 
   limparFormulario() {
