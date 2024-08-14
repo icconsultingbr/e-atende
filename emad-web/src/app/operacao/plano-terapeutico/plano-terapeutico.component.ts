@@ -22,8 +22,8 @@ import { isSameDay } from 'date-fns';
 import { endOfDay } from 'date-fns';
 import { startOfDay } from 'date-fns';
 import { TipoAtendimento } from '../../../utils/enums/agendamentos/tipo-atendimento';
-import { AgendamentoDto } from './dtos/Agendamento';
-
+import { AgendamentoResponseListaDto } from './dtos/agendamento-response-lista.dto';
+import { UpdateAgendamentoRequestDto } from './dtos/agendamento-update.dto';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -189,14 +189,27 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
   excluir(value: number) {
     const idAgendamento = value ? value : this.dadosAgendamento.idAgendamento
-    this.service.remove(Number(idAgendamento), 'agendamento').subscribe((result) => {
-      this.consultaAgendamentos();
-      this.modalConsultaAgendamento.dismiss()
-      this.mensagem = 'Agendamento excluido com sucesso'
-      setTimeout(() => {
-        this.mensagem = '';
-      }, 4000);
-    })
+    let body: UpdateAgendamentoRequestDto
+    this.service.list(`agendamento/${idAgendamento}`).subscribe((result) => {
+      body = result
+      body = {
+        ...body,
+        id: idAgendamento,
+        usuarioCancelamentoId: 1,
+        justificativaCancelamento: 'Cancelamento de agendamento',
+        situacao: 0,
+        deletedAt: moment(new Date).format('YYYY-MM-DDTHH:mm')
+      }
+      this.service.save(body, 'agendamento').subscribe((result) => {
+        this.consultaAgendamentos();
+        this.modalConsultaAgendamento.dismiss()
+        this.mensagem = 'Agendamento concluído com sucesso'
+        setTimeout(() => {
+          this.mensagem = '';
+        }, 4000);
+      })
+    }
+    );
   }
   focoCampoData(value: string) {
     if (value == 'dataInicial') {
@@ -441,7 +454,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
   consultaAgendamentos() {
     this.loading = true
-    this.service.list('agendamento').subscribe((result: AgendamentoDto[]) => {
+    this.service.list('agendamento').subscribe((result: AgendamentoResponseListaDto[]) => {
       const eventosCalendario: CalendarEvent[] = [];
 
       result.forEach((evento) => {
@@ -662,3 +675,5 @@ export class PlanoTerapeuticoComponent implements OnInit {
     return Util.isEmpty(this.paciente.cartaoSus) && Util.isEmpty(this.paciente.nome);
   }
 }
+
+

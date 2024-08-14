@@ -108,7 +108,10 @@ module.exports = function (app) {
         json.dataInicial = obj.dataInicial;
         json.dataFinal = obj.dataFinal;
         json.observacao = obj.observacao
-        json.situacao = 1;
+        json.situacao = typeof obj.situacao === 'number'? obj.situacao : 1;
+        json.justificativaCancelamento = obj.justificativaCancelamento;
+        json.usuarioCancelamentoId = obj.usuarioCancelamentoId;
+        json.deletedAt = obj.deletedAt;
 
         editar(json, res).then(function (response) {
             res.status(201).send(response);
@@ -195,6 +198,7 @@ module.exports = function (app) {
     };
 
     function editar(obj, res) {
+        console.log('chegou aqui AGENDAMENTO ==>', obj)
         let id = obj.id;
         delete obj.id;
         var connection = app.dao.ConnectionFactory();

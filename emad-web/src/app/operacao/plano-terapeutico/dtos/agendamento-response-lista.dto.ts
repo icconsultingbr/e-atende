@@ -1,4 +1,4 @@
-export interface AgendamentoDto {
+export interface AgendamentoResponseListaDto {
   idAgendamento: number;
   idPaciente: number;
   idEquipe: number | null;
@@ -13,4 +13,7 @@ export interface AgendamentoDto {
   profissionalId: number | null;
   profissionalTeleatendimento: string | null;
   pacienteNome: string;
+  usuarioCancelamentoId: number | null;
+  justificativaCancelamento: string | null;
+  deletedAt: Date | null;
 }
