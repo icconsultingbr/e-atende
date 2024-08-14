@@ -410,11 +410,11 @@
 <ng-template #modalConfirmarExclusao let-event>
     <form [formGroup]="form">
         <div class="modal-header">
-            <h4 class="modal-title">Confirmar Exclusão</h4>
+            <h4 class="modal-title">Confirmar cancelamento</h4>
             <i style="margin: 10px;" class="fas fa-times" (click)="handleClickFecharModalConfirmarExcluirAgendamento()"></i>
         </div>
         <div class="modal-body">
-            <p>Deseja realmente excluir este evento?</p>
+            <p>Deseja realmente cancelar este evento?</p>
             <div>
                 <label>
                     Justifique o motivo do cancelamento:
@@ -429,7 +429,13 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button [disabled]="isJustificativaCancelamento()" type="button" class="btn btn-primary" (click)="handleClickExcluirAgendamento()">Sim</button>
+            <button 
+            [ngStyle]="{'cursor': isJustificativaCancelamento() ? 'not-allowed' : 'default'}"
+            [disabled]="isJustificativaCancelamento()"
+            type="button" 
+            class="btn btn-primary" 
+            (click)="handleClickExcluirAgendamento()"
+            >Sim</button>
             <button type="button" class="btn btn-danger" (click)="handleClickFecharModalConfirmarExcluirAgendamento()">Não</button>
         </div>
     </form>
