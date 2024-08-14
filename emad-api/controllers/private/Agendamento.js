@@ -95,6 +95,7 @@ module.exports = function (app) {
     app.put('/agendamento', function (req, res) {
         var obj = req.body;
         var usuario = req.usuario;
+        console.log('USUARIO ==>', usuario)
         var util = new app.util.Util();
         var errors = [];
         var json = {};
@@ -110,7 +111,7 @@ module.exports = function (app) {
         json.observacao = obj.observacao
         json.situacao = typeof obj.situacao === 'number'? obj.situacao : 1;
         json.justificativaCancelamento = obj.justificativaCancelamento;
-        json.usuarioCancelamentoId = obj.usuarioCancelamentoId;
+        json.usuarioCancelamentoId = usuario.id;
         json.deletedAt = obj.deletedAt;
 
         editar(json, res).then(function (response) {

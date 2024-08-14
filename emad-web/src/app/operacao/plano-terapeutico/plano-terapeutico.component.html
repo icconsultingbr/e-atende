@@ -429,13 +429,7 @@
             </div>
         </div>
         <div class="modal-footer">
-            <button 
-            [ngStyle]="{'cursor': isJustificativaCancelamento() ? 'not-allowed' : 'default'}"
-            [disabled]="isJustificativaCancelamento()"
-            type="button" 
-            class="btn btn-primary" 
-            (click)="handleClickExcluirAgendamento()"
-            >Sim</button>
+            <button [ngStyle]="{'cursor': isJustificativaCancelamento() ? 'not-allowed' : 'default'}" [disabled]="isJustificativaCancelamento()" type="button"  class="btn btn-primary" (click)="handleClickExcluirAgendamento()">Sim</button>
             <button type="button" class="btn btn-danger" (click)="handleClickFecharModalConfirmarExcluirAgendamento()">Não</button>
         </div>
     </form>
