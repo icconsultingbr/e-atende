@@ -1,5 +1,3 @@
-import { Response } from "express";
-
 import AdmZip from 'adm-zip'
 import { ListaProcedimentoIntegracaoESus } from "../../src/api/dtos/private/integracao-esus/ficha-procedimento.dto";
 import { FiltroFichaEsusInput } from "../../src/api/dtos/private/integracao-esus/filtro.dto";
@@ -92,7 +90,7 @@ module.exports = function (app) {
         }
     });
 
-    function buscarPorId(id, res: Response) {
+    function buscarPorId(id, res) {
         var q = require('q');
         var d = q.defer();
         var util = new app.util.Util();
@@ -367,11 +365,11 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            if (listAtendimentos.length == 0) { return; }
+            if (listAtendimentos?.length == 0) { return; }
 
             const dataReal = new moment(listAtendimentos[0].dataCriacao).subtract({ hours: 3 });
             const dataCriacao = new moment(dataReal).hours(3).minutes(0).seconds(0).toDate();
@@ -414,7 +412,7 @@ module.exports = function (app) {
                 .ele('versao', { major: major, minor: minor, revision: revision })
                 .doc();
 
-            var qtdAtendimentosValidos = listAtendimentos.length;
+            var qtdAtendimentosValidos = listAtendimentos?.length;
 
             listAtendimentos.forEach(atendimento => {
 
@@ -502,7 +500,7 @@ module.exports = function (app) {
         const outroCiap2Lista = [];
 
         listaCiapsAtendimento.forEach(ciaps => {
-            if (ciaps.codigoAB && ciaps.codigoAB.length > 1) {
+            if (ciaps.codigoAB && ciaps.codigoAB?.length > 1) {
                 ciapsLista.push(ciaps);
             } else {
                 if (existeCiap1 && !existeCiap2) {
@@ -530,11 +528,11 @@ module.exports = function (app) {
             avaliacao.import(outroCiap2);
         });
 
-        if (listaAvaliacaoAtendimento && listaAvaliacaoAtendimento.length > 0) {
+        if (listaAvaliacaoAtendimento && listaAvaliacaoAtendimento?.length > 0) {
             const cid10 = fragment().ele('cid10').txt(listaAvaliacaoAtendimento[0].cid_10).up();
             avaliacao.import(cid10);
 
-            if (listaAvaliacaoAtendimento.length > 1) {
+            if (listaAvaliacaoAtendimento?.length > 1) {
                 const cid10_2 = fragment().ele('cid10_2').txt(listaAvaliacaoAtendimento[1].cid_10).up();
                 avaliacao.import(cid10_2);
             }
@@ -571,7 +569,7 @@ module.exports = function (app) {
     function preencherTipoVigilanciaOdonto(listVigilancia, idAtendimento) {
         const { fragment } = require('xmlbuilder2');
         let tipoVigilancia = []
-        if (listVigilancia.length) {
+        if (listVigilancia?.length) {
             listVigilancia.forEach(x => {
                 if (x.idAtendimento == idAtendimento) {
                     let c = fragment().ele('tiposVigilanciaSaudeBucal').txt(x.idVigilancia ? x.idVigilancia : '99').up()
@@ -713,11 +711,11 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            if (listVacinas.length == 0) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
+            if (listVacinas?.length == 0) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichavacinacaomaster' })
@@ -760,7 +758,7 @@ module.exports = function (app) {
             listVacinas.forEach(vacina => {
                 const listVacinaChild = list.vacinaChild.filter(x => x.idAtendimento == vacina.idAtendimento);
 
-                if (listVacinaChild.length == 0) { return; }
+                if (listVacinaChild?.length == 0) { return; }
 
                 let vac = fragment().ele('vacinacoes')
                     .ele('turno').txt(vacina.turno).up()
@@ -865,7 +863,7 @@ module.exports = function (app) {
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
-            if (listProcedimento.length == 0
+            if (listProcedimento?.length == 0
                 //@ts-ignore
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0)
                 //@ts-ignore
@@ -880,7 +878,7 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
@@ -933,7 +931,7 @@ module.exports = function (app) {
             listProcedimento.forEach(atendimento => {
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
 
-                if (listProcedimentoChild.length == 0) { return; }
+                if (listProcedimentoChild?.length == 0) { return; }
 
                 let proc = fragment().ele('atendProcedimentos')
                     .ele('numProntuario').txt(atendimento.idAtendimento).up()
@@ -971,16 +969,16 @@ module.exports = function (app) {
 
             afericoes.ele('tpCdsOrigem').txt('3').up();
 
-            if (numTotalAfericaoPa && numTotalAfericaoPa.length > 0)
+            if (numTotalAfericaoPa && numTotalAfericaoPa?.length > 0)
                 afericoes.ele('numTotalAfericaoPa').txt(numTotalAfericaoPa[0].qtd).up();
 
-            if (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura.length > 0)
+            if (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura?.length > 0)
                 afericoes.ele('numTotalAfericaoTemperatura').txt(numTotalAfericaoTemperatura[0].qtd).up();
 
-            if (numTotalMedicaoAltura && numTotalMedicaoAltura.length > 0)
+            if (numTotalMedicaoAltura && numTotalMedicaoAltura?.length > 0)
                 afericoes.ele('numTotalMedicaoAltura').txt(numTotalMedicaoAltura[0].qtd).up();
 
-            if (numTotalMedicaoPeso && numTotalMedicaoPeso.length > 0)
+            if (numTotalMedicaoPeso && numTotalMedicaoPeso?.length > 0)
                 afericoes.ele('numTotalMedicaoPeso').txt(numTotalMedicaoPeso[0].qtd).up();
 
             xmls.push(doc.doc().end({ prettyPrint: true }));
@@ -1000,7 +998,7 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
@@ -1020,7 +1018,7 @@ module.exports = function (app) {
                 .ele('ns4:fichaAtividadeColetivaTransport')
                 .ele('uuidFicha').txt(uuidFicha).up()
                 .ele('inep').txt(atendimento.inep).up()
-                .ele('numParticipantes').txt(itemParticipantes.length ? itemParticipantes.length : '1').up()
+                .ele('numParticipantes')?.txt(itemParticipantes?.length ? itemParticipantes?.length : '1').up()
                 .ele('numAvaliacoesAlteradas').txt(atendimento.numAvaliacoesAlteradas).up();
 
             //CAMPO = PROFISSIONAIS
@@ -1041,8 +1039,8 @@ module.exports = function (app) {
                 .ele('pseEducacao').txt(atendimento.pseEducacao == 1 ? true : false).up()
                 .ele('pseSaude').txt(atendimento.pseSaude == 1 ? true : false).up()
                 .ele('headerTransport')
-                .ele('profissionalCNS').txt(profissionaisAtendimento.length > 0 ? profissionaisAtendimento[0].profissionalCNS : '').up()
-                .ele('cboCodigo_2002').txt(profissionaisAtendimento.length > 0 ? profissionaisAtendimento[0].codigoCBO : '').up()
+                .ele('profissionalCNS').txt(profissionaisAtendimento?.length > 0 ? profissionaisAtendimento[0].profissionalCNS : '').up()
+                .ele('cboCodigo_2002').txt(profissionaisAtendimento?.length > 0 ? profissionaisAtendimento[0].codigoCBO : '').up()
                 .ele('cnes').txt(estabelecimento.cnes).up()
                 .ele('ine').txt(atendimento.profissionalIne).up()
                 .ele('dataAtendimento').txt(new Date(atendimento.dataCriacao).getTime()).up()
@@ -1219,11 +1217,11 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            if (listAtendimentos.length == 0) { return; }
+            if (listAtendimentos?.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoodontologicomaster' })
@@ -1256,7 +1254,7 @@ module.exports = function (app) {
                 .ele('versao', { major: major, minor: minor, revision: revision })
                 .doc();
 
-            if (listAtendimentos.length == 0) { return; }
+            if (listAtendimentos?.length == 0) { return; }
 
             listAtendimentos.forEach(atendimento => {
 
@@ -1380,11 +1378,11 @@ module.exports = function (app) {
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
 
             // Garantir que o comprimento total não exceda 44 caracteres
-            if (uuidDadoSerializado.length > 44) {
+            if (uuidDadoSerializado?.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            if (listAtendimentos.length == 0) { return; }
+            if (listAtendimentos?.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentodomiciliarmaster' })
@@ -1426,7 +1424,7 @@ module.exports = function (app) {
                 .ele('versao', { major: major, minor: minor, revision: revision })
                 .doc();
 
-            var qtdAtendimentosValidos = listAtendimentos.length;
+            var qtdAtendimentosValidos = listAtendimentos?.length;
 
             listAtendimentos.forEach(atendimento => {
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
@@ -1443,11 +1441,11 @@ module.exports = function (app) {
                     .ele('tipoAtendimento').txt(atendimento.tipoAtendimentoSus ? atendimento.tipoAtendimentoSus : undefined).up()
                     .ele('condicoesAvaliadas').txt(atendimento.condicaoAvaliada ? atendimento.condicaoAvaliada > 0 ? atendimento.condicaoAvaliada : undefined : undefined).up()
 
-                if (listCid10.length > 0) {
+                if (listCid10?.length > 0) {
                     atend.ele('cid').txt(listCid10[0].cid_10).up()
                 }
 
-                if (listCiap2.length > 0) {
+                if (listCiap2?.length > 0) {
                     atend.ele('ciap').txt(listCiap2[0].ciap2).up()
                 }
 
