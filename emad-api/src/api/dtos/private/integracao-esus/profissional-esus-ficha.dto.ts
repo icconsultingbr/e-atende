@@ -3,4 +3,5 @@ export interface Profissional {
   profissionalCNS: string | null;
   codigoCBO: number | null;
   ine: string | null;
+  idAtendimento: number | null;
 }

@@ -6,6 +6,7 @@ import { FiltroFichaEsusInput } from "../../src/api/dtos/private/integracao-esus
 import { Estabelecimento } from "../../src/api/dtos/private/integracao-esus/estabelecimento-esus-ficha.dto";
 import { Profissional } from "../../src/api/dtos/private/integracao-esus";
 import { ListaAtendimentoIndividual } from "../../src/api/dtos/private/integracao-esus/ficha-atendimento-individual.dto";
+import { Paciente } from "../../src/api/dtos/private/integracao-esus/paciente-esus-ficha.dto";
 const moment = require('moment');
 
 let versao = "";
@@ -235,10 +236,10 @@ module.exports = function (app) {
         return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais);
     }
 
-    async function listaAtividadeColetiva(filtro) {
+    async function listaAtividadeColetiva(filtro: FiltroFichaEsusInput) {
         let tipoCampoData;
 
-        if (filtro.idTipoPeriodo == 1) {
+        if (parseInt(filtro.idTipoPeriodo, 10) == 1) {
             tipoCampoData = 'dataCriacao'
         } else {
             tipoCampoData = 'dataFinalizacao'
@@ -250,9 +251,9 @@ module.exports = function (app) {
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
 
         let list = [];
-        let estabelecimento = {};
-        let profissionais = {};
-        let pacientes = {};
+        let estabelecimento: Estabelecimento;
+        let profissionais: Profissional[];
+        let pacientes: Paciente[];
 
         try {
             estabelecimento = await estabelecimentoDAO.buscaEstabelecimentoESus(filtro.idEstabelecimento);
@@ -264,7 +265,8 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
+        console.log('list', list)
+        console.log("pacientes", pacientes)
         return preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes);
     }
 
@@ -987,7 +989,7 @@ module.exports = function (app) {
         return xmls
     }
 
-    function preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes) {
+    function preencheXMLAtividadeColetiva(list, estabelecimento: Estabelecimento, profissionais: Profissional[], pacientes: Paciente[]) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
