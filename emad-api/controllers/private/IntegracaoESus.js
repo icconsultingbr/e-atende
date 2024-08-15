@@ -267,11 +267,17 @@ module.exports = function (app) {
         let xmls = [];
 
         list.forEach(paciente => {
-            let uuidFicha = uuidv4();
+            var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/cadastroindividual' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('2').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up()
@@ -355,6 +361,12 @@ module.exports = function (app) {
         profissionais.forEach(profissional => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
             var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
            
@@ -363,7 +375,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoindividualmaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('4').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -693,13 +705,19 @@ module.exports = function (app) {
 
         profissionais.forEach(profissional => {
             const listVacinas = list.vacinas.filter(x => x.idProfissional == profissional.id);
-            let uuidFicha = uuidv4();
+            var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listVacinas.length == 0) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichavacinacaomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('14').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -843,6 +861,12 @@ module.exports = function (app) {
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
             var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listProcedimento.length == 0 
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0) 
@@ -853,7 +877,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaprocedimentomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('7').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -965,6 +989,12 @@ module.exports = function (app) {
 
         list.atendimentos.forEach(atendimento => {
             var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             let profissionaisAtendimento = profissionais.filter(x => x.idAtendimento == atendimento.idAtendimento);
             let pacientesAtendimento = pacientes.filter(x => x.idAtendimento == atendimento.idAtendimento);
@@ -974,7 +1004,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatividadecoletiva' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('6').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up()
@@ -1176,12 +1206,18 @@ module.exports = function (app) {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
             var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoodontologicomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('5').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -1331,12 +1367,18 @@ module.exports = function (app) {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
             var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentodomiciliarmaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('10').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
