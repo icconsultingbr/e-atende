@@ -1,4 +1,8 @@
-const { async } = require('q');
+import { Response } from "express";
+
+import AdmZip from 'adm-zip'
+import { Estabelecimento, IntegracaoESus, Profissional } from "../../src/api/dtos/private/integracao-esus/integracao-esus-lista-procedimento.dto";
+import { FiltroFichaEsusInput } from "../../src/api/dtos/private/integracao-esus/filtro.dto";
 const moment = require('moment');
 
 let versao = "";
@@ -20,12 +24,14 @@ module.exports = function (app) {
         try {
 
             let retorno;
-            let cad, atend, vac, proc;
+            let cad, atend, vac, proc, col, atendOdont;
+
+            console.log('res', req.body);
 
             if (filtro) {
                 switch (filtro.idFichaEsus) {
                     case '0':
-                        configTipoFicha(1)
+                        configTipoFicha(1, res)
                         cad = await listaCadastroIndividual(filtro);
                         atend = await listaAtendimentoIndividual(filtro);
                         vac = await listaFichaVacinacao(filtro);
@@ -35,37 +41,37 @@ module.exports = function (app) {
                         retorno = generateZipFiles(xmls, 'ficha')
                         break;
                     case '2':
-                        configTipoFicha(1)
+                        configTipoFicha(1, res)
                         cad = await listaCadastroIndividual(filtro);
                         retorno = generateZipFiles(cad, 'ficha-cadastro-individual')
                         break;
                     case '4':
-                        configTipoFicha(1)
+                        configTipoFicha(1, res)
                         atend = await listaAtendimentoIndividual(filtro);
                         retorno = generateZipFiles(atend, 'ficha-atendimento-individual')
                         break;
                     case '7':
-                        configTipoFicha(1)
+                        configTipoFicha(1, res)
                         proc = await listaProcedimentos(filtro);
                         retorno = generateZipFiles(proc, 'ficha-procedimentos')
                         break;
                     case '9':
-                        configTipoFicha(10)
+                        configTipoFicha(10, res)
                         proc = await listaAtendimentoDomiciliar(filtro);
                         retorno = generateZipFiles(proc, 'ficha-atendimento-domiciliar')
                         break;
                     case '14':
-                        configTipoFicha(1)
+                        configTipoFicha(1, res)
                         vac = await listaFichaVacinacao(filtro);
                         retorno = generateZipFiles(vac, 'ficha-vacinas')
                         break;
                     case '15':
-                        configTipoFicha(6)
+                        configTipoFicha(6, res)
                         col = await listaAtividadeColetiva(filtro);
                         retorno = generateZipFiles(col, 'ficha-atividade-coletiva')
                         break;
                     case '16':
-                        configTipoFicha(5)
+                        configTipoFicha(5, res)
                         atendOdont = await listaAtendimentoOdontologicoIndividual(filtro);
                         retorno = generateZipFiles(atendOdont, 'ficha-atendimento-odontologico-individual')
                         break;
@@ -83,7 +89,7 @@ module.exports = function (app) {
         }
     });
 
-    function buscarPorId(id, res) {
+    function buscarPorId(id, res: Response) {
         var q = require('q');
         var d = q.defer();
         var util = new app.util.Util();
@@ -197,10 +203,11 @@ module.exports = function (app) {
         return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
     }
 
-    async function listaProcedimentos(filtro) {
+    async function listaProcedimentos(filtro: FiltroFichaEsusInput) {
+        console.log("filtro", filtro);
         let tipoCampoData;
 
-        if (filtro.idTipoPeriodo == 1) {
+        if (parseInt(filtro.idTipoPeriodo, 10) == 1) {
             tipoCampoData = 'dataCriacao'
         } else {
             tipoCampoData = 'dataUltimaDispensacao'
@@ -211,14 +218,15 @@ module.exports = function (app) {
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
 
-        let listaProcedimentos = [];
-        let estabelecimento = {};
-        let profissionais = [];
+        let listaProcedimentos: IntegracaoESus;
+        let estabelecimento: Estabelecimento;
+        let profissionais: Profissional[] = [];
 
         try {
             profissionais = await profissionalDAO.buscarProfissionalPorEstabelecimentoEsus(filtro.idEstabelecimento)
             estabelecimento = await estabelecimentoDAO.buscaEstabelecimentoESus(filtro.idEstabelecimento);
             listaProcedimentos = await integracaoESusDAO.listaProcedimentos(filtro);
+            console.log('listaProcedimentos', listaProcedimentos);
         } catch (error) {
             console.log(error);
         } finally {
@@ -357,8 +365,8 @@ module.exports = function (app) {
             var uuidFicha = uuidv4();
 
             if (listAtendimentos.length == 0) { return; }
-           
-            const dataReal = new moment(listAtendimentos[0].dataCriacao).subtract({ hours: 3}); 
+
+            const dataReal = new moment(listAtendimentos[0].dataCriacao).subtract({ hours: 3 });
             const dataCriacao = new moment(dataReal).hours(3).minutes(0).seconds(0).toDate();
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
@@ -367,8 +375,8 @@ module.exports = function (app) {
                 .ele('tipoDadoSerializado').txt('4').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
-                profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
-                doc.ele('ns4:fichaAtendimentoIndividualMasterTransport')
+            profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
+            doc.ele('ns4:fichaAtendimentoIndividualMasterTransport')
                 .ele('headerTransport')
                 .ele('lotacaoFormPrincipal')
                 .ele('profissionalCNS').txt(profissional.profissionalCNS ? profissional.profissionalCNS : '3').up()
@@ -435,9 +443,9 @@ module.exports = function (app) {
                     .ele('turno').txt(atendimento.turno).up()
                     .ele('tipoAtendimento').txt(atendimento.tipoAtendimentoSus ? atendimento.tipoAtendimentoSus : undefined).up()
                     .import(avaliacao);
-                   
+
                 atend.ele('vacinaEmDia').txt(atendimento.vacinaEmDia ? atendimento.vacinaEmDia == 1 ? true : false : false).up()
-                .ele('ficouEmObservacao').txt(atendimento.ficouEmObservacao ? atendimento.ficouEmObservacao == 1 ? true : false : false).up()
+                    .ele('ficouEmObservacao').txt(atendimento.ficouEmObservacao ? atendimento.ficouEmObservacao == 1 ? true : false : false).up()
 
                 condutas.forEach(x => atend.find(x => x.node.nodeName == 'atendimentosIndividuais', true, true).import(x));
 
@@ -556,7 +564,7 @@ module.exports = function (app) {
     function preencherTipoVigilanciaOdonto(listVigilancia, idAtendimento) {
         const { fragment } = require('xmlbuilder2');
         let tipoVigilancia = []
-        if(listVigilancia.length){
+        if (listVigilancia.length) {
             listVigilancia.forEach(x => {
                 if (x.idAtendimento == idAtendimento) {
                     let c = fragment().ele('tiposVigilanciaSaudeBucal').txt(x.idVigilancia ? x.idVigilancia : '99').up()
@@ -564,11 +572,11 @@ module.exports = function (app) {
                 }
             })
         }
-        else{
+        else {
             let c = fragment().ele('tiposVigilanciaSaudeBucal').txt('99').up()
             tipoVigilancia.push(c);
         }
-        
+
         return tipoVigilancia
     }
 
@@ -592,7 +600,7 @@ module.exports = function (app) {
         const { fragment } = require('xmlbuilder2');
         let itemFilhoColetiva = [];
         listParticipantes.forEach(x => {
-             // Verifica se cartaoSus ou cpf estão ausentes
+            // Verifica se cartaoSus ou cpf estão ausentes
             if (!x.cartaoSus && !x.cpf) {
                 // Continua o loop sem fazer nada
                 return;
@@ -652,35 +660,35 @@ module.exports = function (app) {
         listMedicamentos.forEach(x => {
             if (x.idAtendimento == idAtendimento) {
                 //dose única
-                if(x.quantidadeReceitada == 1){
+                if (x.quantidadeReceitada == 1) {
                     let frag = fragment().ele('medicamentos')
-                    .ele('codigoCatmat').txt(x.codigoCatmat).up()
-                    .ele('viaAdministracao').txt(x.viaAdministracao).up()
-                    .ele('dose').txt(x.dose).up()
-                    .ele('doseUnica').txt(true).up()
-                    .ele('usoContinuo').txt(false).up()
-                    .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()                                
-                    .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
+                        .ele('codigoCatmat').txt(x.codigoCatmat).up()
+                        .ele('viaAdministracao').txt(x.viaAdministracao).up()
+                        .ele('dose').txt(x.dose).up()
+                        .ele('doseUnica').txt(true).up()
+                        .ele('usoContinuo').txt(false).up()
+                        .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()
+                        .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
                     medicamentos.push(frag);
                 }
-                else{
+                else {
                     let frag = fragment().ele('medicamentos')
-                    .ele('codigoCatmat').txt(x.codigoCatmat).up()
-                    .ele('viaAdministracao').txt(x.viaAdministracao).up()
-                    .ele('dose').txt(x.dose).up()
-                    .ele('doseUnica').txt(false).up()
-                    .ele('usoContinuo').txt(false).up()
-                    .ele('doseFrequenciaTipo').txt(x.doseFrequenciaTipo).up()
-                    .ele('doseFrequencia').txt(x.doseFrequencia).up()
-                    .ele('doseFrequenciaQuantidade').txt(x.doseFrequenciaQuantidade).up()                    
-                    .ele('doseFrequenciaUnidadeMedida').txt(x.doseFrequenciaUnidadeMedida).up()
-                    .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()
-                    .ele('duracaoTratamento').txt(x.duracaoTratamento).up()
-                    .ele('duracaoTratamentoMedida').txt(x.duracaoTratamentoMedida).up()
-                    .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
+                        .ele('codigoCatmat').txt(x.codigoCatmat).up()
+                        .ele('viaAdministracao').txt(x.viaAdministracao).up()
+                        .ele('dose').txt(x.dose).up()
+                        .ele('doseUnica').txt(false).up()
+                        .ele('usoContinuo').txt(false).up()
+                        .ele('doseFrequenciaTipo').txt(x.doseFrequenciaTipo).up()
+                        .ele('doseFrequencia').txt(x.doseFrequencia).up()
+                        .ele('doseFrequenciaQuantidade').txt(x.doseFrequenciaQuantidade).up()
+                        .ele('doseFrequenciaUnidadeMedida').txt(x.doseFrequenciaUnidadeMedida).up()
+                        .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()
+                        .ele('duracaoTratamento').txt(x.duracaoTratamento).up()
+                        .ele('duracaoTratamentoMedida').txt(x.duracaoTratamentoMedida).up()
+                        .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
                     medicamentos.push(frag);
                 }
-            }           
+            }
         })
         return medicamentos
     }
@@ -703,8 +711,8 @@ module.exports = function (app) {
                 .ele('tipoDadoSerializado').txt('14').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
-                profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
-                doc.ele('ns4:fichaVacinacaoMasterTransport')
+            profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
+            doc.ele('ns4:fichaVacinacaoMasterTransport')
                 .ele('headerTransport')
                 .ele('profissionalCNS').txt(profissional.profissionalCNS ? profissional.profissionalCNS : '3').up()
                 .ele('cboCodigo_2002').txt(profissional.codigoCBO ? profissional.codigoCBO : '3').up()
@@ -796,37 +804,38 @@ module.exports = function (app) {
                     .ele('dataRegistroAnterior').txt(x.dataRegistroAnterior ? new Date(x.dataRegistroAnterior).getTime() : '').up()
                     .up()
 
-                    //CAMPO = grupoAtendimento
-                    // Só pode ser preenchido se o campo estrategiaVacinacao = 5 (Campanha indiscriminada). Neste caso o preenchimento é obrigatório;
-                    //Não pode ser preenchido se o campo stRegistroAnterior = true;    
-                    if (x.stRegistroAnterior == 1 || x.estrategiaVacinacao != '5') {
-                        removeNode(frag.doc(), ['grupoAtendimento']);
-                    }
+                //CAMPO = grupoAtendimento
+                // Só pode ser preenchido se o campo estrategiaVacinacao = 5 (Campanha indiscriminada). Neste caso o preenchimento é obrigatório;
+                //Não pode ser preenchido se o campo stRegistroAnterior = true;    
+                if (x.stRegistroAnterior == 1 || x.estrategiaVacinacao != '5') {
+                    removeNode(frag.doc(), ['grupoAtendimento']);
+                }
 
-                    //CAMPO = estrategiaVacinacao                    
-                    //Não pode ser preenchido se o campo stRegistroAnterior = true;    
-                    if (x.stRegistroAnterior == 1) {
-                        removeNode(frag.doc(), ['estrategiaVacinacao']);
-                    }
+                //CAMPO = estrategiaVacinacao                    
+                //Não pode ser preenchido se o campo stRegistroAnterior = true;    
+                if (x.stRegistroAnterior == 1) {
+                    removeNode(frag.doc(), ['estrategiaVacinacao']);
+                }
 
-                    let fieldToValidate = ['estrategiaVacinacao','grupoAtendimento','dose','dataRegistroAnterior', 'fabricante'];
+                let fieldToValidate = ['estrategiaVacinacao', 'grupoAtendimento', 'dose', 'dataRegistroAnterior', 'fabricante'];
 
-                    fieldToValidate.forEach(field => {
-                        frag.each(x => {
-                            if (x.node.nodeName == field && !x.node._firstChild._data) {
-                                x.node.removeChild(x.node._firstChild);
-                                x.remove();
-                            }
-                        }, true, true)
-                    })
+                fieldToValidate.forEach(field => {
+                    frag.each(x => {
+                        if (x.node.nodeName == field && !x.node._firstChild._data) {
+                            x.node.removeChild(x.node._firstChild);
+                            x.remove();
+                        }
+                    }, true, true)
+                })
 
                 vac.push(frag);
             }
         })
         return vac;
     }
-
-    function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais) {
+    function preencheXMLFichaProcedimentos(list: IntegracaoESus, estabelecimento: Estabelecimento, profissionais: Profissional[]) {
+        console.log('profissionais', profissionais);
+        console.log('estabelecimento', estabelecimento);
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -839,17 +848,25 @@ module.exports = function (app) {
 
             const numTotalAfericaoPa = list.numTotalAfericaoPa.filter(x => x.idProfissional == profissional.id);
             const numTotalAfericaoTemperatura = list.numTotalAfericaoTemperatura.filter(x => x.idProfissional == profissional.id);
+            debugger
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
             var uuidFicha = uuidv4();
-
-            if (listProcedimento.length == 0 
-                && (numTotalAfericaoPa && numTotalAfericaoPa == 0) 
-                && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0) 
-                && (numTotalMedicaoAltura && numTotalMedicaoAltura == 0) 
-                && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0) 
-                ) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
+            console.log('numTotalAfericaoPa', numTotalAfericaoPa)
+            console.log('numTotalAfericaoTemperatura', numTotalAfericaoTemperatura)
+            console.log('numTotalMedicaoAltura', numTotalMedicaoAltura)
+            console.log('numTotalMedicaoPeso', numTotalMedicaoPeso)
+            if (listProcedimento.length == 0
+                //@ts-ignore
+                && (numTotalAfericaoPa && numTotalAfericaoPa == 0)
+                //@ts-ignore
+                && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0)
+                //@ts-ignore
+                && (numTotalMedicaoAltura && numTotalMedicaoAltura == 0)
+                //@ts-ignore
+                && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0)
+            ) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaprocedimentomaster' })
@@ -857,8 +874,8 @@ module.exports = function (app) {
                 .ele('tipoDadoSerializado').txt('7').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
-                profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
-                doc.ele('ns4:fichaProcedimentoMasterTransport')
+            profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
+            doc.ele('ns4:fichaProcedimentoMasterTransport')
                 .ele('headerTransport')
                 .ele('profissionalCNS').txt(profissional.profissionalCNS ? profissional.profissionalCNS : '3').up()
                 .ele('cboCodigo_2002').txt(profissional.codigoCBO ? profissional.codigoCBO : '3').up()
@@ -887,16 +904,16 @@ module.exports = function (app) {
                 .ele('versao', { major: major, minor: minor, revision: revision })
                 .doc();
 
-             let fieldToValidate = ['ine'];
+            let fieldToValidate = ['ine'];
 
-                fieldToValidate.forEach(field => {
-                    doc.each(x => {
-                        if (x.node.nodeName == field && !x.node._firstChild._data) {
-                            x.node.removeChild(x.node._firstChild);
-                            x.remove();
-                        }
-                    }, true, true)
-                })
+            fieldToValidate.forEach(field => {
+                doc.each(x => {
+                    if (x.node.nodeName == field && !x.node._firstChild._data) {
+                        x.node.removeChild(x.node._firstChild);
+                        x.remove();
+                    }
+                }, true, true)
+            })
 
             listProcedimento.forEach(atendimento => {
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
@@ -987,9 +1004,9 @@ module.exports = function (app) {
 
             //CAMPO = PROFISSIONAIS
             // Não pode ser preenchido se pseEducacao = true e pseSaude = false
-            if (!(atendimento.pseEducacao == 1 && atendimento.pseSaude  == 0)) {
+            if (!(atendimento.pseEducacao == 1 && atendimento.pseSaude == 0)) {
                 itemProfissionais.forEach(x => doc.find(x => x.node.nodeName == 'ns4:fichaAtividadeColetivaTransport', true, true).import(x));
-            }            
+            }
 
             doc.ele('atividadeTipo').txt(atendimento.atividadeTipo).up()
                 .ele('temasParaReuniao').txt(atendimento.temasParaReuniao).up()
@@ -1094,21 +1111,20 @@ module.exports = function (app) {
     }
 
     function generateZipFiles(docs, prefixoNome) {
-        const AdmZip = require('adm-zip');
 
         let zip = new AdmZip();
         let i = 1;
         docs.forEach(x => {
-            zip.addFile(`${prefixoNome + '-' + i}.esus.xml`, new Buffer.from(x));
+            zip.addFile(`${prefixoNome + '-' + i}.esus.xml`, Buffer.from(x));
             i++;
         })
 
         return zip.toBuffer();
     }
 
-    async function configTipoFicha(tipoficha) {
-        let configuracaoFicha = {};
-        configuracaoFicha = await buscarPorId(tipoficha);
+    async function configTipoFicha(tipoficha, res: Response) {
+        let configuracaoFicha = {} as any;
+        configuracaoFicha = await buscarPorId(tipoficha, res);
         versao = configuracaoFicha.versaoSistema
         uuidInstalacao = configuracaoFicha.uuidInstalacao
         major = configuracaoFicha.major
@@ -1275,14 +1291,14 @@ module.exports = function (app) {
 
             let fieldToValidate = ['ine'];
 
-                fieldToValidate.forEach(field => {
-                    doc.each(x => {
-                        if (x.node.nodeName == field && !x.node._firstChild._data) {
-                            x.node.removeChild(x.node._firstChild);
-                            x.remove();
-                        }
-                    }, true, true)
-                })
+            fieldToValidate.forEach(field => {
+                doc.each(x => {
+                    if (x.node.nodeName == field && !x.node._firstChild._data) {
+                        x.node.removeChild(x.node._firstChild);
+                        x.remove();
+                    }
+                }, true, true)
+            })
 
             xmls.push(doc.doc().end({ prettyPrint: true, allowEmptyTags: false }));
         })
@@ -1340,8 +1356,8 @@ module.exports = function (app) {
                 .ele('tipoDadoSerializado').txt('10').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
-                profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
-                doc.ele('ns4:fichaAtendimentoDomiciliarMasterTransport')
+            profissional.ine ? doc.ele('ineDadoSerializado').txt(profissional.ine).up() : '';
+            doc.ele('ns4:fichaAtendimentoDomiciliarMasterTransport')
                 .ele('uuidFicha').txt(uuidFicha).up()
                 .ele('tpCdsOrigem').txt('3').up()
                 .ele('headerTransport')

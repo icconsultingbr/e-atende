@@ -4,8 +4,9 @@
   "description": "Api de comunicação EMAD",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon ./index.js",
-    "start": "node ./index.js",
+    "dev": "ts-node-dev --respawn index.js",
+    "start": "node ./dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -51,5 +52,11 @@
     "uuid": "^8.3.2",
     "xml2js": "^0.4.19",
     "xmlbuilder2": "2.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.3.0",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.5.4"
   }
 }

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2016",
+    "module": "CommonJS",
+    "typeRoots": ["./node_modules/@types"],
+    "resolveJsonModule": true,
+    "allowJs": true,
+    "outDir": "./dist",
+    "preserveConstEnums": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true
+  }
+}
