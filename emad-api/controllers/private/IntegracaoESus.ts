@@ -1,8 +1,11 @@
 import { Response } from "express";
 
 import AdmZip from 'adm-zip'
-import { Estabelecimento, IntegracaoESus, Profissional } from "../../src/api/dtos/private/integracao-esus/integracao-esus-lista-procedimento.dto";
+import { ListaProcedimentoIntegracaoESus } from "../../src/api/dtos/private/integracao-esus/ficha-procedimento.dto";
 import { FiltroFichaEsusInput } from "../../src/api/dtos/private/integracao-esus/filtro.dto";
+import { Estabelecimento } from "../../src/api/dtos/private/integracao-esus/estabelecimento-esus-ficha.dto";
+import { Profissional } from "../../src/api/dtos/private/integracao-esus";
+import { ListaAtendimentoIndividual } from "../../src/api/dtos/private/integracao-esus/ficha-atendimento-individual.dto";
 const moment = require('moment');
 
 let versao = "";
@@ -26,7 +29,6 @@ module.exports = function (app) {
             let retorno;
             let cad, atend, vac, proc, col, atendOdont;
 
-            console.log('res', req.body);
 
             if (filtro) {
                 switch (filtro.idFichaEsus) {
@@ -141,10 +143,10 @@ module.exports = function (app) {
         return preencheXMLCadastroIndividual(list, estabelecimento);
     }
 
-    async function listaAtendimentoIndividual(filtro) {
+    async function listaAtendimentoIndividual(filtro: FiltroFichaEsusInput) {
         let tipoCampoData;
 
-        if (filtro.idTipoPeriodo == 1) {
+        if (parseInt(filtro.idTipoPeriodo, 10) == 1) {
             tipoCampoData = 'dataCriacao'
         } else {
             tipoCampoData = 'dataFinalizacao'
@@ -155,9 +157,9 @@ module.exports = function (app) {
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
 
-        let list = [];
-        let estabelecimento = {};
-        let profissionais = [];
+        let list: ListaAtendimentoIndividual;
+        let estabelecimento: Estabelecimento;
+        let profissionais: Profissional[];
 
         try {
             profissionais = await profissionalDAO.buscarProfissionalPorEstabelecimentoEsus(filtro.idEstabelecimento)
@@ -168,7 +170,6 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
         return preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais);
     }
 
@@ -204,7 +205,6 @@ module.exports = function (app) {
     }
 
     async function listaProcedimentos(filtro: FiltroFichaEsusInput) {
-        console.log("filtro", filtro);
         let tipoCampoData;
 
         if (parseInt(filtro.idTipoPeriodo, 10) == 1) {
@@ -218,7 +218,7 @@ module.exports = function (app) {
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
 
-        let listaProcedimentos: IntegracaoESus;
+        let listaProcedimentos: ListaProcedimentoIntegracaoESus;
         let estabelecimento: Estabelecimento;
         let profissionais: Profissional[] = [];
 
@@ -226,7 +226,6 @@ module.exports = function (app) {
             profissionais = await profissionalDAO.buscarProfissionalPorEstabelecimentoEsus(filtro.idEstabelecimento)
             estabelecimento = await estabelecimentoDAO.buscaEstabelecimentoESus(filtro.idEstabelecimento);
             listaProcedimentos = await integracaoESusDAO.listaProcedimentos(filtro);
-            console.log('listaProcedimentos', listaProcedimentos);
         } catch (error) {
             console.log(error);
         } finally {
@@ -275,7 +274,7 @@ module.exports = function (app) {
         let xmls = [];
 
         list.forEach(paciente => {
-            let uuidFicha = uuidv4();
+            let uuidFicha: string = uuidv4();
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/cadastroindividual' })
@@ -354,7 +353,7 @@ module.exports = function (app) {
         return xmls;
     }
 
-    function preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais) {
+    function preencheXMLAtendimentoIndividual(list: ListaAtendimentoIndividual, estabelecimento: Estabelecimento, profissionais: Profissional[]) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -362,7 +361,13 @@ module.exports = function (app) {
 
         profissionais.forEach(profissional => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
-            var uuidFicha = uuidv4();
+            var uuidFicha: string = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
 
@@ -371,7 +376,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoindividualmaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('4').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -655,6 +660,7 @@ module.exports = function (app) {
     }
 
     function preencheMedicamentosAtendimentoIndividual(listMedicamentos, idAtendimento) {
+
         const { fragment } = require('xmlbuilder2');
         let medicamentos = []
         listMedicamentos.forEach(x => {
@@ -833,9 +839,8 @@ module.exports = function (app) {
         })
         return vac;
     }
-    function preencheXMLFichaProcedimentos(list: IntegracaoESus, estabelecimento: Estabelecimento, profissionais: Profissional[]) {
-        console.log('profissionais', profissionais);
-        console.log('estabelecimento', estabelecimento);
+    function preencheXMLFichaProcedimentos(list: ListaProcedimentoIntegracaoESus, estabelecimento: Estabelecimento, profissionais: Profissional[]) {
+
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -852,11 +857,6 @@ module.exports = function (app) {
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
-            console.log('numTotalAfericaoPa', numTotalAfericaoPa)
-            console.log('numTotalAfericaoTemperatura', numTotalAfericaoTemperatura)
-            console.log('numTotalMedicaoAltura', numTotalMedicaoAltura)
-            console.log('numTotalMedicaoPeso', numTotalMedicaoPeso)
             if (listProcedimento.length == 0
                 //@ts-ignore
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0)
@@ -868,9 +868,16 @@ module.exports = function (app) {
                 && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0)
             ) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
+            var uuidFicha: string = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaprocedimentomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('7').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();

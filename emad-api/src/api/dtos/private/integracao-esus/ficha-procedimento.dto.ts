@@ -39,7 +39,7 @@ interface AtendimentoProcedimento {
   idProfissional: number;
 }
 
-export interface IntegracaoESus {
+export interface ListaProcedimentoIntegracaoESus {
   atendimentos: Atendimento[];
   procedimentos: Procedimento[];
   atendimentoProcedimentos: AtendimentoProcedimento[];
@@ -47,24 +47,4 @@ export interface IntegracaoESus {
   numTotalAfericaoTemperatura: { qtd: number; idProfissional: number }[];
   numTotalMedicaoAltura: { qtd: number; idProfissional: number }[];
   numTotalMedicaoPeso: { qtd: number; idProfissional: number }[];
-}
-
-
-
-
-export interface Profissional {
-  id: number;
-  profissionalCNS: string | null;
-  codigoCBO: number | null;
-  ine: string | null;
-}
-
-
-export interface Estabelecimento {
-  codigo: number;
-  cnes: string;
-  cnpj: string;
-  nomeFantasia: string;
-  cnsProfissionaleSus: string;
-  codigoCBO: number;
 }
