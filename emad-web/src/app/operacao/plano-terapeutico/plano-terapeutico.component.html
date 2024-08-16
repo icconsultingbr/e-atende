@@ -3,7 +3,7 @@
 
 <!-- Botão adicionar agendamento -->
 <div class="row" style="margin: 2%;">
-    <button class="btn btn-success" (click)="openModalAgendamento()">
+    <button class="btn btn-success" (click)="openModalLocalizarPaciente(contentClient)">
         <i class="fas fa-plus"></i> Adicionar Agendamento
     </button>
 </div>
@@ -408,17 +408,31 @@
     
 </ng-template>
 <ng-template #modalConfirmarExclusao let-event>
-    <div class="modal-header">
-        <h4 class="modal-title">Confirmar Exclusão</h4>
-        <i style="margin: 10px;" class="fas fa-times" (click)="handleClickFecharModalConfirmarExcluirAgendamento()"></i>
-    </div>
-    <div class="modal-body">
-        <p>Deseja realmente excluir este evento?</p>
-    </div>
-    <div class="modal-footer">
-        <button type="button" class="btn btn-primary" (click)="handleClickExcluirAgendamento()">Sim</button>
-        <button type="button" class="btn btn-danger" (click)="handleClickFecharModalConfirmarExcluirAgendamento()">Não</button>
-    </div>
+    <form [formGroup]="form">
+        <div class="modal-header">
+            <h4 class="modal-title">Confirmar cancelamento</h4>
+            <i style="margin: 10px;" class="fas fa-times" (click)="handleClickFecharModalConfirmarExcluirAgendamento()"></i>
+        </div>
+        <div class="modal-body">
+            <p>Deseja realmente cancelar este evento?</p>
+            <div>
+                <label>
+                    Justifique o motivo do cancelamento:
+                </label>
+                <div>
+                    <input 
+                    formControlName="justificativaCancelamento" 
+                    type="text" 
+                    class="form-control has-error" autofocus
+                    >
+                </div> 
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button [ngStyle]="{'cursor': isJustificativaCancelamento() ? 'not-allowed' : 'default'}" [disabled]="isJustificativaCancelamento()" type="button"  class="btn btn-primary" (click)="handleClickExcluirAgendamento()">Sim</button>
+            <button type="button" class="btn btn-danger" (click)="handleClickFecharModalConfirmarExcluirAgendamento()">Não</button>
+        </div>
+    </form>
 </ng-template>
 
 <!-- Consulta Paciente -->

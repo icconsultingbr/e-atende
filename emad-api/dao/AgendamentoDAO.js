@@ -204,6 +204,7 @@ AgendamentoDAO.prototype.lista = function (addFilter, callback) {
 }
 
 AgendamentoDAO.prototype.atualiza = function (obj, id, callback) {
+    console.log('chegou aqui DAO AGENDAMENTO ==>',obj, id)
     this._connection.query(`UPDATE ${this._table} SET ? WHERE id= ?`, [obj, id], callback);
 }
 

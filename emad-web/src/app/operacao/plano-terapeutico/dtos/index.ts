@@ -1,0 +1,1 @@
+export * from './agendamento-response-lista.dto'
