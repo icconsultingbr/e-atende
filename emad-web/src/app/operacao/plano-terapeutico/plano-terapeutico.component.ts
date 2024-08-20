@@ -278,7 +278,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
   isJustificativaCancelamento() {
     const justificativaCancelamentoExists = this.form.get('justificativaCancelamento').value
-    if (justificativaCancelamentoExists === '') {
+    if (!justificativaCancelamentoExists) {
       return true
     }
     return false
@@ -292,6 +292,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   salvar() {
+    console.log("this.form.getRawValue()", this.form.getRawValue())
     this.service.save(this.form.getRawValue(), 'agendamento').subscribe((result) => {
       this.mensagem = 'Agendamento salvo com sucesso'
       this.consultaAgendamentos();

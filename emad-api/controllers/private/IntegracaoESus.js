@@ -6,7 +6,7 @@ let uuidInstalacao = "";
 let major = "";
 let minor = "";
 let revision = "";
-
+let uuidSaved = new Map();
 module.exports = function (app) {
 
     app.post('/integracao-e-sus', async function (req, res) {
@@ -132,6 +132,8 @@ module.exports = function (app) {
             await connection.close();
         }
 
+        console.log("listESUS CADASTROINDIVIDUAL", list)
+
         return preencheXMLCadastroIndividual(list, estabelecimento);
     }
 
@@ -193,7 +195,7 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
+        console.log("listaVacinas", listaVacinas)
         return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
     }
 
@@ -224,7 +226,9 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
+        console.log('listaProcedimentos', listaProcedimentos)
+        console.log("estabelecimento", estabelecimento)
+        console.log("profissionais", profissionais)
         return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais);
     }
 
@@ -845,14 +849,15 @@ module.exports = function (app) {
     }
 
     function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais) {
+        console.log('list?.procedimentos',list?.procedimentos)
+        
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        profissionais.forEach(profissional => {
+        profissionais.forEach((profissional, index) => {
             const listProcedimento = list.atendimentoProcedimentos.filter(x => x.idProfissional == profissional.id);
-
             const listAtendimentosAfericoes = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
             const numTotalAfericaoPa = list.numTotalAfericaoPa.filter(x => x.idProfissional == profissional.id);
@@ -860,14 +865,19 @@ module.exports = function (app) {
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
+            var uuidFicha =uuidSaved.get(listAtendimentosAfericoes[index])|| uuidv4();
+            if(!uuidSaved.get(listAtendimentosAfericoes[index])){
+                uuidSaved.set(listAtendimentosAfericoes[index], uuidFicha);
+            }
             let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
-
+            
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
-
+            console.log("uuidDadoSerializado",uuidDadoSerializado);
+            console.log("uuidFicha",uuidFicha);
+            
             if (listProcedimento.length == 0 
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0) 
                 && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0) 
@@ -923,6 +933,7 @@ module.exports = function (app) {
                 })
 
             listProcedimento.forEach(atendimento => {
+               
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
 
                 if (listProcedimentoChild.length == 0) { return; }
@@ -1353,7 +1364,7 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
+        console.log('ATENDIMENTO DOMICILIAR',list)
         return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais);
     }
 
