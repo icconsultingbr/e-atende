@@ -150,6 +150,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -165,7 +166,7 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais);
+        return preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaFichaVacinacao(filtro) {
@@ -181,6 +182,8 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
+
 
         let listaVacinas = [];
         let estabelecimento = {};
@@ -196,7 +199,7 @@ module.exports = function (app) {
             await connection.close();
         }
         console.log("listaVacinas", listaVacinas)
-        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
+        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaProcedimentos(filtro) {
@@ -212,7 +215,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
-
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
         let listaProcedimentos = [];
         let estabelecimento = {};
         let profissionais = [];
@@ -229,7 +232,7 @@ module.exports = function (app) {
         console.log('listaProcedimentos', listaProcedimentos)
         console.log("estabelecimento", estabelecimento)
         console.log("profissionais", profissionais)
-        return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais);
+        return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaAtividadeColetiva(filtro) {
@@ -245,6 +248,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -262,7 +266,7 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes);
+        return preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes, atendimentoDAO);
     }
 
     function preencheXMLCadastroIndividual(list, estabelecimento) {
@@ -356,16 +360,25 @@ module.exports = function (app) {
         return xmls;
     }
 
-    function preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais) {
+    function preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais, atendimentoDao) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
-
         let xmls = [];
-
-        profissionais.forEach(profissional => {
+        
+        profissionais.forEach(async (profissional) => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
-            var uuidFicha = uuidv4();
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDao.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
@@ -701,16 +714,26 @@ module.exports = function (app) {
         return medicamentos
     }
 
-    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais) {
+    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
-
+        console.log("lista VACINAÇÃO", list)
         profissionais.forEach(profissional => {
             const listVacinas = list.vacinas.filter(x => x.idProfissional == profissional.id);
-            var uuidFicha = uuidv4();
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            // listAtendimentos.forEach(async (atendimento) => {
+            //     uuidFicha = atendimento.downloadUuid||uuidGenerated;
+            //     uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+            //     if(atendimento.downloadUuid===null){
+            //         await atendimentoDao.atualizaPorIdSync({
+            //             downloadUuid: uuidFicha
+            //         }, atendimento.idAtendimento);
+            //     }    
+            // })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
@@ -848,7 +871,7 @@ module.exports = function (app) {
         return vac;
     }
 
-    function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais) {
+    function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais, atendimentoDAO) {
         console.log('list?.procedimentos',list?.procedimentos)
         
         const { create, fragment } = require('xmlbuilder2');
@@ -865,16 +888,24 @@ module.exports = function (app) {
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha =uuidSaved.get(listAtendimentosAfericoes[index])|| uuidv4();
-            if(!uuidSaved.get(listAtendimentosAfericoes[index])){
-                uuidSaved.set(listAtendimentosAfericoes[index], uuidFicha);
-            }
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
-            
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentosAfericoes.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDAO.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
+
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
+
             console.log("uuidDadoSerializado",uuidDadoSerializado);
             console.log("uuidFicha",uuidFicha);
             
@@ -992,15 +1023,25 @@ module.exports = function (app) {
         return xmls
     }
 
-    function preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes) {
+    function preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        list.atendimentos.forEach(atendimento => {
-            var uuidFicha = uuidv4();
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+        list.atendimentos.forEach(async (atendimento) => {
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            // listAtendimentosAfericoes.forEach(async (atendimento) => {
+            uuidFicha = atendimento.downloadUuid||uuidGenerated;
+            uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+            if(atendimento.downloadUuid===null){
+                await atendimentoDAO.atualizaPorIdSync({
+                    downloadUuid: uuidFicha
+                }, atendimento.idAtendimento);
+            }    
+            // })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
@@ -1181,6 +1222,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -1203,21 +1245,31 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto);
+        return preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto, atendimentoDAO);
     }
 
-    function preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto) {
+    function preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto, atendimentoDao) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        profissionais.forEach(profissional => {
+        profissionais.forEach(async (profissional) => {
 
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDao.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
@@ -1350,6 +1402,8 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
+
 
         let list = [];
         let estabelecimento = {};
@@ -1365,10 +1419,10 @@ module.exports = function (app) {
             await connection.close();
         }
         console.log('ATENDIMENTO DOMICILIAR',list)
-        return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais);
+        return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais, atendimentoDAO);
     }
 
-    function preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais) {
+    function preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -1377,8 +1431,18 @@ module.exports = function (app) {
         profissionais.forEach(profissional => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
-            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDAO.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
