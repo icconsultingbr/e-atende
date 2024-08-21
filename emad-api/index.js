@@ -1,6 +1,6 @@
 var app = require('./config/custom-express')();
 var config = require("./config/config");
-var jwt = require('jsonwebtoken');
+const WebToken = require('./utilities/WebToken');
 
 var server = app.listen(config.apiPort, function () {
     console.log('Server listen at ' + config.apiPort);
@@ -24,7 +24,7 @@ app.set('io', io);
 io.use(function (socket, next) {
 
     if (socket.handshake.query && socket.handshake.query.token) {
-        jwt.verify(socket.handshake.query.token, app.settings.superSecret, function (err, decoded) {
+        WebToken.verify(socket.handshake.query.token, app.settings.superSecret, function (err, decoded) {
             if (err) return next(new Error('Authentication error'));
             socket.decoded = decoded;
             next();

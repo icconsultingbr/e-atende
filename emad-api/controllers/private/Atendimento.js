@@ -1,4 +1,12 @@
+const ApiResponse = require('../../utilities/ApiResponse');
+const WebToken = require('../../utilities/WebToken');
+
 module.exports = function (app) {
+    app.get('/atentimendo/gerar-link-temporario', function (req, res) {
+      const token = WebToken.create(null, app.settings.superSecret, 60);
+
+      return ApiResponse.ok(res, token);
+    })
     app.get('/atendimento', async function (req, res) {
         let usuario = req.usuario;
         let util = new app.util.Util();
@@ -8,15 +16,16 @@ module.exports = function (app) {
         const connection = await app.dao.connections.EatendConnection.connection();
 
         try {
-            const atendimentoRepository = new app.dao.AtendimentoDAO(connection);
+          const atendimentoRepository = new app.dao.AtendimentoDAO(connection);
 
-            const response = await atendimentoRepository.listarAsync(queryFilter);
+          const response = await atendimentoRepository.listarAsync(queryFilter);
 
-            res.status(200).json(response);
+          return ApiResponse.ok(res, response);
         }
         catch (exception) {
-            errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
-            res.status(500).send(errors);
+          errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
+
+          return ApiResponse.serverError(res, errors);
         }
         finally {
             await connection.close();
@@ -36,11 +45,12 @@ module.exports = function (app) {
 
             const response = await atendimentoRepository.buscaHistoricoPorAtendimento(id);
 
-            res.status(200).json(response);
+            return ApiResponse.ok(res, response);
         }
         catch (exception) {
             errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
-            res.status(500).send(errors);
+
+            return ApiResponse.serverError(res, errors);
         }
         finally {
             await connection.close();
@@ -311,7 +321,7 @@ module.exports = function (app) {
                 }
             }
 
-            if (obj.temasParaSaude) {              
+            if (obj.temasParaSaude) {
                 if(obj.temasParaSaude == '13' && (obj.pseEducacao == false || !obj.pseEducacao) && (obj.pseSaude == false || !obj.pseSaude))
                 {
                     errors = util.customError(errors, "header", "Para utilizar esse Tema para Saúde, é necessário selecionar o PSE Educação ou PSE Saúde", "");
@@ -410,7 +420,7 @@ module.exports = function (app) {
             obj.pseSaude == '' ? obj.pseSaude = 0 : obj.pseSaude;
             obj.publicoAlvo == '' ? obj.publicoAlvo = 0 : obj.publicoAlvo;
             obj.temasParaSaude == '' ? obj.temasParaSaude = 0 : obj.temasParaSaude;
-            obj.temasParaReuniao == '' ? obj.temasParaReuniao = 0 : obj.temasParaReuniao;            
+            obj.temasParaReuniao == '' ? obj.temasParaReuniao = 0 : obj.temasParaReuniao;
             obj.descricaoTipoAtividade = obj.descricaoTipoAtividade;
 
             obj.gestante == '' ? obj.gestante = 0 : obj.gestante;
@@ -540,7 +550,7 @@ module.exports = function (app) {
                         return;
                     }
 
-                }               
+                }
 
 
                 objParticipanteAtividadeColetiva.idAtendimento = obj.id;
@@ -622,7 +632,7 @@ module.exports = function (app) {
         req.assert("tipoFicha").notEmpty().withMessage("Tipo de ficha é um campo obrigatório;");
         req.assert("idClassificacaoRisco").notEmpty().withMessage("Classificação de risco é um campo obrigatório;");
         req.assert("tipoAtendimento").notEmpty().withMessage("Tipo de atendimento é um campo obrigatório;");
-       
+
         if (obj.tipoAtendimento && obj.tipoAtendimento == 0 || obj.tipoAtendimento == "null" ||  obj.tipoAtendimento == '' ) {
             errors = util.customError(errors, "header", "Informe o Tipo de atendimento.", "");
             res.status(400).send(errors);
@@ -703,13 +713,13 @@ module.exports = function (app) {
         //ATENDIMENTO ODONTOLOGICO
         if (obj.tipoFicha == '8') {
             req.assert("tipoAtendimento").notEmpty().withMessage("Preencha o campo tipo de atendimento");
-            
+
         }
 
-        
+
         if (obj.tipoFicha == '8' && obj.tipoAtendimento != '5' && obj.tipoAtendimento != '4') {
             req.assert("tipoConsultaOdonto").notEmpty().withMessage("Preencha o campo Tipo de Consulta Odonto");
-            
+
         }
 
         errors = req.validationErrors();
@@ -739,7 +749,7 @@ module.exports = function (app) {
             await connection.beginTransaction();
 
             var atualizaPaciente = await pacienteRepository.atualizaHistoriaProgressaFamiliar(obj.pacienteHistoriaProgressa, obj.idPaciente, usuario.id, new Date());
-            
+
             delete obj.pacienteHistoriaProgressa;
             delete objHistorico.pacienteHistoriaProgressa;
 
@@ -752,7 +762,7 @@ module.exports = function (app) {
                 return;
             }
 
-            if (obj.tipoFicha == '8') {    
+            if (obj.tipoFicha == '8') {
                 var buscaTipoVigilanciaSaudeOdontoAtendimento = await atendimentoTipoVigilanciaSaudeOdontoRepository.buscarPorAtendimentoIdAtivo(id);
 
                 if (buscaTipoVigilanciaSaudeOdontoAtendimento.length == 0 || buscaTipoVigilanciaSaudeOdontoAtendimento.length == '' || buscaTipoVigilanciaSaudeOdontoAtendimento.length == 'null'
@@ -762,11 +772,11 @@ module.exports = function (app) {
                         res.status(400).send(errors);
                         await connection.rollback();
                         return;
-                   
+
                 }
 
             }
-            
+
 
             var buscaCondicaoAvaliadaAtendimento = await atendimentoCondicaoAvaliadaRepository.buscarPorAtendimentoId(id);
 
@@ -831,7 +841,7 @@ module.exports = function (app) {
                     itemReceita.idReceita = obj.idReceita;
                     itemReceita.dataCriacao = new Date;
                     itemReceita.idUsuarioCriacao = usuario.id;
-                    itemReceita.situacao = itemReceita.situacao ? itemReceita.situacao : 1; //ABERTO                        
+                    itemReceita.situacao = itemReceita.situacao ? itemReceita.situacao : 1; //ABERTO
                     itemReceita.qtdDispAnterior = itemReceita.qtdDispAnterior ? itemReceita.qtdDispAnterior : 0;
                     itemReceita.qtdDispMes = itemReceita.qtdDispMes ? itemReceita.qtdDispMes : 0;
 

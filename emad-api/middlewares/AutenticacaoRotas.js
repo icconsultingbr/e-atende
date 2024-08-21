@@ -1,5 +1,5 @@
 const config = require('../config/config');
-const jwt = require('jsonwebtoken');
+const WebToken = require('../utilities/WebToken');
 
 module.exports = function (app) {
 
@@ -13,9 +13,9 @@ module.exports = function (app) {
         let errors = [];
 
         if (token) {
-            jwt.verify(token, app.settings.superSecret, function (err, decoded) {
-                if (err) {                    
-                    var datetime = new Date();    
+          WebToken.verify(token, app.settings.superSecret, function (err, decoded) {
+                if (err) {
+                    var datetime = new Date();
                     console.log('Erro token do usuário: ' + req.usuario + ', at: ' + datetime + ', token: ' + token);
                     console.log(err);
                     errors = [];
@@ -45,7 +45,7 @@ module.exports = function (app) {
                                 errors = customError(errors, "header", "Tempo de ociosidade", "");
                                 return res.status(401).json(errors);
                             }
-                            if(req.usuario.id === config.idUsuarioIntegracao && 
+                            if(req.usuario.id === config.idUsuarioIntegracao &&
                                 (
                                     ["atendimento", "finalizar"].some(el => !req.url.includes(el)) &&
                                     ["paciente", "transferencia-unidade"].some(el => !req.url.includes(el)) &&
@@ -64,13 +64,13 @@ module.exports = function (app) {
                             let obj = {
                                 "headers" : {
                                     "est" : (req.headers.est ? req.headers.est : null)
-                                }, 
+                                },
                                 "url" : req.url,
                                 "method" : req.method,
                                 "body" : {
-                                    "senhaAtual" : '********', 
-                                    "novaSenha" : '********', 
-                                    "confirmarNovaSenha" : '********', 
+                                    "senhaAtual" : '********',
+                                    "novaSenha" : '********',
+                                    "confirmarNovaSenha" : '********',
                                 },
                                 "usuario" : {
                                    "id" :  req.usuario.id
@@ -159,7 +159,7 @@ module.exports = function (app) {
     function addActivity(req) {
 
         let q = require('q');
-        let d = q.defer();       
+        let d = q.defer();
 
         let connection = app.dao.ConnectionFactory();
         let objectDAO = new app.dao.UsuarioDAO(connection);
