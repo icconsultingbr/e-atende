@@ -3,7 +3,7 @@ const WebToken = require('../../utilities/WebToken');
 
 module.exports = function (app) {
     app.get('/atentimendo/gerar-link-temporario', function (req, res) {
-      const token = WebToken.create(null, app.settings.superSecret, 60);
+      const token = WebToken.create(null, app.settings.superSecret, "1h");
 
       return ApiResponse.ok(res, token);
     })
