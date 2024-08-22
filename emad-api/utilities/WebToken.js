@@ -8,6 +8,10 @@ class WebToken {
   static verify(token, secret, cb){
     return jwt.verify(token, secret, cb);
   }
+
+  static decode(token){
+    return jwt.decode(token);
+  }
 }
 
 module.exports = WebToken;

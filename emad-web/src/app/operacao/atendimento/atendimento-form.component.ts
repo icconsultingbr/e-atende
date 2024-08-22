@@ -952,8 +952,8 @@ export class AtendimentoFormComponent implements OnInit {
 
         this.allItemsEncaminhamento = [];
         this.allItemsHipotese = [];
-        this.allItemsMedicamento = [];      
-         
+        this.allItemsMedicamento = [];
+
 
         this.errors.push({
           message: 'Atendimento não encontrado',
@@ -1069,10 +1069,10 @@ export class AtendimentoFormComponent implements OnInit {
               this.object = new Atendimento();
               this.allItemsEncaminhamento = [];
               this.allItemsHipotese = [];
-              this.allItemsMedicamento = [];      
-              this.allItemsExame = [];   
-              this.allItemsVacina = [];   
-              this.allItemsCondicaoAvaliada = [];   
+              this.allItemsMedicamento = [];
+              this.allItemsExame = [];
+              this.allItemsVacina = [];
+              this.allItemsCondicaoAvaliada = [];
               this.closeFinalizarAtendimento();
             } else if (this.object.situacao == 'C' || this.object.situacao == '0')
               this.message = 'Atendimento alterado com sucesso';
@@ -1081,12 +1081,12 @@ export class AtendimentoFormComponent implements OnInit {
               this.object = new Atendimento();
               this.allItemsEncaminhamento = [];
               this.allItemsHipotese = [];
-              this.allItemsMedicamento = [];      
-              this.allItemsExame = [];   
-              this.allItemsVacina = [];   
-              this.allItemsCondicaoAvaliada = [];   
+              this.allItemsMedicamento = [];
+              this.allItemsExame = [];
+              this.allItemsVacina = [];
+              this.allItemsCondicaoAvaliada = [];
               this.closeFinalizarAtendimento();
-            }            
+            }
           }
           this.loading = false;
 
@@ -1839,7 +1839,7 @@ export class AtendimentoFormComponent implements OnInit {
     );
   }
 
-  visualizaProntuarioPaciente(idPaciente: any): void {
+  visualizaProntuarioPaciente(idPaciente: number): void {
     let url = '';
 
     if (this.id) {
@@ -1880,6 +1880,18 @@ export class AtendimentoFormComponent implements OnInit {
         window.open(url, '_blank');
       });
   }
+
+  // async gerarLinkTemporario(obj: any) {
+  //   console.log("obj", obj);
+  //   let url = '';
+  //   this.service.gerarLinkTemporario(obj).subscribe(
+  //     (result) => {
+  //       console.log('result', result);
+  //       url = result;
+  //     }
+  //   )
+
+  // }
 
   pesquisaProcedimento() {
     this.loading = true;

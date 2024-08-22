@@ -15,6 +15,16 @@
     [(ngModel)]="object.idEstabelecimento"
     formControlName="idEstabelecimento"
   />
+  <!-- <div style="text-align: right;">
+    <button
+      *ngIf="object.idPaciente"
+      class="btn btn-primary float-right rounded"
+      type="button"
+      (click)="gerarLinkTemporario(object.idPaciente)"
+      >
+        <i class="fa fa-link" aria-hidden="true"></i> Exportar ficha
+    </button>
+  </div> -->
   <tabset>
     <tab>
       <ng-template tabHeading>

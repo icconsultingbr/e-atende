@@ -2,12 +2,23 @@ const ApiResponse = require('../../utilities/ApiResponse');
 const WebToken = require('../../utilities/WebToken');
 
 module.exports = function (app) {
-    app.get('/atentimendo/gerar-link-temporario', function (req, res) {
-      const token = WebToken.create(null, app.settings.superSecret, "1h");
-
-      return ApiResponse.ok(res, token);
+    app.get('/atendimento/gerar-link-temporario', function (req, res) {
+        let usuario = req.usuario;
+        let idPaciente = req.query.idPaciente;
+        console.log("idPaciente",idPaciente)
+        console.log("AQUI")
+        const token = WebToken.create(
+          {...usuario, allowedRoute: 'atendimento-ficha',
+            idPaciente:parseInt(idPaciente)
+          },
+          app.settings.superSecret, "1h"
+        );
+        console.log("TOKEN", token)
+        console.log(WebToken.decode(token));
+        return ApiResponse.ok(res, token);
     })
     app.get('/atendimento', async function (req, res) {
+      console.log("CHEGOU AQUI NO ATENDIMENTO")
         let usuario = req.usuario;
         let util = new app.util.Util();
         let queryFilter = req.query;
@@ -33,6 +44,7 @@ module.exports = function (app) {
     });
 
     app.get('/atendimento-historico/:id', async function (req, res) {
+      console.log("CHEGOU AQUI NO HISTÓRICO")
         let usuario = req.usuario;
         let util = new app.util.Util();
         let id = req.params.id;

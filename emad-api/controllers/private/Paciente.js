@@ -1,3 +1,4 @@
+const ApiResponse = require('../../utilities/ApiResponse');
 module.exports = function (app) {
 
     app.get('/paciente', async function (req, res) {
@@ -13,11 +14,11 @@ module.exports = function (app) {
 
             const response = await pacienteRepository.listarAsync(queryFilter, usuario.id);
 
-            res.status(200).json(response);
+            ApiResponse.ok(res, response);
         }
         catch (exception) {
             errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
-            res.status(500).send(errors);
+            ApiResponse.serverError(res, errors);
         }
         finally {
             await connection.close();
