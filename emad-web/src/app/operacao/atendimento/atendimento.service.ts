@@ -430,9 +430,10 @@ export class AtendimentoService extends GenericsService {
   }
 
   gerarLinkTemporario(obj: any): Observable<any> {
+
     return this.http.get('atendimento/gerar-link-temporario/', {
       params: {
-        idSap: obj
+        idSap: '491636234' //mocked idSap
       }
     });
   }
