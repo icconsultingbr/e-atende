@@ -1881,17 +1881,17 @@ export class AtendimentoFormComponent implements OnInit {
       });
   }
 
-  // async gerarLinkTemporario(obj: any) {
-  //   console.log("obj", obj);
-  //   let url = '';
-  //   this.service.gerarLinkTemporario(obj).subscribe(
-  //     (result) => {
-  //       console.log('result', result);
-  //       url = result;
-  //     }
-  //   )
+  async gerarLinkTemporario(obj: any) {
+    console.log("obj", obj);
+    let url = '';
+    this.service.gerarLinkTemporario(obj).subscribe(
+      (result) => {
+        console.log('result', result);
+        url = result;
+      }
+    )
 
-  // }
+  }
 
   pesquisaProcedimento() {
     this.loading = true;

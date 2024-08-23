@@ -5,8 +5,6 @@ module.exports = function (app) {
     app.get('/atendimento/gerar-link-temporario', function (req, res) {
         let usuario = req.usuario;
         let idPaciente = req.query.idPaciente;
-        console.log("idPaciente",idPaciente)
-        console.log("AQUI")
         const token = WebToken.create(
           {...usuario, allowedRoute: 'atendimento-ficha',
             idPaciente:parseInt(idPaciente)
@@ -14,7 +12,7 @@ module.exports = function (app) {
           app.settings.superSecret, "1h"
         );
         console.log("TOKEN", token)
-        console.log(WebToken.decode(token));
+        console.log("TOKEN DECODED", WebToken.decode(token));
         return ApiResponse.ok(res, token);
     })
     app.get('/atendimento', async function (req, res) {

@@ -429,13 +429,13 @@ export class AtendimentoService extends GenericsService {
     }
   }
 
-  // gerarLinkTemporario(obj: any): Observable<any> {
-  //   return this.http.get('atendimento/gerar-link-temporario/', {
-  //     params: {
-  //       idPaciente: obj
-  //     }
-  //   });
-  // }
+  gerarLinkTemporario(obj: any): Observable<any> {
+    return this.http.get('atendimento/gerar-link-temporario/', {
+      params: {
+        idSap: obj
+      }
+    });
+  }
 
   findProcedimentoByAtendimento(id: any): Observable<any> {
     return this.http.get('atendimento-procedimento/atendimento/' + id);
