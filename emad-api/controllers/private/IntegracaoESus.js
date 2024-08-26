@@ -887,7 +887,6 @@ module.exports = function (app) {
     }
 
     function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais, atendimentoDAO) {
-        console.log('list?.procedimentos',list?.procedimentos)
         
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
