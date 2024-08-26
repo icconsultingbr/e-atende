@@ -5,6 +5,8 @@ import { AuthGuard } from "./_core/_guards";
 import { NotFoundComponent } from "./not-found/not-found.component";
 import { UsuarioResetComponent } from "./seguranca/usuario/usuario-reset.component";
 
+// http://localhost:4200/atendimento-link-temporario?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWRUaXBvVXN1YXJpbyI6MywiZXAiOjAsImFsbG93ZWRSb3V0ZSI6ImF0ZW5kaW1lbnRvLXBhY2llbnRlLWZpY2hhLXRlbXBvcmFyaWEiLCJpZFNhcCI6NDkxNjM2MjM0LCJpYXQiOjE3MjQ3MDAzNzksImV4cCI6MTcyNDcwMzk3OX0.2kqjRmSbNXSkLFU1mtH5KE-jUDScECSbnya7HGfxnas
+
 const appRoutes: Routes = [
   { path: "", component: MainComponent, canActivate: [AuthGuard] },
   { path: "login", component: LoginComponent },
@@ -145,6 +147,11 @@ const appRoutes: Routes = [
     path: "atendimentos",
     canActivate: [AuthGuard],
     loadChildren: "./operacao/atendimento/atendimento.module#AtendimentoModule",
+  },
+  {
+    path: "atendimentos-link-temporario",
+    // canActivate: [AuthGuard],
+    loadChildren: "./operacao/atendimento-link-temporario/atendimento-link-temporario.module#AtendimentoLinkTemporarioModule",
   },
   {
     path: "logs",

@@ -14,8 +14,8 @@ import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-atendimento-sala-espera',
-  templateUrl: './atendimento-sala-espera.component.html',
-  styleUrls: ['./atendimento-sala-espera.component.css'],
+  templateUrl: './atendimento-sala-espera-link-temporario.component.html',
+  styleUrls: ['./atendimento-sala-espera-link-temporario.component.css'],
   providers: [AtendimentoService]
 })
 export class AtendimentoSalaEsperaComponent implements OnInit {

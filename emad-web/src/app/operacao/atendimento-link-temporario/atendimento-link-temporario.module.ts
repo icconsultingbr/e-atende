@@ -59,4 +59,4 @@ import { AppFileUploadModule } from '../../_core/_components/app-file-upload/app
   ],
   providers: [AtendimentoService],
 })
-export class AtendimentoModule { }
+export class AtendimentoLinkTemporarioModule { }

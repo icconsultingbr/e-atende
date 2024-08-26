@@ -17,8 +17,8 @@ import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-atendimento-sala-espera-form',
-  templateUrl: './atendimento-sala-espera-form.component.html',
-  styleUrls: ['./atendimento-sala-espera-form.component.css'],
+  templateUrl: './atendimento-sala-espera-link-temporario-form.component.html',
+  styleUrls: ['./atendimento-sala-espera-link-temporario-form.component.css'],
   providers: [AtendimentoService, PlanoTerapeuticoService]
 })
 export class AtendimentoSalaEsperaFormComponent implements OnInit {

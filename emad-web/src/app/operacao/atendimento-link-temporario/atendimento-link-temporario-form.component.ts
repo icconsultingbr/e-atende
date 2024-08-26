@@ -40,8 +40,8 @@ import { FileUploadService } from '../../_core/_components/app-file-upload/servi
 
 @Component({
   selector: 'app-atendimento-form',
-  templateUrl: './atendimento-form.component.html',
-  styleUrls: ['./atendimento-form.component.css'],
+  templateUrl: './atendimento-link-temporario-form.component.html',
+  styleUrls: ['./atendimento-link-temporario-form.component.css'],
   providers: [AtendimentoService, PlanoTerapeuticoService],
 })
 export class AtendimentoFormComponent implements OnInit {
@@ -225,6 +225,7 @@ export class AtendimentoFormComponent implements OnInit {
 
     this.route.params.subscribe((params) => {
       this.id = params['id'];
+      console.log(params["token"])
       this.idHistorico = params['idHistorico'];
       this.carregaEntidadeCampoPorEspecialidade();
     });

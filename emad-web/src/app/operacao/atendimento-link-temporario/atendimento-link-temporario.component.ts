@@ -15,8 +15,8 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-atendimento',
-  templateUrl: './atendimento.component.html',
-  styleUrls: ['./atendimento.component.css'],
+  templateUrl: './atendimento-link-temporario.component.html',
+  styleUrls: ['./atendimento-link-temporario.component.css'],
   providers: [AtendimentoService]
 })
 export class AtendimentoComponent implements OnInit {
@@ -108,21 +108,22 @@ export class AtendimentoComponent implements OnInit {
   ngOnInit() {
     this.nav.show();
 
-    this.route.params.subscribe(params => {
-      this.idPaciente = params['idPaciente'];
-      this.armazenaPesquisa = params['armazenaPesquisa'];
-    });
+    debugger
+    // this.route.params.subscribe(params => {
+    //   this.idPaciente = params['idPaciente'];
+    //   this.armazenaPesquisa = params['armazenaPesquisa'];
+    // });
 
-    if (this.idPaciente > 0) {
-      this.object.idPaciente = this.idPaciente;
-    }
+    // if (this.idPaciente > 0) {
+    //   this.object.idPaciente = this.idPaciente;
+    // }
 
-    if (!this.armazenaPesquisa) {
-      sessionStorage.setItem('pesquisa_atendimento', '');
-    }
+    // if (!this.armazenaPesquisa) {
+    //   sessionStorage.setItem('pesquisa_atendimento', '');
+    // }
 
-    this.createGroup();
-    this.preencheFiltro();
+    // this.createGroup();
+    // this.preencheFiltro();
   }
 
   createGroup() {
