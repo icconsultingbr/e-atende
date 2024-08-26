@@ -1,4 +1,3 @@
-/// <reference types="@types/googlemaps" />
 import * as MarkerClusterer from '@google/markerclusterer';
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -80,7 +79,7 @@ export class GeorreferenciamentoComponent implements OnInit {
 
   createMap() {
     this.map = new google.maps.Map(this.mapElement.nativeElement, {
-      center: {lat: -23.6520717, lng: -46.637533},
+      center: { lat: -23.6520717, lng: -46.637533 },
       zoom: 13,
       gestureHandling: 'greedy'
     });
@@ -103,7 +102,7 @@ export class GeorreferenciamentoComponent implements OnInit {
     });
 
     // Fired when the map becomes idle after panning or zooming.
-    google.maps.event.addListener(this.map, 'idle', function() {
+    google.maps.event.addListener(this.map, 'idle', function () {
       self.showVisibleMarkers();
     });
 

@@ -1,4 +1,3 @@
-/// <reference types="@types/googlemaps" />
 import { Component, Input, OnInit, Output, EventEmitter, AfterViewInit, ViewChild, ElementRef, ViewEncapsulation } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -349,8 +348,8 @@ export class AppFormComponent implements OnInit, AfterViewInit {
           this.loading = false;
 
           const route = this.redirectAfterInsert
-                ? this.redirectAfterInsert
-                : this.method;
+            ? this.redirectAfterInsert
+            : this.method;
 
           this.router.navigate([route]);
         }, 1000);
@@ -364,8 +363,8 @@ export class AppFormComponent implements OnInit, AfterViewInit {
 
   back() {
     const route = this.redirectAfterInsert
-                ? this.redirectAfterInsert
-                : this.method;
+      ? this.redirectAfterInsert
+      : this.method;
 
     this.router.navigate([route]);
   }
@@ -536,7 +535,7 @@ export class AppFormComponent implements OnInit, AfterViewInit {
         cep: cep
       };
 
-      this.emitGeocodeAddress.emit({address: address, object: this.object});
+      this.emitGeocodeAddress.emit({ address: address, object: this.object });
     });
   }
 
