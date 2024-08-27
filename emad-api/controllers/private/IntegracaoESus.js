@@ -10,22 +10,7 @@ let uuidSaved = new Map();
 module.exports = function (app) {
 
     app.post('/integracao-e-sus', async function (req, res) {
-        let filtro ={
-            idFichaEsus: '',
-            idTipoPeriodo: '',
-            idEstabelecimento: 0,
-            periodoExtracao: [ null, null]
-          }
-        filtro.idEstabelecimento = req.body.idEstabelecimento;
-        filtro.idFichaEsus = req.body.idFichaEsus;
-        filtro.idTipoPeriodo = req.body.idTipoPeriodo;
-        const convertedInitialDate = new Date(req.body.periodoExtracao[0])
-        convertedInitialDate.setHours(0, 0, 0, 0)
-        const convertedFinalDate = new Date(req.body.periodoExtracao[1])
-        convertedFinalDate.setHours(23, 59, 59, 999)
-        filtro.periodoExtracao = [convertedInitialDate, convertedFinalDate];
-
-        console.log("FILTRO", filtro)
+        let filtro = req.body;
 
         req.assert("periodoExtracao").notEmpty().withMessage("O campo Periodo é um campo obrigatório");
         req.assert("idFichaEsus").notEmpty().withMessage("O campo Ficha é um campo obrigatório");
@@ -887,7 +872,6 @@ module.exports = function (app) {
     }
 
     function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais, atendimentoDAO) {
-        console.log('list?.procedimentos',list?.procedimentos)
         
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
