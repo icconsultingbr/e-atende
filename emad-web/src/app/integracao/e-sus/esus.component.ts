@@ -3,7 +3,6 @@ import { AppNavbarService } from '../../_core/_components/app-navbar/app-navbar.
 import { IntegracaoEsus } from '../../shared/services/integracao-e-sus.service';
 import { IntegracaoEsusModel } from '../../_core/_models/IntegracaoEsus';
 import { Util } from '../../_core/_util/Util';
-import * as dayjs from 'dayjs';
 declare function escape(s: string): string;
 
 @Component({
@@ -74,11 +73,9 @@ export class ESusComponent implements OnInit {
       this.object.periodoExtracao[1].setHours(23, 59, 0, 0);
       dataFinalConvertida = this.object.periodoExtracao[1].toISOString();
     }
-    const dataInicial = dayjs(dataInicialConvertida).hour(0).minute(0).second(0).millisecond(0);
-    const dataFinal = dayjs(dataFinalConvertida).hour(23).minute(59).second(59).millisecond(999);
 
-    this.object.periodoExtracao[0] = dataInicial.toDate();
-    this.object.periodoExtracao[1] = dataFinal.toDate();
+    this.object.periodoExtracao[0] = dataInicialConvertida;
+    this.object.periodoExtracao[1] = dataFinalConvertida;
 
     this.service.obterXmlsPorTipoFicha(this.object).subscribe((result: ArrayBuffer) => {
       const blob = new Blob([result], { type: 'application/zip;' });
