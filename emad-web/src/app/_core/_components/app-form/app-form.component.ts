@@ -6,9 +6,9 @@ import { Util } from '../../_util/Util';
 import { Subject } from 'rxjs';
 import { Translation } from '../../_locale/Translation';
 import { debounceTime } from 'rxjs/operators';
-import PlaceResult = google.maps.places.PlaceResult;
-import PlaceGeometry = google.maps.places.PlaceGeometry;
-import GeocoderAddressComponent = google.maps.GeocoderAddressComponent;
+// import PlaceResult = google.maps.places.PlaceResult;
+// import PlaceGeometry = google.maps.places.PlaceGeometry;
+// import GeocoderAddressComponent = google.maps.GeocoderAddressComponent;
 
 
 @Component({
@@ -486,8 +486,8 @@ export class AppFormComponent implements OnInit, AfterViewInit {
     autocomplete.setFields(['address_components', 'geometry', 'icon', 'name']);
 
     google.maps.event.addListener(autocomplete, 'place_changed', () => {
-      const place: PlaceResult = autocomplete.getPlace();
-      const geometry: PlaceGeometry = place.geometry;
+      const place: any = autocomplete.getPlace();
+      const geometry: any = place.geometry;
 
       let rua = '';
       let numero = '';
@@ -498,7 +498,7 @@ export class AppFormComponent implements OnInit, AfterViewInit {
       let longitude = 0;
       let cep = '';
 
-      place.address_components.forEach((address_component: GeocoderAddressComponent) => {
+      place.address_components.forEach((address_component: any) => {
         if (address_component.types[0] === 'route') {
           rua = address_component.long_name;
         }
