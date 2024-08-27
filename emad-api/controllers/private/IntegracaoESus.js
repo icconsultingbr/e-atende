@@ -6,7 +6,7 @@ let uuidInstalacao = "";
 let major = "";
 let minor = "";
 let revision = "";
-
+let uuidSaved = new Map();
 module.exports = function (app) {
 
     app.post('/integracao-e-sus', async function (req, res) {
@@ -132,6 +132,8 @@ module.exports = function (app) {
             await connection.close();
         }
 
+        console.log("listESUS CADASTROINDIVIDUAL", list)
+
         return preencheXMLCadastroIndividual(list, estabelecimento);
     }
 
@@ -148,6 +150,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -163,7 +166,7 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais);
+        return preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaFichaVacinacao(filtro) {
@@ -179,6 +182,8 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
+
 
         let listaVacinas = [];
         let estabelecimento = {};
@@ -193,8 +198,8 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
-        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
+        console.log("listaVacinas", listaVacinas)
+        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaProcedimentos(filtro) {
@@ -210,7 +215,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
-
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
         let listaProcedimentos = [];
         let estabelecimento = {};
         let profissionais = [];
@@ -224,8 +229,10 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
-        return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais);
+        console.log('listaProcedimentos', listaProcedimentos)
+        console.log("estabelecimento", estabelecimento)
+        console.log("profissionais", profissionais)
+        return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaAtividadeColetiva(filtro) {
@@ -241,6 +248,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -258,7 +266,7 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes);
+        return preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes, atendimentoDAO);
     }
 
     function preencheXMLCadastroIndividual(list, estabelecimento) {
@@ -267,11 +275,17 @@ module.exports = function (app) {
         let xmls = [];
 
         list.forEach(paciente => {
-            let uuidFicha = uuidv4();
+            var uuidFicha = uuidv4();
+            let uuidDadoSerializado = `${estabelecimento.cnes}-${uuidFicha}`;
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/cadastroindividual' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('2').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up()
@@ -346,15 +360,30 @@ module.exports = function (app) {
         return xmls;
     }
 
-    function preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais) {
+    function preencheXMLAtendimentoIndividual(list, estabelecimento, profissionais, atendimentoDao) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
-
         let xmls = [];
-
-        profissionais.forEach(profissional => {
+        
+        profissionais.forEach(async (profissional) => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
-            var uuidFicha = uuidv4();
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDao.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
            
@@ -363,7 +392,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoindividualmaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('4').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -685,21 +714,37 @@ module.exports = function (app) {
         return medicamentos
     }
 
-    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais) {
+    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
-
+        console.log("lista VACINAÇÃO", list)
         profissionais.forEach(profissional => {
             const listVacinas = list.vacinas.filter(x => x.idProfissional == profissional.id);
-            let uuidFicha = uuidv4();
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            // listAtendimentos.forEach(async (atendimento) => {
+            //     uuidFicha = atendimento.downloadUuid||uuidGenerated;
+            //     uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+            //     if(atendimento.downloadUuid===null){
+            //         await atendimentoDao.atualizaPorIdSync({
+            //             downloadUuid: uuidFicha
+            //         }, atendimento.idAtendimento);
+            //     }    
+            // })
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listVacinas.length == 0) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichavacinacaomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('14').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -826,15 +871,15 @@ module.exports = function (app) {
         return vac;
     }
 
-    function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais) {
+    function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais, atendimentoDAO) {
+        
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        profissionais.forEach(profissional => {
+        profissionais.forEach((profissional, index) => {
             const listProcedimento = list.atendimentoProcedimentos.filter(x => x.idProfissional == profissional.id);
-
             const listAtendimentosAfericoes = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
             const numTotalAfericaoPa = list.numTotalAfericaoPa.filter(x => x.idProfissional == profissional.id);
@@ -842,8 +887,27 @@ module.exports = function (app) {
             const numTotalMedicaoAltura = list.numTotalMedicaoAltura.filter(x => x.idProfissional == profissional.id);
             const numTotalMedicaoPeso = list.numTotalMedicaoPeso.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentosAfericoes.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDAO.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
 
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
+
+            console.log("uuidDadoSerializado",uuidDadoSerializado);
+            console.log("uuidFicha",uuidFicha);
+            
             if (listProcedimento.length == 0 
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0) 
                 && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0) 
@@ -853,7 +917,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaprocedimentomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('7').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -899,6 +963,7 @@ module.exports = function (app) {
                 })
 
             listProcedimento.forEach(atendimento => {
+               
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
 
                 if (listProcedimentoChild.length == 0) { return; }
@@ -957,14 +1022,30 @@ module.exports = function (app) {
         return xmls
     }
 
-    function preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes) {
+    function preencheXMLAtividadeColetiva(list, estabelecimento, profissionais, pacientes, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        list.atendimentos.forEach(atendimento => {
-            var uuidFicha = uuidv4();
+        list.atendimentos.forEach(async (atendimento) => {
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            // listAtendimentosAfericoes.forEach(async (atendimento) => {
+            uuidFicha = atendimento.downloadUuid||uuidGenerated;
+            uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+            if(atendimento.downloadUuid===null){
+                await atendimentoDAO.atualizaPorIdSync({
+                    downloadUuid: uuidFicha
+                }, atendimento.idAtendimento);
+            }    
+            // })
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             let profissionaisAtendimento = profissionais.filter(x => x.idAtendimento == atendimento.idAtendimento);
             let pacientesAtendimento = pacientes.filter(x => x.idAtendimento == atendimento.idAtendimento);
@@ -974,7 +1055,7 @@ module.exports = function (app) {
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatividadecoletiva' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('6').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up()
@@ -1140,6 +1221,7 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
         let list = [];
         let estabelecimento = {};
@@ -1162,26 +1244,42 @@ module.exports = function (app) {
             await connection.close();
         }
 
-        return preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto);
+        return preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto, atendimentoDAO);
     }
 
-    function preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto) {
+    function preencheXMLAtendimentoOdontologicoIndividual(list, estabelecimento, profissionais, tipoFornecimentoOdonto, tipoVigilanciaOdonto, procedimentosOdonto, atendimentoDao) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
 
-        profissionais.forEach(profissional => {
+        profissionais.forEach(async (profissional) => {
 
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDao.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentoodontologicomaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('5').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();
@@ -1303,6 +1401,8 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
+
 
         let list = [];
         let estabelecimento = {};
@@ -1317,11 +1417,11 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
-        return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais);
+        console.log('ATENDIMENTO DOMICILIAR',list)
+        return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais, atendimentoDAO);
     }
 
-    function preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais) {
+    function preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais, atendimentoDAO) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -1330,13 +1430,29 @@ module.exports = function (app) {
         profissionais.forEach(profissional => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
 
-            var uuidFicha = uuidv4();
+            const uuidGenerated = uuidv4();
+            let uuidFicha = uuidGenerated;
+            let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
+            listAtendimentos.forEach(async (atendimento) => {
+                uuidFicha = atendimento.downloadUuid||uuidGenerated;
+                uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
+                if(atendimento.downloadUuid===null){
+                    await atendimentoDAO.atualizaPorIdSync({
+                        downloadUuid: uuidFicha
+                    }, atendimento.idAtendimento);
+                }    
+            })
+
+            // Garantir que o comprimento total não exceda 44 caracteres
+            if (uuidDadoSerializado.length > 44) {
+                uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
+            }
 
             if (listAtendimentos.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaatendimentodomiciliarmaster' })
-                .ele('uuidDadoSerializado').txt(uuidFicha).up()
+                .ele('uuidDadoSerializado').txt(uuidDadoSerializado).up()
                 .ele('tipoDadoSerializado').txt('10').up()
                 .ele('codIbge').txt(estabelecimento.codigo).up()
                 .ele('cnesDadoSerializado').txt(estabelecimento.cnes).up();

@@ -1,7 +1,11 @@
 module.exports = function (app) {
 
     app.get('/agendamento', function (req, res) {
-        listaAgendamento(req.query, "agendamento", res).then(function (response) {
+        console.log('req.body', req.body);
+        console.log('req.query', req.query);
+        let usuario = req.usuario;
+        console.log('usuario', usuario);
+        listaAgendamento(req.query, "agendamento", res, usuario).then(function (response) {
             res.status(200).json(response);
             return;
         });
@@ -222,7 +226,7 @@ module.exports = function (app) {
         return d.promise;
     };
 
-    function listaAgendamento(addFilter, dom, res) {
+    function listaAgendamento(addFilter, dom, res, usuario) {
         var q = require('q');
         var d = q.defer();
 
@@ -231,6 +235,8 @@ module.exports = function (app) {
 
         var connection = app.dao.ConnectionFactory();
         var dao = new app.dao.AgendamentoDAO(connection);
+
+        addFilter.usuarioId = usuario.id;
 
         dao.lista(addFilter, function (exception, result) {
             if (exception) {
