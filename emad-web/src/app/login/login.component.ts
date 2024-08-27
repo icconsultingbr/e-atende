@@ -69,19 +69,19 @@ export class LoginComponent implements OnInit {
     this.carregando = true;
 
     if (this.loginForm.value.estabelecimentoLogin && this.loginForm.value.estabelecimentoLogin > 0) {
-        const estabelecimento = this.estabelecimentosCompleto.filter((estabelecimento) => estabelecimento.id == this.loginForm.value.estabelecimentoLogin);
-        localStorage.setItem('est', JSON.stringify(estabelecimento));
-        this.carregando = false;
-        window.location.href = window.location.href.replace('#/login', '');
+      const estabelecimento = this.estabelecimentosCompleto.filter((estabelecimento) => estabelecimento.id == this.loginForm.value.estabelecimentoLogin);
+      localStorage.setItem('est', JSON.stringify(estabelecimento));
+      this.carregando = false;
+      window.location.href = window.location.href.replace('#/login', '');
 
-        return;
+      return;
     }
 
     if (this.loginForm.value.estabelecimentoLogin == '0' && this.estabelecimentosCompleto.length > 0) {
-        this.isErro = true;
-        this.erro = 'Selecione o estabelecimento';
-        this.carregando = false;
-        return;
+      this.isErro = true;
+      this.erro = 'Selecione o estabelecimento';
+      this.carregando = false;
+      return;
     }
 
     this.service.login(this.loginForm.value)
@@ -100,6 +100,7 @@ export class LoginComponent implements OnInit {
           this.carregando = false;
         }
       }, error => {
+        console.log("error", error);
 
         this.loginRealizado = false;
         this.isErro = true;
