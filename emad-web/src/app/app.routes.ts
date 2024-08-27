@@ -149,7 +149,7 @@ const appRoutes: Routes = [
     loadChildren: "./operacao/atendimento/atendimento.module#AtendimentoModule",
   },
   {
-    path: "atendimentos-link-temporario",
+    path: "atendimento-link-temporario",
     // canActivate: [AuthGuard],
     loadChildren: "./operacao/atendimento-link-temporario/atendimento-link-temporario.module#AtendimentoLinkTemporarioModule",
   },

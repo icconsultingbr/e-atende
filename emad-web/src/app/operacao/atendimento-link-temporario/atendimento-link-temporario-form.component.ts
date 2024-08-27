@@ -225,6 +225,7 @@ export class AtendimentoFormComponent implements OnInit {
 
     this.route.params.subscribe((params) => {
       this.id = params['id'];
+      console.log(params["id"])
       console.log(params["token"])
       this.idHistorico = params['idHistorico'];
       this.carregaEntidadeCampoPorEspecialidade();
