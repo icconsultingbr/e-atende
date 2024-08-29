@@ -2,25 +2,6 @@ const ApiResponse = require('../../utilities/ApiResponse');
 const WebToken = require('../../utilities/WebToken');
 
 module.exports = function (app) {
-    app.get('/atendimento/gerar-link-temporario', function (req, res) {
-        let usuario = req.usuario;
-        let idSap = req.query.idSap;
-        const token = WebToken.create(
-          {...usuario, allowedRoute: 'atendimento-paciente-ficha-temporaria',
-            idSap:parseInt(idSap)
-          },
-          app.settings.superSecret, "1h"
-        );
-        console.log("TOKEN", token)
-        console.log("TOKEN DECODED", WebToken.decode(token));
-        const link = `http://localhost:4200/atendimento-link-temporario?token=${token}`;
-        return ApiResponse.ok(res, link);
-    })
-    app.get('atendimento/atendimento-link-temporario', function (req, res) {
-      let token = req.query.token;
-      const decoded = WebToken.decode(token);
-      console.log("DECODED", decoded);
-    })
     app.get('/atendimento', async function (req, res) {
       console.log("CHEGOU AQUI NO ATENDIMENTO")
         let usuario = req.usuario;

@@ -3,6 +3,7 @@ const WebToken = require('../../utilities/WebToken');
 module.exports = function (app) {
     app.get('/paciente/gerar-link-temporario', function (req, res) {
         let usuario = req.usuario;
+        console.log("GERAR LINK TEMPORARIO", usuario);
         let idSap = req.query.idSap;
         const token = WebToken.create(
           {...usuario, allowedRoute: 'paciente-ficha',
@@ -10,15 +11,23 @@ module.exports = function (app) {
           },
           app.settings.superSecret, "1h"
         );
-        console.log("TOKEN", token)
-        console.log("TOKEN DECODED", WebToken.decode(token));
-        const link = `http://localhost:4000/paciente-ficha-temporario?token=${token}`;
+        console.log("PACIENTE TOKEN GERADO =>", token)
+        const link = `http://localhost:4200/#/paciente-link-temporario/prontuario/${token}`;
         return ApiResponse.ok(res, link);
     })
-    app.get('paciente/ficha-temporaria', function (req, res) {
-      let token = req.query.token;
-      const decoded = WebToken.decode(token);
-      console.log("DECODED", decoded);
+    app.get('/paciente/ficha-temporaria/:token', async function (req, res) {
+        let token = req.params.token;
+        console.log("PACIENTE TOKEN RECEBIDO", req.params);
+        const decoded = WebToken.decode(token);
+        console.log("PACIENTE TOKEN DECODED", decoded);
+        if(!decoded){
+          return ApiResponse.unhoutorized(res, "Token inválido");
+        }
+        const connection = await app.dao.connections.EatendConnection.connection();
+        const pacienteRepository = new app.dao.PacienteDAO(connection, null);
+        var response = await pacienteRepository.buscaPorIdSap(decoded.idSap);
+        console.log("PACIENTE ENCONTRADO", response);
+        return ApiResponse.ok(res, response);
     })
     app.get('/paciente', async function (req, res) {
         let usuario = req.usuario;
@@ -45,6 +54,7 @@ module.exports = function (app) {
     });
 
     app.get('/paciente/:id', async function (req, res) {
+
         let usuario = req.usuario;
         let id = req.params.id;
         let util = new app.util.Util();
@@ -71,6 +81,35 @@ module.exports = function (app) {
         }
 
     });
+    app.get('/paciente/:idSap', async function (req, res) {
+     console.log("ENTROU")
+      let usuario = req.usuario;
+      let idSap = req.params.idSap;
+      console.log("ID SAP", idSap)
+      let util = new app.util.Util();
+      let errors = [];
+
+      const connection = await app.dao.connections.EatendConnection.connection();
+
+      const pacienteRepository = new app.dao.PacienteDAO(connection, null);
+      const atencaoContinuadaPacienteRepository = new app.dao.AtencaoContinuadaPacienteDAO(connection);
+
+      try {
+          var response = await pacienteRepository.buscaPorIdSapSync(idSap);
+
+          var gruposAtencaoContinuada = await atencaoContinuadaPacienteRepository.buscaPacientePortIdSapSync(idSap);
+          response[0].gruposAtencaoContinuada = gruposAtencaoContinuada;
+
+          res.status(201).send(response[0]);
+      }
+      catch (exception) {
+          res.status(500).send(util.customError(errors, "header", "Ocorreu um erro inesperado", ""));
+      }
+      finally {
+          await connection.close();
+      }
+
+  });
 
     app.get('/paciente/prontuario/report', async function (req, res) {
         let idPaciente = req.query.idPaciente;

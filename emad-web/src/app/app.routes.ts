@@ -70,6 +70,11 @@ const appRoutes: Routes = [
     loadChildren: "./cadastro/paciente/paciente.module#PacienteModule",
   },
   {
+    path: "paciente-link-temporario",
+    canActivate: [AuthGuard],
+    loadChildren: "./cadastro/paciente-link-temporario/paciente-link-temporario.module#PacienteLinkTemporarioModule",
+  },
+  {
     path: "equipes",
     canActivate: [AuthGuard],
     loadChildren: "./cadastro/equipe/equipe.module#EquipeModule",
@@ -148,11 +153,11 @@ const appRoutes: Routes = [
     canActivate: [AuthGuard],
     loadChildren: "./operacao/atendimento/atendimento.module#AtendimentoModule",
   },
-  {
-    path: "atendimento-link-temporario",
-    // canActivate: [AuthGuard],
-    loadChildren: "./operacao/atendimento-link-temporario/atendimento-link-temporario.module#AtendimentoLinkTemporarioModule",
-  },
+  // {
+  //   path: "atendimento-link-temporario",
+  //   // canActivate: [AuthGuard],
+  //   loadChildren: "./operacao/atendimento-link-temporario/atendimento-link-temporario.module#AtendimentoLinkTemporarioModule",
+  // },
   {
     path: "logs",
     canActivate: [AuthGuard],
