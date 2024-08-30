@@ -67,8 +67,7 @@ export class AppComponent implements OnInit, AfterViewInit {
       }
     });
 
-
-    if (auth.canActivate()) {
+    if (auth.canActivatePublicRoute() || auth.canActivate()) {
       this.getMenuLista();
       this.getUrlsParametroLista();
       this.getParametroProfissional();
@@ -131,30 +130,13 @@ export class AppComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-
     const token = this.authService.getToken();
     if (!token) {
       return;
     }
 
     this.socketService.connect()
-      .subscribe(result => {
-        console.log(`notificação sistema ${result}`);
-      }, (error) => {
-      });
-
-    /*if (localStorage.getItem('currentUser')) {
-      this.appService.extrato.subscribe(msgSocket => {
-        //console.log('notification >> ',msgSocket);
-        let user = localStorage.getItem('currentUser');
-        let idEmpresa = JSON.parse(user).idEmpresa;
-
-        if (msgSocket.idEmpresa == idEmpresa) {
-        }
-      })
-
-    }*/
-
+      .subscribe(result => console.log(`notificação sistema ${result}`));
   }
 
   ngAfterViewInit() {
