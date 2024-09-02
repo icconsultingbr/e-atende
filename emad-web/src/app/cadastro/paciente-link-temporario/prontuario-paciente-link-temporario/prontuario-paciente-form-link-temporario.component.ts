@@ -38,15 +38,166 @@ import { FileUploadService } from '../../../_core/_components/app-file-upload/se
   styleUrls: ['./prontuario-paciente-form-link-temporario.component.css'],
   providers: [PacienteLinkTemporarioService],
 })
-export class ProntuarioPacienteFormComponent implements OnInit {
+export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   //documentos
   public images;
   public listaArquivosUpload: any[] = [];
 
-  object: Paciente = new Paciente();
-  objectExame: Exame = new Exame();
-  objectHistorico: Atendimento = new Atendimento();
-  pacienteHipotese: PacienteHipotese = new PacienteHipotese();
+  object: Paciente = {
+    id: 1,
+    cartaoSus: '123456789012345',
+    nome: 'John Doe',
+    nomeSocial: 'Johnny',
+    nomeMae: 'Jane Doe',
+    nomePai: 'John Doe Sr.',
+    dataNascimento: '1990-01-01',
+    sexo: 'M',
+    idNacionalidade: 1,
+    idNaturalidade: 1,
+    ocupacao: 'Software Engineer',
+    cpf: '123.456.789-00',
+    rg: 'MG-12.345.678',
+    dataEmissao: '2005-01-01',
+    orgaoEmissor: 'SSP',
+    escolaridade: 3,
+    cep: '12345-678',
+    logradouro: 'Rua Fictícia',
+    numero: '123',
+    complemento: 'Apto 101',
+    bairro: 'Centro',
+    idMunicipio: 1,
+    idUf: 1,
+    foneResidencial: '1234-5678',
+    foneCelular: '91234-5678',
+    foneContato: '91234-5678',
+    contato: 'Jane Doe',
+    email: 'john.doe@example.com',
+    situacao: true,
+    idModalidade: 1,
+    latitude: -19.8157,
+    longitude: -43.9542,
+    distancia: 10,
+    idSap: 1,
+    idTipoSanguineo: 'O+',
+    idRaca: 1,
+    numeroProntuario: '123456',
+    numeroProntuarioCnes: '654321',
+    falecido: false,
+    reeducando: false,
+    idAtencaoContinuada: '1',
+    idEstabelecimentoCadastro: 1,
+    idEstabelecimento: 1,
+    gruposAtencaoContinuada: [],
+    apelido: 'Johnny',
+    observacao: 'Nenhuma observação',
+    historiaProgressaFamiliar: 'História familiar de doenças cardíacas',
+    pesquisaCentral: 'Pesquisa central',
+    foto: 'path/to/photo.jpg',
+    pacienteOutroEstabelecimento: '2',
+    pacienteAtivoInativo: '1',
+    necessidadeEspeciais: false,
+    gestante: false,
+    aleitamentoMaterno: 'Não',
+    dumDaGestante: '2022-01-01',
+    idadeGestacional: 20,
+    stGravidezPlanejada: false,
+    nuGestasPrevias: 0,
+    nuPartos: 0,
+    obrigaCpfNovoPaciente: 1,
+    obrigaCartaoSusNovoPaciente: true,
+    celularDefaultNovoPaciente: '91234-5678',
+    parouFumar: false,
+    abandonouGrupo: false,
+    avaliacaoAlterada: false,
+  };
+  objectExame: Exame = {
+    id: 1,
+    idEstabelecimento: 1,
+    nomeProfissional: 'Dr. John Doe',
+    idAtendimento: 123,
+    idPaciente: 456,
+    nomePaciente: 'Jane Doe',
+    situacao: 'Pendente',
+    idTipoExame: 789,
+    itensExame: [],
+    acao: 'Solicitado',
+    mensagemPaciente: 'Favor comparecer em jejum.',
+    ano: 2023,
+    mes: 'Outubro',
+    numero: 'EX123456',
+    resultadoFinal: 'Aguardando',
+    descricaoSolicitacaoExame: 'Exames de rotina',
+    idTipoSolicitacaoExame: 1,
+    dataAgendamento: new Date('2023-10-15T09:00:00'),
+    local: 'Laboratório Central'
+  };
+  objectHistorico: Atendimento = {
+    id: 1,
+    cpf: '123.456.789-00',
+    idPaciente: 456,
+    pacienteNome: 'Jane Doe',
+    pacienteHistoriaProgressa: 'História de hipertensão',
+    pressaoArterial: '120/80',
+    pulso: '70 bpm',
+    saturacao: '98%',
+    temperatura: '36.5°C',
+    altura: '1.70m',
+    peso: '70kg',
+    historicoClinico: 'Paciente com histórico de hipertensão e diabetes',
+    historiaProgressa: 'História de hipertensão e diabetes',
+    exameFisico: 'Exame físico normal',
+    observacoesGerais: 'Nenhuma observação adicional',
+    situacao: 'Em andamento',
+    motivoCancelamento: null,
+    dataCriacao: new Date(),
+    dataFinalizacao: null,
+    dataCancelamento: null,
+    idEstabelecimento: 1,
+    idProfissional: 123,
+    ano_receita: 2023,
+    numero_receita: 456,
+    unidade_receita: 789,
+    motivoQueixa: 'Dor de cabeça',
+    dadosFicha: [],
+    tipoHistoriaClinica: 1,
+    pesquisaCentral: 'Pesquisa central',
+    idTipoAtendimentoHistorico: 1,
+    ficouEmObservacao: 0,
+    tiposConsultaOdonto: 1,
+    tiposFornecimOdonto: 1,
+    tiposVigilanciaSaudeBucal: 1,
+    inep: '12345678',
+    numParticipantes: 10,
+    profissionais: 2,
+    atividadeTipo: 1,
+    temasParaReuniao: 1,
+    publicoAlvo: 1,
+    participantes: 10,
+    procedimento: 1,
+    temasParaSaude: 1,
+    praticasEmSaude: 1,
+    pseEducacao: true,
+    pseSaude: true,
+    gestante: 0,
+    possuiNecessidadesEspeciais: 0,
+    tipoConsultaOdonto: 1,
+    condutaEncaminhamento: 1,
+    localDeAtendimento: 1,
+    modalidade: 1,
+    tipoAtendimento: 1,
+    vacinasEmDia: 1,
+    condicaoAvaliada: 1,
+    idProfissionalCompartilhado: 123,
+    integracaoPEC: true
+  };
+  pacienteHipotese: PacienteHipotese = {
+    id: 1,
+    idAtendimento: 123,
+    idPaciente: 456,
+    idHipoteseDiagnostica: 789,
+    funcionalidade: 'ATENDIMENTO',
+    idEstabelecimento: 1
+  };
   method: string = 'paciente';
   fields = [];
   label = 'Paciente';
@@ -166,12 +317,16 @@ export class ProntuarioPacienteFormComponent implements OnInit {
 
   ngOnInit() {
     let token: string;
+
     this.route.params.subscribe((params) => {
       this.token = params['id'];
+
       token = params['id'];
-      console.log('token', token)
-      // this.id = params['id'];
     });
+
+    console.log('token');
+    console.log(token);
+
     this.service.findByToken(token).subscribe(par => {
       this.id = par.id;
     })
@@ -182,24 +337,26 @@ export class ProntuarioPacienteFormComponent implements OnInit {
 
   loadDomains() {
     this.loading = true;
-    this.service.listDomains('uf').subscribe((ufs) => {
-      this.service.listDomains('nacionalidade').subscribe((paises) => {
-        this.service.listDomains('modalidade').subscribe((modalidades) => {
+    this.service.listDomainsExternal('uf').subscribe((ufs) => {
+      console.log("ufs", ufs);
+      this.service.listDomainsExternal('nacionalidade').subscribe((paises) => {
+        console.log("paises", paises);
+        this.service.listDomainsExternal('modalidade').subscribe((modalidades) => {
           this.service
-            .listDomains('estabelecimento')
+            .listDomainsExternal('estabelecimento')
             .subscribe((estabelecimentos) => {
               this.service
-                .listDomains('escolaridade')
+                .listDomainsExternal('escolaridade')
                 .subscribe((escolaridade) => {
-                  this.service.listDomains('raca').subscribe((racas) => {
+                  this.service.listDomainsExternal('raca').subscribe((racas) => {
                     this.service
-                      .listDomains('hipotese-diagnostica')
+                      .listDomainsExternal('hipotese-diagnostica')
                       .subscribe((hipoteseDiagnostica) => {
                         this.service
-                          .listDomains('atencao-continuada')
+                          .listDomainsExternal('atencao-continuada')
                           .subscribe((atencaoContinuada) => {
                             this.service
-                              .listDomains('tipo-ficha')
+                              .listDomainsExternal('tipo-ficha')
                               .subscribe((tipoFichas) => {
                                 this.service
                                   .list(
@@ -209,10 +366,10 @@ export class ProntuarioPacienteFormComponent implements OnInit {
                                   )
                                   .subscribe((profissionais) => {
                                     this.service
-                                      .listDomains('classificacao-risco')
+                                      .listDomainsExternal('classificacao-risco')
                                       .subscribe((classificacaoRiscos) => {
                                         this.service
-                                          .listDomains('tipo-exame')
+                                          .listDomainsExternal('tipo-exame')
                                           .subscribe((tipoExame) => {
                                             this.domains.push({
                                               escolaridade: escolaridade,

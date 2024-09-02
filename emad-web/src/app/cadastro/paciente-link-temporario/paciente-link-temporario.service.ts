@@ -471,14 +471,27 @@ export class PacienteLinkTemporarioService extends GenericsService {
   //   return this.http.get('paciente/paciente-link-temporario/' + id);
   // }
   findByToken(token: any): Observable<any> {
-    return this.http.get('paciente/ficha-temporaria/' + token);
+    console.log("FIND BY TOKEN SERVICE", token)
+    localStorage.setItem('externalToken', token);
+    return this.http.get('external/paciente/ficha-temporaria', {
+      headers: {
+        'Authorization': token
+      }
+    });
   }
 
-  gerarLinkTemporario(obj: any): Observable<any> {
-    console.log("SERVICE", obj)
-    return this.http.get('paciente/gerar-link-temporario/', {
-      params: {
-        idSap: '491636234' //mocked idSap
+  // gerarLinkTemporario(obj: any): Observable<any> {
+  //   console.log("SERVICE", obj)
+  //   return this.http.get('paciente/gerar-link-temporario/', {
+  //     params: {
+  //       idSap: '491636234' //mocked idSap
+  //     }
+  //   });
+  // }
+  listDomainsExternal(method: string): Observable<any> {
+    return this.http.get('external/dominios/' + method, {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
       }
     });
   }
@@ -487,7 +500,7 @@ export class PacienteLinkTemporarioService extends GenericsService {
   }
 
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
-    return this.http.get('uf/pais/' + id);
+    return this.http.get('external/uf/pais/' + id);
   }
 
   findHipoteseByPaciente(id: any): Observable<any> {

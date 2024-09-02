@@ -1,4 +1,5 @@
 const config = require('../config/config');
+const { externalSecret } = require('../config/config.json');
 const WebToken = require('../utilities/WebToken');
 
 module.exports = function (app) {
@@ -13,7 +14,7 @@ module.exports = function (app) {
         let errors = [];
 
         if (token) {
-          WebToken.verify(token, app.settings.superSecret, function (err, decoded) {
+          WebToken.verify(token, req.originalUrl.includes('external') ? externalSecret : app.settings.superSecret, function (err, decoded) {
                 if (err) {
                     var datetime = new Date();
                     console.log('Erro token do usuário: ' + req.usuario + ', at: ' + datetime + ', token: ' + token);
@@ -23,9 +24,8 @@ module.exports = function (app) {
                     return res.status(401).json(errors);
                 } else {
                     req.usuario = decoded.usuario;
-
+                    if(decoded.usuario){
                     buscaUsuario(decoded.usuario).then(function (response) {
-
                         if (response.length > 0) {
 
                             //if (host != decoded.host || ip != decoded.ip) {
@@ -79,6 +79,9 @@ module.exports = function (app) {
                         }
                         next();
                     });
+                  } else {
+                    next();
+                  }
                 }
             });
         } else {

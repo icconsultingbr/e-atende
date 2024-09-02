@@ -68,5 +68,4 @@ export class Paciente {
   @Input() parouFumar: boolean = null;
   @Input() abandonouGrupo: boolean = null;
   @Input() avaliacaoAlterada: boolean = null;
-
 }

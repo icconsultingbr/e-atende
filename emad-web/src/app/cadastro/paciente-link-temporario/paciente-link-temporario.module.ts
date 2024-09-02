@@ -4,8 +4,6 @@ import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppGridViewModule } from '../../_core/_components/app-grid-view/app-grid-view.module';
 import { AppFormModule } from '../../_core/_components/app-form/app-form.module';
-import { PacienteComponent } from './paciente-link-temporario.component';
-import { PacienteFormComponent } from './paciente-form-link-temporario.component';
 import { PacienteLinkTemporarioService } from './paciente-link-temporario.service';
 import { pacienteRoutes } from './paciente-link-temporario.routing';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -20,7 +18,7 @@ import { AppModalModule } from '../../_core/_components/app-modal/app-modal.modu
 import 'rxjs/add/operator/map';
 import { SharedServiceModule } from '../../shared/services/shared-service.module';
 import { TabsModule } from 'ngx-bootstrap/tabs';
-import { ProntuarioPacienteFormComponent } from './prontuario-paciente-link-temporario/prontuario-paciente-form-link-temporario.component';
+import { ProntuarioPacienteFormLinkTemporarioComponent } from './prontuario-paciente-link-temporario/prontuario-paciente-form-link-temporario.component';
 import { AppSelectModule } from '../../_core/_components/app-select/app-select.module';
 import { AppSelectModalModule } from '../../_core/_components/app-select-modal/app-select-modal.module';
 import { AppImageCropperUploadModule } from '../../_core/_components/app-image-cropper-upload/app-image-cropper-upload.module';
@@ -55,9 +53,7 @@ import { PacienteService } from '../paciente/paciente.service';
     AppFileUploadModule,
   ],
   declarations: [
-    PacienteComponent,
-    PacienteFormComponent,
-    ProntuarioPacienteFormComponent,
+    ProntuarioPacienteFormLinkTemporarioComponent,
   ],
   providers: [PacienteLinkTemporarioService, AtendimentoService, PacienteService],
 })
