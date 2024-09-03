@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { GenericsService } from '../../_core/_services/generics.service';
-import { Http } from '@angular/http';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 

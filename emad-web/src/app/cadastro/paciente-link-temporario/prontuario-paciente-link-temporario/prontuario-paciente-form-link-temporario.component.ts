@@ -337,26 +337,26 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
 
   loadDomains() {
     this.loading = true;
-    this.service.listDomainsExternal('uf').subscribe((ufs) => {
+    this.service.listaDominiosExterno('uf').subscribe((ufs) => {
       console.log("ufs", ufs);
-      this.service.listDomainsExternal('nacionalidade').subscribe((paises) => {
+      this.service.listaDominiosExterno('nacionalidade').subscribe((paises) => {
         console.log("paises", paises);
-        this.service.listDomainsExternal('modalidade').subscribe((modalidades) => {
+        this.service.listaDominiosExterno('modalidade').subscribe((modalidades) => {
           this.service
-            .listDomainsExternal('estabelecimento')
+            .listaDominiosExterno('estabelecimento')
             .subscribe((estabelecimentos) => {
               this.service
-                .listDomainsExternal('escolaridade')
+                .listaDominiosExterno('escolaridade')
                 .subscribe((escolaridade) => {
-                  this.service.listDomainsExternal('raca').subscribe((racas) => {
+                  this.service.listaDominiosExterno('raca').subscribe((racas) => {
                     this.service
-                      .listDomainsExternal('hipotese-diagnostica')
+                      .listaDominiosExterno('hipotese-diagnostica')
                       .subscribe((hipoteseDiagnostica) => {
                         this.service
-                          .listDomainsExternal('atencao-continuada')
+                          .listaDominiosExterno('atencao-continuada')
                           .subscribe((atencaoContinuada) => {
                             this.service
-                              .listDomainsExternal('tipo-ficha')
+                              .listaDominiosExterno('tipo-ficha')
                               .subscribe((tipoFichas) => {
                                 this.service
                                   .list(
@@ -366,10 +366,10 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
                                   )
                                   .subscribe((profissionais) => {
                                     this.service
-                                      .listDomainsExternal('classificacao-risco')
+                                      .listaDominiosExterno('classificacao-risco')
                                       .subscribe((classificacaoRiscos) => {
                                         this.service
-                                          .listDomainsExternal('tipo-exame')
+                                          .listaDominiosExterno('tipo-exame')
                                           .subscribe((tipoExame) => {
                                             this.domains.push({
                                               escolaridade: escolaridade,

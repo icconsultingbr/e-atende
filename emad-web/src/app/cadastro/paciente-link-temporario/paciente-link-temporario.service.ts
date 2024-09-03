@@ -466,12 +466,7 @@ export class PacienteLinkTemporarioService extends GenericsService {
       },
     },
   ];
-
-  // findByIdSap(id: any): Observable<any> {
-  //   return this.http.get('paciente/paciente-link-temporario/' + id);
-  // }
   findByToken(token: any): Observable<any> {
-    console.log("FIND BY TOKEN SERVICE", token)
     localStorage.setItem('externalToken', token);
     return this.http.get('external/paciente/ficha-temporaria', {
       headers: {
@@ -479,22 +474,23 @@ export class PacienteLinkTemporarioService extends GenericsService {
       }
     });
   }
-
-  // gerarLinkTemporario(obj: any): Observable<any> {
-  //   console.log("SERVICE", obj)
-  //   return this.http.get('paciente/gerar-link-temporario/', {
-  //     params: {
-  //       idSap: '491636234' //mocked idSap
-  //     }
-  //   });
-  // }
-  listDomainsExternal(method: string): Observable<any> {
+  listaDominiosExterno(method: string): Observable<any> {
     return this.http.get('external/dominios/' + method, {
       headers: {
         'Authorization': localStorage.getItem('externalToken')
       }
     });
   }
+  // listaDominiosExterno(dominio: string): Observable<any> {
+  //   return this.http.get('external/dominios', {
+  //     headers: {
+  //       'Authorization': localStorage.getItem('externalToken')
+  //     },
+  //     params: {
+  //       dominio: dominio
+  //     }
+  //   });
+  // }
   transfereEstabelecimento(obj: any) {
     return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
   }
