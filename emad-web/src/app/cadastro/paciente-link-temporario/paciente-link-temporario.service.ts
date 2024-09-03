@@ -491,16 +491,24 @@ export class PacienteLinkTemporarioService extends GenericsService {
   //     }
   //   });
   // }
-  transfereEstabelecimento(obj: any) {
-    return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
-  }
+  // transfereEstabelecimento(obj: any) {
+  //   return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
+  // }
 
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
-    return this.http.get('external/uf/pais/' + id);
+    return this.http.get('external/uf/pais/' + id, {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
+      }
+    });
   }
 
   findHipoteseByPaciente(id: any): Observable<any> {
-    return this.http.get('atendimento-hipotese/paciente/' + id);
+    return this.http.get('external/atendimento-hipotese/paciente/' + id, {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
+      }
+    });
   }
 
   findHipoteseByPacienteAgrupado(id: any): Observable<any> {

@@ -332,7 +332,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     })
     this.createGroup();
     this.loadDomains();
-    this.recarregarDocumentos();
+    this.recarregarDocumentos(this.id);
   }
 
   loadDomains() {
@@ -500,6 +500,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       .carregaNaturalidadePorNacionalidade(this.object.idNacionalidade)
       .subscribe(
         (result) => {
+          console.log('result CARREGAR', result);
           this.domains[0].idNaturalidade = result;
           this.loading = false;
         },
@@ -1347,9 +1348,9 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     );
   }
 
-  recarregarDocumentos() {
+  recarregarDocumentos(id: number) {
     this.service
-      .list(`paciente-documento/documento/${this.id}`)
+      .list(`paciente-documento/documento/${id}`)
       .subscribe((arquivos) => {
         this.listaArquivosUpload = arquivos;
       });
