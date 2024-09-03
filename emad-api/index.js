@@ -6,9 +6,11 @@ const WebToken = require('./utilities/WebToken');
 const externalPacienteRoutes = require('./routes/external/PacienteRoute');
 const externalDominiosRoutes = require('./routes/external/DominiosRoute');
 const externalUfRoutes = require('./routes/external/UfRoute');
+const externalAtendimentoHipoteseRoutes = require('./routes/external/AtendimentoHipoteseRoute');
 app.use('/external', externalDominiosRoutes.routes);
 app.use('/external', externalPacienteRoutes.routes);
 app.use('/external', externalUfRoutes.routes);
+app.use('/external', externalAtendimentoHipoteseRoutes.routes);
 var server = app.listen(config.apiPort, function () {
     console.log('Server listen at ' + config.apiPort);
 
