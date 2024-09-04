@@ -316,26 +316,22 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   ngOnInit() {
-    let token: string;
-
     this.route.params.subscribe((params) => {
       this.token = params['id'];
-
-      token = params['id'];
     });
-
-    console.log('token');
-    console.log(token);
-
-    this.service.findByToken(token).subscribe(par => {
-      this.id = par.id;
+    console.log('this.token', this.token);
+    this.service.findByToken(this.token).subscribe(par => {
+      console.log('par', par);
+      this.id = par;
+      this.loadDomains();
+      this.recarregarDocumentos();
     })
     this.createGroup();
-    this.loadDomains();
-    this.recarregarDocumentos(this.id);
+    console.log('this.id', this.id);
   }
 
   loadDomains() {
+    debugger;
     this.loading = true;
     this.service.listaDominiosExterno('uf').subscribe((ufs) => {
       console.log("ufs", ufs);
@@ -462,9 +458,9 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.loading = true;
 
-    this.service.findById(this.id, this.method).subscribe(
+    this.service.findPacienteById(this.id).subscribe(
       (result) => {
-        console.log('result', result);
+        console.log('RESULT PACIENTE BY ID', result);
         this.object = result;
         this.loadPhoto = true;
         this.loading = false;
@@ -1348,12 +1344,12 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     );
   }
 
-  recarregarDocumentos(id: number) {
-    this.service
-      .list(`paciente-documento/documento/${id}`)
-      .subscribe((arquivos) => {
-        this.listaArquivosUpload = arquivos;
-      });
+  recarregarDocumentos() {
+    console.log('recarregarDocumentos', this.id);
+    this.service.findDocumentByPacienteId(this.id).subscribe((arquivos) => {
+      this.listaArquivosUpload = arquivos;
+    }
+    );
   }
 
   abrirDocumento(base: any) {
