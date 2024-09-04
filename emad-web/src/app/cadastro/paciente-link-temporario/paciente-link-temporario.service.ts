@@ -474,6 +474,22 @@ export class PacienteLinkTemporarioService extends GenericsService {
       }
     });
   }
+  findDocumentByPacienteId(id: number): Observable<any> {
+    console.log("DOCMENTO", id);
+    return this.http.get('external/paciente-documento/documento/' + id, {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
+      }
+    });
+  }
+  findPacienteById(id: number): Observable<any> {
+    console.log("PACIENTEIDFIND", id);
+    return this.http.get('external/paciente/' + id, {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
+      }
+    });
+  }
   listaDominiosExterno(method: string): Observable<any> {
     return this.http.get('external/dominios/' + method, {
       headers: {
@@ -481,21 +497,9 @@ export class PacienteLinkTemporarioService extends GenericsService {
       }
     });
   }
-  // listaDominiosExterno(dominio: string): Observable<any> {
-  //   return this.http.get('external/dominios', {
-  //     headers: {
-  //       'Authorization': localStorage.getItem('externalToken')
-  //     },
-  //     params: {
-  //       dominio: dominio
-  //     }
-  //   });
-  // }
-  // transfereEstabelecimento(obj: any) {
-  //   return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
-  // }
 
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
+    console.log('external/uf/pais/' + id);
     return this.http.get('external/uf/pais/' + id, {
       headers: {
         'Authorization': localStorage.getItem('externalToken')
