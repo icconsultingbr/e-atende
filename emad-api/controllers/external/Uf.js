@@ -9,7 +9,7 @@ class UfExternoController {
       console.log('carregaNaturalidadePorNacionalidade')
       const conn = await connection();
       const ufRepository = new UfRepository(conn);
-      var response = await ufRepository.buscaPorPais(req.idSap);
+      var response = await ufRepository.buscaPorPais(req.id);
       return ApiResponse.ok(res, response.id);
     }
 

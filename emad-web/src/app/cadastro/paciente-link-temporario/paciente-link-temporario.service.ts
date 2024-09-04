@@ -1,9 +1,14 @@
-import { Injectable } from '@angular/core';
-import { Validators } from '@angular/forms';
-import { GenericsService } from '../../_core/_services/generics.service';
-import { Http } from '@angular/http';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Injectable } from '@angular/core'
+import { Validators } from '@angular/forms'
+import { GenericsService } from '../../_core/_services/generics.service'
+import { HttpClient } from '@angular/common/http'
+import { Observable } from 'rxjs'
+
+type GetHeaders = {
+  headers: {
+    'Authorization': string
+  }
+}
 
 @Injectable()
 export class PacienteLinkTemporarioService extends GenericsService {
@@ -465,41 +470,50 @@ export class PacienteLinkTemporarioService extends GenericsService {
         type: 'select',
       },
     },
-  ];
-  findByToken(token: any): Observable<any> {
-    localStorage.setItem('externalToken', token);
-    return this.http.get('external/paciente/ficha-temporaria', {
-      headers: {
-        'Authorization': token
-      }
-    });
+  ]
+
+  async findByToken(token: string): Promise<any> {
+    localStorage.setItem('externalToken', token)
+
+    return await new Promise((resolve) => {
+      this.http.get('external/paciente/ficha-temporaria', {
+        headers: {
+          'Authorization': token
+        }
+      }).subscribe((id: any) => {
+        return resolve(parseInt(id))
+      })
+    })
   }
-  findDocumentByPacienteId(id: number): Observable<any> {
-    console.log("DOCMENTO", id);
-    return this.http.get('external/paciente-documento/documento/' + id, {
-      headers: {
-        'Authorization': localStorage.getItem('externalToken')
-      }
-    });
+
+  async findDocumentByPacienteId(id: number): Promise<any> {
+    return await new Promise((resolve) => {
+      this.http.get('external/paciente-documento/documento/' + id, this._getHeaders())
+        .subscribe((data) => {
+          return resolve(data)
+        })
+    })
   }
-  findPacienteById(id: number): Observable<any> {
-    console.log("PACIENTEIDFIND", id);
-    return this.http.get('external/paciente/' + id, {
-      headers: {
-        'Authorization': localStorage.getItem('externalToken')
-      }
-    });
+
+  async findPacienteById(id: number): Promise<any | null> {
+    return await new Promise((resolve, reject) => {
+      this.http.get('external/paciente/' + id, this._getHeaders())
+        .subscribe((data: any) => {
+          return resolve(data)
+        }, _ => reject(null))
+    })
   }
-  listaDominiosExterno(method: string): Observable<any> {
-    return this.http.get('external/dominios/' + method, {
-      headers: {
-        'Authorization': localStorage.getItem('externalToken')
-      }
-    });
+
+  async listaDominiosExterno(method: string): Promise<any> {
+    return await new Promise((resolve) => {
+      this.http.get('external/dominios/' + method, this._getHeaders())
+        .subscribe((data) => {
+          return resolve(data)
+        })
+    })
   }
 
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
-    console.log('external/uf/pais/' + id);
     return this.http.get('external/uf/pais/' + id, {
       headers: {
         'Authorization': localStorage.getItem('externalToken')
@@ -623,5 +637,13 @@ export class PacienteLinkTemporarioService extends GenericsService {
       'paciente-documento/atualiza/' + obj.id,
       JSON.stringify(obj),
     );
+  }
+
+  _getHeaders(): GetHeaders {
+    return {
+      headers: {
+        'Authorization': localStorage.getItem('externalToken')
+      }
+    }
   }
 }

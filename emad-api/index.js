@@ -7,10 +7,12 @@ const externalPacienteRoutes = require('./routes/external/PacienteRoute');
 const externalDominiosRoutes = require('./routes/external/DominiosRoute');
 const externalUfRoutes = require('./routes/external/UfRoute');
 const externalAtendimentoHipoteseRoutes = require('./routes/external/AtendimentoHipoteseRoute');
+const externalPacienteDocumentoRoutes = require('./routes/external/PacienteDocumentoRoute');
 app.use('/external', externalDominiosRoutes.routes);
 app.use('/external', externalPacienteRoutes.routes);
 app.use('/external', externalUfRoutes.routes);
 app.use('/external', externalAtendimentoHipoteseRoutes.routes);
+app.use('/external', externalPacienteDocumentoRoutes.routes);
 var server = app.listen(config.apiPort, function () {
     console.log('Server listen at ' + config.apiPort);
 

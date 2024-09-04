@@ -1,17 +1,34 @@
-const ApiResponse = require('../../utilities/ApiResponse');
-const connections = require('../../dao/connections/EatendConnection');
-const PacienteDAO = require ('../../dao/PacienteDAO');
-const {connection} = connections()
-const PacienteRepository = PacienteDAO()
-class PacienteExternoController{
+const ApiResponse = require('../../utilities/ApiResponse')
+const connections = require('../../dao/connections/EatendConnection')
+const PacienteDAO = require ('../../dao/PacienteDAO')
 
-    async obterPacienteIdPortIdSap(req, res, app){
-      const conn = await connection();
-      const pacienteRepository = new PacienteRepository(conn);
-      var response = await pacienteRepository.buscaPorIdSap(req.idSap);
-      console.log('PACIENTE ENCONTRADO', response);
-      return ApiResponse.ok(res, response.id);
+const { connection } = connections()
+const PacienteRepository = PacienteDAO()
+class PacienteExternoController {
+    async obterIdPortIdSap(req, res){
+      const conn = await connection()
+      const pacienteRepository = new PacienteRepository(conn)
+
+      var response = await pacienteRepository.buscaPorIdSap(req.idSap)
+      if(!response.id){
+        return ApiResponse.notFound(res, "Paciente não encontrado")
+      }
+
+      return ApiResponse.ok(res, response.id)
+    }
+
+    async obterPacientePortId(req, res){
+      const conn = await connection()
+      const pacienteRepository = new PacienteRepository(conn)
+
+      pacienteRepository.buscaPorId(req.params.id, response => {
+        if(!response.id){
+          return ApiResponse.notFound(res, "Paciente não encontrado")
+        }
+
+        return ApiResponse.ok(res, response)
+      })
     }
 
 }
-module.exports ={ PacienteExternoController }
+module.exports = { PacienteExternoController }

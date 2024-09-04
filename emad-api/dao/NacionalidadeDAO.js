@@ -3,7 +3,6 @@ function NacionalidadeDAO(connection) {
     this._table = "tb_nacionalidade";
 }
 
-
 NacionalidadeDAO.prototype.lista = function(callback) {
     this._connection.query("select * FROM "+this._table+" WHERE situacao = 1 ORDER BY nome ASC",callback);
 }
@@ -13,7 +12,7 @@ NacionalidadeDAO.prototype.dominio = function(callback) {
 }
 
 NacionalidadeDAO.prototype.buscaPorId = function (id,callback) {
-    this._connection.query("select * from "+this._table+" where id = ?",id,callback); 
+    this._connection.query("select * from "+this._table+" where id = ?",id,callback);
 }
 
 NacionalidadeDAO.prototype.salva = function(objeto,callback) {
@@ -29,7 +28,7 @@ NacionalidadeDAO.prototype.deletaPorId = function (id,callback) {
 }
 
 NacionalidadeDAO.prototype.buscaPorIdSync = async function (id) {
-    return await this._connection.query("select * from "+this._table+" where id = ?",id); 
+    return await this._connection.query("select * from "+this._table+" where id = ?",id);
 }
 
 

@@ -31,6 +31,7 @@ import { Exame } from '../../../_core/_models/Exame';
 import { ProntuarioPacienteImpressaoService } from '../../../shared/services/prontuario-paciente-impressao.service';
 import { ReciboExameImpressaoService } from '../../../shared/services/recibo-exame-impressao.service';
 import { FileUploadService } from '../../../_core/_components/app-file-upload/services/file-upload.service';
+import { pacienteConverter } from '../converters';
 
 @Component({
   selector: 'app-prontuario-paciente-form-link-temporario',
@@ -205,7 +206,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   formHipotese: FormGroup;
   formMedicamento: FormGroup;
   id: number = null;
-  token: number = null;
+  token: string = null;
   // idSap: number = null;
   domains: any[] = [];
   form: FormGroup;
@@ -315,167 +316,138 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.fields = service.fields;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.loading = true
+    this.errors = []
+    this.message = ''
+
     this.route.params.subscribe((params) => {
-      this.token = params['id'];
-    });
-    console.log('this.token', this.token);
-    this.service.findByToken(this.token).subscribe(par => {
-      console.log('par', par);
-      this.id = par;
-      this.loadDomains();
-      this.recarregarDocumentos();
+      this.token = params['id']
     })
-    this.createGroup();
-    console.log('this.id', this.id);
-  }
 
-  loadDomains() {
-    debugger;
-    this.loading = true;
-    this.service.listaDominiosExterno('uf').subscribe((ufs) => {
-      console.log("ufs", ufs);
-      this.service.listaDominiosExterno('nacionalidade').subscribe((paises) => {
-        console.log("paises", paises);
-        this.service.listaDominiosExterno('modalidade').subscribe((modalidades) => {
-          this.service
-            .listaDominiosExterno('estabelecimento')
-            .subscribe((estabelecimentos) => {
-              this.service
-                .listaDominiosExterno('escolaridade')
-                .subscribe((escolaridade) => {
-                  this.service.listaDominiosExterno('raca').subscribe((racas) => {
-                    this.service
-                      .listaDominiosExterno('hipotese-diagnostica')
-                      .subscribe((hipoteseDiagnostica) => {
-                        this.service
-                          .listaDominiosExterno('atencao-continuada')
-                          .subscribe((atencaoContinuada) => {
-                            this.service
-                              .listaDominiosExterno('tipo-ficha')
-                              .subscribe((tipoFichas) => {
-                                this.service
-                                  .list(
-                                    'profissional/estabelecimento/' +
-                                    JSON.parse(localStorage.getItem('est'))[0]
-                                      .id,
-                                  )
-                                  .subscribe((profissionais) => {
-                                    this.service
-                                      .listaDominiosExterno('classificacao-risco')
-                                      .subscribe((classificacaoRiscos) => {
-                                        this.service
-                                          .listaDominiosExterno('tipo-exame')
-                                          .subscribe((tipoExame) => {
-                                            this.domains.push({
-                                              escolaridade: escolaridade,
-                                              idUf: ufs,
-                                              idNacionalidade: paises,
-                                              idNaturalidade: [],
-                                              idMunicipio: [],
-                                              hipoteses: hipoteseDiagnostica,
-                                              idEstabelecimentoCadastro:
-                                                estabelecimentos,
-                                              tipoFichas: tipoFichas,
-                                              profissionais: profissionais,
-                                              classificacaoRiscos:
-                                                classificacaoRiscos,
-                                              tipoHistoriaClinica: [
-                                                { id: 1, nome: 'Anamnese' },
-                                                { id: 2, nome: 'Evolução' },
-                                              ],
-                                              idModalidade: modalidades,
-                                              sexo: [
-                                                { id: '1', nome: 'Masculino' },
-                                                { id: '2', nome: 'Feminino' },
-                                                { id: '3', nome: 'Ambos' },
-                                                {
-                                                  id: '4',
-                                                  nome: 'Não informado',
-                                                },
-                                              ],
-                                              idTipoSanguineo: [
-                                                { id: '1', nome: 'A_POSITIVO' },
-                                                { id: '2', nome: 'A_NEGATIVO' },
-                                                { id: '3', nome: 'B_POSITIVO' },
-                                                { id: '4', nome: 'B_NEGATIVO' },
-                                                {
-                                                  id: '5',
-                                                  nome: 'AB_POSITIVO',
-                                                },
-                                                {
-                                                  id: '6',
-                                                  nome: 'AB_NEGATIVO',
-                                                },
-                                                { id: '7', nome: 'O_POSITIVO' },
-                                                { id: '8', nome: 'O_NEGATIVO' },
-                                              ],
-                                              idRaca: racas,
-                                              idAtencaoContinuada:
-                                                atencaoContinuada,
-                                              gruposAtencaoContinuada:
-                                                atencaoContinuada,
-                                              idTipoExame: tipoExame,
-                                              resultadoFinal: [
-                                                {
-                                                  id: 1,
-                                                  nome: 'Amostra não reagente',
-                                                },
-                                                {
-                                                  id: 2,
-                                                  nome: 'Amostra reagente',
-                                                },
-                                                {
-                                                  id: 3,
-                                                  nome: 'Não realizado',
-                                                },
-                                              ],
-                                            });
-                                            if (!Util.isEmpty(this.id)) {
-                                              this.encontraPaciente();
-                                            } else {
-                                              this.loading = false;
-                                              this.loadPhoto = true;
-                                            }
-                                          });
-                                      });
-                                  });
-                              });
-                          });
-                      });
-                  });
-                });
-            });
-        });
-      });
-    });
-  }
+    const [
+      id,
+      ufs,
+      paises,
+      modalidades,
+      estabelecimentos,
+      escolaridade,
+      racas,
+      hipoteseDiagnostica,
+      atencaoContinuada,
+      tipoFichas,
+    ] = await Promise.all([
+      this.service.findByToken(this.token),
+      this.service.listaDominiosExterno('uf'),
+      this.service.listaDominiosExterno('nacionalidade'),
+      this.service.listaDominiosExterno('modalidade'),
+      this.service.listaDominiosExterno('estabelecimento'),
+      this.service.listaDominiosExterno('escolaridade'),
+      this.service.listaDominiosExterno('raca'),
+      this.service.listaDominiosExterno('hipotese-diagnostica'),
+      this.service.listaDominiosExterno('atencao-continuada'),
+      this.service.listaDominiosExterno('tipo-ficha'),
+    ])
+    const [tipoExame, classificacaoRiscos] = await Promise.all([
+      this.service.listaDominiosExterno('tipo-exame'),
+      this.service.listaDominiosExterno('classificacao-risco'),
+    ])
 
-  encontraPaciente() {
+    this.id = id
 
-    this.object.id = this.id;
-    this.errors = [];
-    this.message = '';
-    this.loading = true;
+    this.object.id = this.id
 
-    this.service.findPacienteById(this.id).subscribe(
-      (result) => {
-        console.log('RESULT PACIENTE BY ID', result);
-        this.object = result;
-        this.loadPhoto = true;
-        this.loading = false;
-        this.carregaNaturalidade();
-      },
-      (error) => {
-        this.object = new Paciente();
-        this.loadPhoto = true;
-        this.loading = false;
-        this.allItemsHipotese = [];
-        this.errors.push({
-          message: 'Paciente não encontrado',
-        });
-      },
-    );
+    const [arquivos, paciente] = await Promise.all([
+      this.service.findDocumentByPacienteId(this.id),
+      await this.service.findPacienteById(this.id)
+    ])
+
+    if (!paciente) {
+      this.object = new Paciente()
+      this.loadPhoto = true
+      this.loading = false
+      this.allItemsHipotese = []
+      this.errors.push({ message: 'Paciente não encontrado' })
+    } else {
+      this.object = pacienteConverter(paciente)
+      this.loadPhoto = true
+      this.loading = false
+      this.carregaNaturalidade()
+    }
+
+    this.listaArquivosUpload = arquivos
+
+    this.service.list('profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
+
+    this.domains.push({
+      escolaridade: escolaridade,
+      idUf: ufs,
+      idNacionalidade: paises,
+      idNaturalidade: [],
+      idMunicipio: [],
+      hipoteses: hipoteseDiagnostica,
+      idEstabelecimentoCadastro:
+        estabelecimentos,
+      tipoFichas: tipoFichas,
+      profissionais: /* profissionais */[],
+      classificacaoRiscos:
+        classificacaoRiscos,
+      tipoHistoriaClinica: [
+        { id: 1, nome: 'Anamnese' },
+        { id: 2, nome: 'Evolução' },
+      ],
+      idModalidade: modalidades,
+      sexo: [
+        { id: '1', nome: 'Masculino' },
+        { id: '2', nome: 'Feminino' },
+        { id: '3', nome: 'Ambos' },
+        {
+          id: '4',
+          nome: 'Não informado',
+        },
+      ],
+      idTipoSanguineo: [
+        { id: '1', nome: 'A_POSITIVO' },
+        { id: '2', nome: 'A_NEGATIVO' },
+        { id: '3', nome: 'B_POSITIVO' },
+        { id: '4', nome: 'B_NEGATIVO' },
+        {
+          id: '5',
+          nome: 'AB_POSITIVO',
+        },
+        {
+          id: '6',
+          nome: 'AB_NEGATIVO',
+        },
+        { id: '7', nome: 'O_POSITIVO' },
+        { id: '8', nome: 'O_NEGATIVO' },
+      ],
+      idRaca: racas,
+      idAtencaoContinuada:
+        atencaoContinuada,
+      gruposAtencaoContinuada:
+        atencaoContinuada,
+      idTipoExame: tipoExame,
+      resultadoFinal: [
+        {
+          id: 1,
+          nome: 'Amostra não reagente',
+        },
+        {
+          id: 2,
+          nome: 'Amostra reagente',
+        },
+        {
+          id: 3,
+          nome: 'Não realizado',
+        },
+      ],
+    })
+
+    this.createGroup()
+
+    this.loading = false
+    this.loadPhoto = true
   }
 
   tabSelected(tab: number) {
@@ -645,17 +617,6 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       .subscribe(
         (result) => {
           this.allItemsSinaisVitaisPressaoArterial = result;
-          //  this.totalPressaoArterial = this.allItemsSinaisVitaisPressaoArterial.length;
-          //  var labels = [];
-          //   for(var item in result){
-          //     labels.push(result[item].label);
-          //   }
-          //   this.lineChartLabelsPressaoArterial = labels;
-          //   var data = [];
-          //   for(var item in result){
-          //     data.push(result[item].pressaoArterial);
-          //   }
-          //   this.lineChartDataPressaoArterial[0].data = data;
 
           this.service
             .findSinaisVitaisByPaciente(this.object.id, 'pulso')
@@ -1344,16 +1305,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     );
   }
 
-  recarregarDocumentos() {
-    console.log('recarregarDocumentos', this.id);
-    this.service.findDocumentByPacienteId(this.id).subscribe((arquivos) => {
-      this.listaArquivosUpload = arquivos;
-    }
-    );
-  }
-
   abrirDocumento(base: any) {
-
     if (base.tipo == 'pdf') {
       const pdf = document.createElement('embed');
 
