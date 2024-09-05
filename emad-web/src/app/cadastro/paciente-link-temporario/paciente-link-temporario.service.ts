@@ -3,6 +3,7 @@ import { Validators } from '@angular/forms'
 import { GenericsService } from '../../_core/_services/generics.service'
 import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs'
+import { ca } from 'date-fns/locale'
 
 type GetHeaders = {
   headers: {
@@ -474,63 +475,71 @@ export class PacienteLinkTemporarioService extends GenericsService {
 
   async findByToken(token: string): Promise<any> {
     localStorage.setItem('externalToken', token)
-
-    return await new Promise((resolve) => {
-      this.http.get('external/paciente/ficha-temporaria', {
-        headers: {
-          'Authorization': token
-        }
-      }).subscribe((id: any) => {
-        return resolve(parseInt(id))
+    try {
+      return await new Promise((resolve) => {
+        this.http.get('external/paciente/ficha-temporaria', this._getHeaders()).subscribe((id: any) => {
+          return resolve(parseInt(id))
+        })
       })
-    })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   }
 
   async findDocumentByPacienteId(id: number): Promise<any> {
-    return await new Promise((resolve) => {
-      this.http.get('external/paciente-documento/documento/' + id, this._getHeaders())
-        .subscribe((data) => {
-          return resolve(data)
-        })
-    })
+    try {
+      return await new Promise((resolve) => {
+        this.http.get('external/paciente-documento/documento/' + id, this._getHeaders())
+          .subscribe((data) => {
+            return resolve(data)
+          })
+      })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   }
 
   async findPacienteById(id: number): Promise<any | null> {
-    return await new Promise((resolve, reject) => {
-      this.http.get('external/paciente/' + id, this._getHeaders())
-        .subscribe((data: any) => {
-          return resolve(data)
-        }, _ => reject(null))
-    })
+    try {
+      return await new Promise((resolve, reject) => {
+        this.http.get('external/paciente/' + id, this._getHeaders())
+          .subscribe((data: any) => {
+            return resolve(data)
+          })
+      })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   }
 
   async listaDominiosExterno(method: string): Promise<any> {
-    return await new Promise((resolve) => {
-      this.http.get('external/dominios/' + method, this._getHeaders())
-        .subscribe((data) => {
-          return resolve(data)
-        })
-    })
+    try {
+      return await new Promise((resolve) => {
+        this.http.get('external/dominios/' + method, this._getHeaders())
+          .subscribe((data) => {
+            return resolve(data)
+          }
+          )
+      })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
   }
 
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
-    return this.http.get('external/uf/pais/' + id, {
-      headers: {
-        'Authorization': localStorage.getItem('externalToken')
-      }
-    });
+    return this.http.get('external/uf/pais/' + id, this._getHeaders());
   }
 
   findHipoteseByPaciente(id: any): Observable<any> {
-    return this.http.get('external/atendimento-hipotese/paciente/' + id, {
-      headers: {
-        'Authorization': localStorage.getItem('externalToken')
-      }
-    });
+    return this.http.get('external/atendimento-hipotese/paciente/' + id, this._getHeaders());
   }
 
   findHipoteseByPacienteAgrupado(id: any): Observable<any> {
-    return this.http.get('atendimento-hipotese/paciente-agrupado/' + id);
+    return this.http.get('external/atendimento-hipotese/paciente-agrupado/' + id);
   }
 
   saveHipotese(obj: any) {

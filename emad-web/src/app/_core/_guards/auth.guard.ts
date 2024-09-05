@@ -7,6 +7,8 @@ import { LoginService } from '../../login/login.service';
 export class AuthGuard implements CanActivate {
   usuario: Usuario = new Usuario();
   menu: string[] = [];
+  externalUrls: string[] = ['paciente-link-temporario'];
+
 
   constructor(private router: Router, private loginService: LoginService) {
 
@@ -42,8 +44,11 @@ export class AuthGuard implements CanActivate {
         return false;
       }
     }
-    // this.router.navigate(['/login']);
-
+    const currentHref = window.location.href
+    const externalRoute = this.externalUrls.find(x => currentHref.includes(x))
+    if (!externalRoute) {
+      this.router.navigate(['/login']);
+    }
     return true;
   }
 

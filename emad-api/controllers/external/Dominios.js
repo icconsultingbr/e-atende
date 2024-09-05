@@ -8,102 +8,175 @@ const ModalidadeDAO = require ('../../dao/ModalidadeDAO');
 const EstabelecimentoDAO = require ('../../dao/EstabelecimentoDAO');
 const RacaDAO = require ('../../dao/RacaDAO');
 const GenericDAO = require ('../../dao/GenericDAO');
-const DominiosHipoteseDiagnosticaRepository = require ('../../dao/HipoteseDiagnosticaDAO');
+const DominiosHipoteseDiagnosticaDAO = require ('../../dao/HipoteseDiagnosticaDAO');
+const TipoFichaDAO = require ('../../dao/TipoFichaDAO');
 const DominiosUfRepository = UfDAO()
 const DominiosTipoUnidadeRepository = TipoUnidadeDAO()
 const DominiosNacionalidadeRepository = NacionalidadeDAO()
 const DominiosModalidadeRepository = ModalidadeDAO()
 const DominiosEstabelecimentoRepository = EstabelecimentoDAO()
 const DominiosGenericRepository = GenericDAO()
-//fazer escolaridade
 const RacaRepository = RacaDAO()
-const HipoteseDiagnosticaRepository = DominiosHipoteseDiagnosticaRepository()
+const HipoteseDiagnosticaRepository = DominiosHipoteseDiagnosticaDAO()
+const TipoFichaRepository = TipoFichaDAO()
 
-class DominiosExternoController{
-
-  // async listaDominios(req, res, app){
-  //   const domicioEspecifico = req.query.dominio;
-  //   console.log('domínio espec[ifico',domicioEspecifico)
-  //   const conn = await connection();
-
-  //   const dominiosRepository = new DominiosUfRepository(conn);
-  //   var response = await dominiosRepository.dominio(dominiosRepository,domicioEspecifico, res)
-  //   console.log(response)
-  //   ApiResponse.ok(res, response)
-  //   return
-  // }
-    async listaDominiosUf(req, res, app){
+class DominiosExternoController {
+  async listaDominiosUf(req, res, app) {
       const conn = await connection();
       const dominiosUfRepository = new DominiosUfRepository(conn);
-      dominiosUfRepository.dominio((exception, result)=>{
-        console.log('RESPONSE UF',result)
-        console.log('exception UF',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
+      dominiosUfRepository.dominio((exception, result) => {
+          console.log('RESPONSE UF', result);
+          console.log('exception UF', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
 
-    async listaDominiosTipoUnidade(req, res, app){
+  async listaDominiosTipoUnidade(req, res, app) {
       const conn = await connection();
       const dominiosTipoUnidadeRepository = new DominiosTipoUnidadeRepository(conn);
-      dominiosTipoUnidadeRepository.dominio((exception, result)=>{
-        console.log('RESPONSE TIPO UNIDADE',result)
-        console.log('exception TIPO UNIDADE',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaNacionalidade(req, res, app){
+      dominiosTipoUnidadeRepository.dominio((exception, result) => {
+          console.log('RESPONSE TIPO UNIDADE', result);
+          console.log('exception TIPO UNIDADE', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaNacionalidade(req, res, app) {
       const conn = await connection();
       const dominiosNacionalidadeRepository = new DominiosNacionalidadeRepository(conn);
-      dominiosNacionalidadeRepository.dominio((exception, result)=>{
-        console.log('RESPONSE NACIONALIDADE',result)
-        console.log('exception NACIONALIDADE',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaModalidade(req, res, app){
+      dominiosNacionalidadeRepository.dominio((exception, result) => {
+          console.log('RESPONSE NACIONALIDADE', result);
+          console.log('exception NACIONALIDADE', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaModalidade(req, res, app) {
       const conn = await connection();
       const dominiosModalidadeRepository = new DominiosModalidadeRepository(conn);
-      dominiosModalidadeRepository.dominio((exception, result)=>{
-        console.log('RESPONSE MODALIDADE',result)
-        console.log('exception MODALIDADE',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaEstabelecimento(req, res, app){
+      dominiosModalidadeRepository.dominio((exception, result) => {
+          console.log('RESPONSE MODALIDADE', result);
+          console.log('exception MODALIDADE', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaEstabelecimento(req, res, app) {
       const conn = await connection();
       const dominiosEstabelecimentoRepository = new DominiosEstabelecimentoRepository(conn);
-      dominiosEstabelecimentoRepository.dominio((exception, result)=>{
-        console.log('RESPONSE ESTABELECIMENTO',result)
-        console.log('exception ESTABELECIMENTO',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaEscolaridade(req, res, app){
+      dominiosEstabelecimentoRepository.dominio((exception, result) => {
+          console.log('RESPONSE ESTABELECIMENTO', result);
+          console.log('exception ESTABELECIMENTO', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaEscolaridade(req, res, app) {
       const conn = await connection();
       const dominiosGenericRepository = new DominiosGenericRepository(conn, "tb_escolaridade");
-      dominiosGenericRepository.dominio((exception, result)=>{
-        console.log('RESPONSE ESCOLARIDADE',result)
-        console.log('exception ESCOLARIDADE',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaRaca(req, res, app){
+      dominiosGenericRepository.dominio((exception, result) => {
+          console.log('RESPONSE ESCOLARIDADE', result);
+          console.log('exception ESCOLARIDADE', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaRaca(req, res, app) {
       const conn = await connection();
       const dominiosRacaRepository = new RacaRepository(conn);
-      dominiosRacaRepository.dominio((exception, result)=>{
-        console.log('RESPONSE RAÇA',result)
-        console.log('exception RAÇA',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
-    async listaHipoteseDiagnostica(req, res, app){
+      dominiosRacaRepository.dominio((exception, result) => {
+          console.log('RESPONSE RAÇA', result);
+          console.log('exception RAÇA', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaHipoteseDiagnostica(req, res, app) {
       const conn = await connection();
       const dominiosHipoteseDiagnosticaRepository = new HipoteseDiagnosticaRepository(conn);
-      dominiosHipoteseDiagnosticaRepository.dominio((exception, result)=>{
-        console.log('RESPONSE DIAGNOSTICO',result)
-        console.log('exception DIAGNOSTICO',exception)
-        ApiResponse.ok(res, result)
-      })
-    }
+      dominiosHipoteseDiagnosticaRepository.dominio((exception, result) => {
+          console.log('RESPONSE DIAGNOSTICO', result);
+          console.log('exception DIAGNOSTICO', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaTipoFicha(req, res, app) {
+      console.log('ENTROU NO TIPO FICHA');
+      const conn = await connection();
+      const dominiosTipoFichaRepository = new TipoFichaRepository(conn);
+      dominiosTipoFichaRepository.externalDominio((exception, result) => {
+          console.log('RESPONSE TIPOFICHA', result);
+          console.log('exception TIPOFICHA', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaAtencaoContinuada(req, res, app) {
+      const conn = await connection();
+      const dominiosGenericRepository = new DominiosGenericRepository(conn, "tb_atencao_continuada");
+      dominiosGenericRepository.dominio((exception, result) => {
+          console.log('RESPONSE ATENCAO CONTINUADA', result);
+          console.log('exception ATENCAO CONTINUADA', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaTipoExame(req, res, app) {
+      const conn = await connection();
+      const dominiosGenericRepository = new DominiosGenericRepository(conn, "tb_tipo_exame");
+      dominiosGenericRepository.dominio((exception, result) => {
+          console.log('RESPONSE TIPO EXAME', result);
+          console.log('exception TIPO EXAME', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
+
+  async listaClasificacaoRisco(req, res, app) {
+      const conn = await connection();
+      const dominiosGenericRepository = new DominiosGenericRepository(conn, "tb_classificacao_risco");
+      dominiosGenericRepository.dominio((exception, result) => {
+          console.log('RESPONSE CLASSIFICACAO RISCO', result);
+          console.log('exception CLASSIFICACAO RISCO', exception);
+          if (exception) {
+              return ApiResponse.serverError(res, exception);
+          }
+          return ApiResponse.ok(res, result);
+      });
+  }
 }
-module.exports ={ DominiosExternoController }
+
+module.exports = { DominiosExternoController };

@@ -13,5 +13,10 @@ routes.get('/dominios/modalidade', externalAuth, dominios.listaModalidade)
 routes.get('/dominios/estabelecimento', externalAuth, dominios.listaEstabelecimento)
 routes.get('/dominios/escolaridade', externalAuth, dominios.listaEscolaridade)
 routes.get('/dominios/raca', externalAuth, dominios.listaRaca)
+routes.get('/dominios/hipotese-diagnostica', externalAuth, dominios.listaHipoteseDiagnostica)
+routes.get('/dominios/atencao-continuada', externalAuth, dominios.listaAtencaoContinuada)
+routes.get('/dominios/tipo-ficha', externalAuth, dominios.listaTipoFicha)
+routes.get('/dominios/tipo-exame', externalAuth, dominios.listaTipoExame)
+routes.get('/dominios/classificacao-risco', externalAuth, dominios.listaClasificacaoRisco)
 
 module.exports = { routes }

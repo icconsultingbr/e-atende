@@ -14,6 +14,15 @@ class AtendimentoHipoteseExternoController{
       console.log('ATENDIMENTO HIPOTESE !', response);
       return ApiResponse.ok(res, response.id);
     }
+    async obterPacienteAgrupadoPorId(req, res, app){
+      let id = req.params.id;
+
+      const conn = await connection();
+      const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
+      var response = await atendimentoHipoteseRepository.listarPorPacienteAgrupada(id);
+      console.log('ATENDIMENTO HIPOTESE !', response);
+      return ApiResponse.ok(res, response.id);
+    }
 
 }
 module.exports ={ AtendimentoHipoteseExternoController }

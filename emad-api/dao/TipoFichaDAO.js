@@ -40,12 +40,16 @@ TipoFichaDAO.prototype.dominio = async function (callback) {
     this._connection.query("select id, nome FROM " + this._table + " WHERE situacao = 1 ORDER BY id ASC", callback);
 }
 
+TipoFichaDAO.prototype.externalDominio = function (callback) {
+  this._connection.query("select id, nome FROM " + this._table + " WHERE situacao = 1 ORDER BY id ASC", callback);
+}
+
 TipoFichaDAO.prototype.buscarPorIdEstabelecimento = async function (idEstabelecimento) {
-    let result = await this._connection.query(`SELECT ttf.id, ttf.nome FROM 
-                                                   tb_estabelecimento_ficha tef 
-                                               INNER JOIN 
-                                                   tb_tipo_ficha ttf ON ttf.id = tef.idTipoFicha  
-                                               WHERE 
+    let result = await this._connection.query(`SELECT ttf.id, ttf.nome FROM
+                                                   tb_estabelecimento_ficha tef
+                                               INNER JOIN
+                                                   tb_tipo_ficha ttf ON ttf.id = tef.idTipoFicha
+                                               WHERE
                                                    ttf.situacao = 1 and
                                                    tef.idEstabelecimento =?`, [idEstabelecimento] + " ORDER BY ttf.id ASC");
 

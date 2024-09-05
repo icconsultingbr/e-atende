@@ -18,7 +18,7 @@ import { AppModalModule } from '../../_core/_components/app-modal/app-modal.modu
 import 'rxjs/add/operator/map';
 import { SharedServiceModule } from '../../shared/services/shared-service.module';
 import { TabsModule } from 'ngx-bootstrap/tabs';
-import { ProntuarioPacienteFormLinkTemporarioComponent } from './prontuario-paciente-link-temporario/prontuario-paciente-form-link-temporario.component';
+import { ProntuarioPacienteFormLinkTemporarioComponent } from './prontuario-paciente-form-link-temporario/prontuario-paciente-form-link-temporario.component';
 import { AppSelectModule } from '../../_core/_components/app-select/app-select.module';
 import { AppSelectModalModule } from '../../_core/_components/app-select-modal/app-select-modal.module';
 import { AppImageCropperUploadModule } from '../../_core/_components/app-image-cropper-upload/app-image-cropper-upload.module';

@@ -25,7 +25,6 @@ import { MainChartLine } from '../../../_core/_models/MainChart';
 import { AtendimentoService } from '../../../operacao/atendimento/atendimento.service';
 import {
   Atendimento,
-  AtendimentoHistorico,
 } from '../../../_core/_models/Atendimento';
 import { Exame } from '../../../_core/_models/Exame';
 import { ProntuarioPacienteImpressaoService } from '../../../shared/services/prontuario-paciente-impressao.service';
@@ -317,6 +316,8 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.createGroup()
+    console.log('INIT')
     this.loading = true
     this.errors = []
     this.message = ''
@@ -325,42 +326,27 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       this.token = params['id']
     })
 
-    const [
-      id,
-      ufs,
-      paises,
-      modalidades,
-      estabelecimentos,
-      escolaridade,
-      racas,
-      hipoteseDiagnostica,
-      atencaoContinuada,
-      tipoFichas,
-    ] = await Promise.all([
-      this.service.findByToken(this.token),
-      this.service.listaDominiosExterno('uf'),
-      this.service.listaDominiosExterno('nacionalidade'),
-      this.service.listaDominiosExterno('modalidade'),
-      this.service.listaDominiosExterno('estabelecimento'),
-      this.service.listaDominiosExterno('escolaridade'),
-      this.service.listaDominiosExterno('raca'),
-      this.service.listaDominiosExterno('hipotese-diagnostica'),
-      this.service.listaDominiosExterno('atencao-continuada'),
-      this.service.listaDominiosExterno('tipo-ficha'),
-    ])
-    const [tipoExame, classificacaoRiscos] = await Promise.all([
-      this.service.listaDominiosExterno('tipo-exame'),
-      this.service.listaDominiosExterno('classificacao-risco'),
-    ])
+    console.log('TOKEN', this.token)
+    const id = await this.service.findByToken(this.token)
 
     this.id = id
 
     this.object.id = this.id
 
-    const [arquivos, paciente] = await Promise.all([
-      this.service.findDocumentByPacienteId(this.id),
-      await this.service.findPacienteById(this.id)
-    ])
+    const arquivos = await this.service.findDocumentByPacienteId(this.id)
+    const paciente = await this.service.findPacienteById(this.id)
+
+    const hipoteseDiagnostica = await this.service.listaDominiosExterno('hipotese-diagnostica')
+    const estabelecimentos = await this.service.listaDominiosExterno('estabelecimento')
+    const tipoFichas = await this.service.listaDominiosExterno('tipo-ficha')
+    const classificacaoRiscos = await this.service.listaDominiosExterno('classificacao-risco')
+    const atencaoContinuada = await this.service.listaDominiosExterno('atencao-continuada')
+    const tipoExame = await this.service.listaDominiosExterno('tipo-exame')
+    const escolaridade = await this.service.listaDominiosExterno('escolaridade')
+    const ufs = await this.service.listaDominiosExterno('uf')
+    const paises = await this.service.listaDominiosExterno('nacionalidade')
+    const modalidades = await this.service.listaDominiosExterno('modalidade')
+    const racas = await this.service.listaDominiosExterno('raca')
 
     if (!paciente) {
       this.object = new Paciente()
@@ -373,11 +359,11 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       this.loadPhoto = true
       this.loading = false
       this.carregaNaturalidade()
+      this.service.list('profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
     }
 
     this.listaArquivosUpload = arquivos
 
-    this.service.list('profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
 
     this.domains.push({
       escolaridade: escolaridade,
@@ -444,7 +430,6 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       ],
     })
 
-    this.createGroup()
 
     this.loading = false
     this.loadPhoto = true

@@ -468,6 +468,8 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
 }
 
 PacienteDAO.prototype.buscaPorId = function (id, callback) {
+  console.log('ID', id)
+  console.log("callback", callback)
     this._connection.query(`SELECT
     id,
     cartaoSus,

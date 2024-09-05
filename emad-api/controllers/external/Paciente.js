@@ -20,14 +20,14 @@ class PacienteExternoController {
     async obterPacientePortId(req, res){
       const conn = await connection()
       const pacienteRepository = new PacienteRepository(conn)
-
-      pacienteRepository.buscaPorId(req.params.id, response => {
-        if(!response.id){
-          return ApiResponse.notFound(res, "Paciente não encontrado")
+      console.log('ID', req.params.id)
+      pacienteRepository.buscaPorId(req.params.id, (result) => {
+        console.log('RESPONSE PACIENTE', result);
+        if (!result) {
+            return ApiResponse.serverError(res, result);
         }
-
-        return ApiResponse.ok(res, response)
-      })
+        return ApiResponse.ok(res, result);
+    });
     }
 
 }
