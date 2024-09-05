@@ -329,12 +329,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     console.log('TOKEN', this.token)
     const id = await this.service.findByToken(this.token)
 
-    this.id = id
 
-    this.object.id = this.id
-
-    const arquivos = await this.service.findDocumentByPacienteId(this.id)
-    const paciente = await this.service.findPacienteById(this.id)
 
     const hipoteseDiagnostica = await this.service.listaDominiosExterno('hipotese-diagnostica')
     const estabelecimentos = await this.service.listaDominiosExterno('estabelecimento')
@@ -347,6 +342,13 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     const paises = await this.service.listaDominiosExterno('nacionalidade')
     const modalidades = await this.service.listaDominiosExterno('modalidade')
     const racas = await this.service.listaDominiosExterno('raca')
+
+    this.id = id
+
+    this.object.id = this.id
+
+    const arquivos = await this.service.findDocumentByPacienteId(this.id)
+    const paciente = await this.service.findPacienteById(this.id)
 
     if (!paciente) {
       this.object = new Paciente()
