@@ -10,18 +10,22 @@ class PacienteDocumentoExternoController{
       console.log('ID ==>',id);
 
       const conn = await connection();
-      const atendimentoHipoteseRepository = new PacienteDocumentoRepository(conn);
-      let items = [];
-      items = await atendimentoHipoteseRepository.buscaPorIdPaciente(id);
-      console.log('ITEMS ==>',items);
-      for (const itemfile of items) {
+      try{
+
+        const atendimentoHipoteseRepository = new PacienteDocumentoRepository(conn);
+        let items = [];
+        items = await atendimentoHipoteseRepository.buscaPorIdPaciente(id);
+        console.log('ITEMS ==>',items);
+        for (const itemfile of items) {
           const fs = require('fs');
           if(fs.existsSync(itemfile.caminho)){
-              itemfile.base64 = fs.readFileSync(itemfile.caminho, { encoding: 'base64' });
+            itemfile.base64 = fs.readFileSync(itemfile.caminho, { encoding: 'base64' });
           }
+        }
+        return ApiResponse.ok(res, items);
+      } finally {
+        await conn.close();
       }
-      return ApiResponse.ok(res, items);
     }
-
-}
+    }
 module.exports ={ PacienteDocumentoExternoController }

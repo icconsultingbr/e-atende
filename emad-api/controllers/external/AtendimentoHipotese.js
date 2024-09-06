@@ -6,22 +6,32 @@ const AtendimentoHipoteseRepository = AtendimentoHipoteseDAO()
 class AtendimentoHipoteseExternoController{
 
     async obterPacientePorId(req, res, app){
-      let id = req.params.id;
-
+      const id = req.params.id;
       const conn = await connection();
-      const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
-      var response = await atendimentoHipoteseRepository.listarPorPaciente(id,0,0);
-      console.log('ATENDIMENTO HIPOTESE !', response);
-      return ApiResponse.ok(res, response.id);
+      try{
+        const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
+        const response = await atendimentoHipoteseRepository.listarPorPaciente(id,0,0);
+        if(!response){
+          return ApiResponse.notFound(res, "Atendimento Hipotese não encontrado")
+        }
+        return ApiResponse.ok(res, response.id);
+      } finally {
+        await conn.close();
+      }
     }
     async obterPacienteAgrupadoPorId(req, res, app){
-      let id = req.params.id;
-
+      const id = req.params.id;
       const conn = await connection();
-      const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
-      var response = await atendimentoHipoteseRepository.listarPorPacienteAgrupada(id);
-      console.log('ATENDIMENTO HIPOTESE !', response);
-      return ApiResponse.ok(res, response.id);
+      try{
+        const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
+        const response = await atendimentoHipoteseRepository.listarPorPacienteAgrupada(id);
+        if(!response){
+          return ApiResponse.notFound(res, "Atendimento Hipotese não encontrado")
+        }
+        return ApiResponse.ok(res, response);
+      } finally {
+        await conn.close();
+      }
     }
 
 }

@@ -11,7 +11,7 @@ HipoteseDiagnosticaDAO.prototype.lista = function(callback) {
 HipoteseDiagnosticaDAO.prototype.listarAsync = async function (addFilter) {
     let where = "";
     let offset = " LIMIT 10 OFFSET 0 ";
-    
+
 
     if(addFilter){
 
@@ -26,14 +26,14 @@ HipoteseDiagnosticaDAO.prototype.listarAsync = async function (addFilter) {
         if(addFilter.limit && addFilter.offset){
             offset = `LIMIT ${addFilter.limit} OFFSET ${addFilter.limit * addFilter.offset}`;
         }
-    }    
-    
+    }
+
     const join = ` FROM ${this._table}
     WHERE situacao = 1 ${where}`;
 
     const count = await this._connection.query(`SELECT COUNT(1) as total ${join}`);
 
-    const result = await this._connection.query(`SELECT * ${join}  
+    const result = await this._connection.query(`SELECT * ${join}
                                             ORDER BY nome ASC ${offset}`);
     return {
         total: count[0].total,
@@ -46,8 +46,13 @@ HipoteseDiagnosticaDAO.prototype.dominio = function(callback) {
     this._connection.query("select id, CONCAT(nome, ' (',cid_10,')') as nome FROM "+this._table+" WHERE situacao = 1 ORDER BY nome ASC",callback);
 }
 
+HipoteseDiagnosticaDAO.prototype.dominioAsync = async function() {
+    const resp = await this._connection.query("select id, CONCAT(nome, ' (',cid_10,')') as nome FROM "+this._table+" WHERE situacao = 1 ORDER BY nome ASC");
+   return resp;
+  }
+
 HipoteseDiagnosticaDAO.prototype.buscaPorId = function (id,callback) {
-    this._connection.query("select * from "+this._table+" where id = ?",id,callback); 
+    this._connection.query("select * from "+this._table+" where id = ?",id,callback);
 }
 
 HipoteseDiagnosticaDAO.prototype.salva = function(objeto,callback) {

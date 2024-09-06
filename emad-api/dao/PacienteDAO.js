@@ -3,8 +3,8 @@ function PacienteDAO(connection, connectionDim) {
     this._connectionDim = connectionDim;
     this._table = "tb_paciente";
 }
-PacienteDAO.prototype.buscaPorIdSap = async function (idSap, callback) {
-  let paciente = await this._connection.query(`select id from tb_paciente tp where idSap = ?` , idSap, callback);
+PacienteDAO.prototype.buscaPorIdSapAsync = async function (idSap) {
+  let paciente = await this._connection.query(`select id from tb_paciente tp where idSap = ?` , idSap);
 
   return paciente[0]
 }
@@ -529,6 +529,70 @@ PacienteDAO.prototype.buscaPorId = function (id, callback) {
     nuGestasPrevias,
     nuPartos
     FROM ${this._table} WHERE id = ?`, id, callback);
+}
+
+PacienteDAO.prototype.buscaPorIdAsync = async function (id) {
+  console.log('ID', id)
+   const resp = await this._connection.query(`SELECT
+    id,
+    cartaoSus,
+    nome,
+    nomeSocial,
+    nomeMae,
+    nomePai,
+    DATE_FORMAT(dataNascimento,'%d/%m/%Y') as dataNascimento,
+    sexo,
+    idOrientacaoSexual,
+    idGenero,
+    idNacionalidade,
+    idNaturalidade,
+    ocupacao,
+    cpf,
+    rg,
+    DATE_FORMAT(dataEmissao,'%d/%m/%Y') as dataEmissao,
+    orgaoEmissor,
+    escolaridade,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    idMunicipio,
+    idUf,
+    foneResidencial,
+    foneCelular,
+    foneContato,
+    contato,
+    email,
+    situacao,
+    idModalidade,
+    DATE_FORMAT(dataCriacao,'%d/%m/%Y') as dataCriacao,
+    latitude,
+    longitude,
+    idSap,
+    idPacienteCorrespondenteDim,
+    idTipoSanguineo,
+    idRaca,
+    numeroProntuario,
+    numeroProntuarioCnes,
+    falecido,
+    idAtencaoContinuada,
+    idEstabelecimentoCadastro,
+    apelido,
+    observacao,
+    historiaProgressaFamiliar,
+    foto,
+    necessidadeEspeciais,
+    reeducando,
+    gestante,
+    aleitamentoMaterno,
+    DATE_FORMAT(dumDaGestante,'%d/%m/%Y') as dumDaGestante,
+    idadeGestacional,
+    stGravidezPlanejada,
+    nuGestasPrevias,
+    nuPartos
+    FROM ${this._table} WHERE id = ?`, id);
+    return resp;
 }
 
 PacienteDAO.prototype.buscaPorIdSync = async function (id) {

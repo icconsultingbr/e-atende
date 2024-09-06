@@ -328,27 +328,32 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
 
     console.log('TOKEN', this.token)
     const id = await this.service.findByToken(this.token)
-
-
-
-    const hipoteseDiagnostica = await this.service.listaDominiosExterno('hipotese-diagnostica')
-    const estabelecimentos = await this.service.listaDominiosExterno('estabelecimento')
-    const tipoFichas = await this.service.listaDominiosExterno('tipo-ficha')
-    const classificacaoRiscos = await this.service.listaDominiosExterno('classificacao-risco')
-    const atencaoContinuada = await this.service.listaDominiosExterno('atencao-continuada')
-    const tipoExame = await this.service.listaDominiosExterno('tipo-exame')
-    const escolaridade = await this.service.listaDominiosExterno('escolaridade')
-    const ufs = await this.service.listaDominiosExterno('uf')
-    const paises = await this.service.listaDominiosExterno('nacionalidade')
-    const modalidades = await this.service.listaDominiosExterno('modalidade')
-    const racas = await this.service.listaDominiosExterno('raca')
-
     this.id = id
 
     this.object.id = this.id
 
     const arquivos = await this.service.findDocumentByPacienteId(this.id)
-    const paciente = await this.service.findPacienteById(this.id)
+
+    const [paciente] = await this.service.findPacienteById(this.id)
+
+    const {
+      ufs,
+      nacionalidades,
+      modalidades,
+      estabelecimentos,
+      racas,
+      hipoteseDiagnostica,
+      tipoFichas,
+      atencaoContinuadas,
+      tipoExames,
+      classificacaoRiscos,
+      escolaridades
+    } = await this.service.listaTodosDominiosExterno()
+
+    const paises = nacionalidades
+    const atencaoContinuada = atencaoContinuadas
+    const tipoExame = tipoExames
+    const escolaridade = escolaridades
 
     if (!paciente) {
       this.object = new Paciente()
@@ -361,11 +366,12 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       this.loadPhoto = true
       this.loading = false
       this.carregaNaturalidade()
-      this.service.list('profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
+      this.service.list('external/profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
     }
 
     this.listaArquivosUpload = arquivos
 
+    this.loading = false
 
     this.domains.push({
       escolaridade: escolaridade,
@@ -433,7 +439,6 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     })
 
 
-    this.loading = false
     this.loadPhoto = true
   }
 
@@ -450,6 +455,8 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   carregaNaturalidade() {
+    console.log('this.object.idNacionalidad', this.object.idNacionalidade);
+
     this.loading = true;
     this.service
       .carregaNaturalidadePorNacionalidade(this.object.idNacionalidade)

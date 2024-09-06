@@ -12,8 +12,13 @@ TipoUnidadeDAO.prototype.dominio = function(callback) {
     this._connection.query("select id, nome FROM "+this._table+" WHERE situacao = 1 ORDER BY nome ASC",callback);
 }
 
+TipoUnidadeDAO.prototype.dominioAsync = async function() {
+  const resp = await this._connection.query("select id, nome FROM "+this._table+" WHERE situacao = 1 ORDER BY nome ASC");
+  return resp;
+ }
+
 TipoUnidadeDAO.prototype.buscaPorId = function (id,callback) {
-    this._connection.query("select * from "+this._table+" where id = ?",id,callback); 
+    this._connection.query("select * from "+this._table+" where id = ?",id,callback);
 }
 
 TipoUnidadeDAO.prototype.salva = function(objeto,callback) {

@@ -18,5 +18,6 @@ routes.get('/dominios/atencao-continuada', externalAuth, dominios.listaAtencaoCo
 routes.get('/dominios/tipo-ficha', externalAuth, dominios.listaTipoFicha)
 routes.get('/dominios/tipo-exame', externalAuth, dominios.listaTipoExame)
 routes.get('/dominios/classificacao-risco', externalAuth, dominios.listaClasificacaoRisco)
+routes.get('/dominios', externalAuth, dominios.listaDominios)
 
 module.exports = { routes }

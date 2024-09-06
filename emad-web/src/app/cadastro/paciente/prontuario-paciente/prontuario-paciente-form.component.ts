@@ -327,6 +327,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
   }
 
   carregaNaturalidade() {
+    console.log('this.object.idNacionalidad', this.object.idNacionalidade);
     this.loading = true;
     this.service
       .carregaNaturalidadePorNacionalidade(this.object.idNacionalidade)

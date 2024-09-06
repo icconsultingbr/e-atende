@@ -13,7 +13,7 @@ EstabelecimentoDAO.prototype.atualiza = function (estabelecimento, id, callback)
 
 EstabelecimentoDAO.prototype.listaPorUsuario = function (id) {
 
-    return this._connection.query(`SELECT 
+    return this._connection.query(`SELECT
         e.id,
         e.cnes,
         e.cnpj,
@@ -27,14 +27,14 @@ EstabelecimentoDAO.prototype.listaPorUsuario = function (id) {
         m.id as idMunicipio,
         u.id as idUf,
         e.telefone1,
-        e.telefone2, 
+        e.telefone2,
         e.email,
         e.cnpjMantedora,
         e.grauDependencia,
         e.terceiros,
         tu.nome as idTipoUnidade,
         e.esferaAdministradora,
-        e.situacao, 
+        e.situacao,
         e.dataCriacao,
         e.latitude,
         e.longitude,
@@ -43,7 +43,7 @@ EstabelecimentoDAO.prototype.listaPorUsuario = function (id) {
         e.idUnidadeRegistroReceitaDim,
         e.nivelSuperior,
         e.idEstabelecimentoNivelSuperior,
-        e.cnsProfissionaleSus, 
+        e.cnsProfissionaleSus,
         e.obrigaCpfNovoPaciente,
         e.obrigaIdSAP,
         e.obrigaCiap2,
@@ -51,24 +51,24 @@ EstabelecimentoDAO.prototype.listaPorUsuario = function (id) {
         e.enviaMedicamentoSus,
         e.obrigaValidarPacienteAtendimento,
         e.celularDefaultNovoPaciente
-    FROM 
+    FROM
         tb_estabelecimento AS e
-    INNER JOIN 
-        tb_estabelecimento_usuario as eu ON(e.id = eu.idEstabelecimento)  
-    INNER JOIN 
-        tb_municipio as m ON(e.idMunicipio = m.id) 
-    INNER JOIN 
-        tb_uf as u ON(e.idUf = u.id) 
+    INNER JOIN
+        tb_estabelecimento_usuario as eu ON(e.id = eu.idEstabelecimento)
+    INNER JOIN
+        tb_municipio as m ON(e.idMunicipio = m.id)
+    INNER JOIN
+        tb_uf as u ON(e.idUf = u.id)
     INNER JOIN
         tb_especialidade es ON(e.cboProfissionalEsus = es.id)
-    INNER JOIN 
+    INNER JOIN
         tb_tipo_unidade as tu ON(e.idTipoUnidade = tu.id) WHERE eu.idUsuario = ? ORDER BY e.nomeFantasia ASC`, id);
 
 
 }
 
 EstabelecimentoDAO.prototype.listaEstabelecimentosNivelSuperior = function (id, callback) {
-    this._connection.query(`select e.id, e.razaoSocial as nome FROM ${this._table} as e     
+    this._connection.query(`select e.id, e.razaoSocial as nome FROM ${this._table} as e
     WHERE e.situacao = 1 and nivelSuperior = 1 and e.id <> ? ORDER BY e.nomeFantasia ASC`, id, callback);
 }
 
@@ -101,7 +101,7 @@ EstabelecimentoDAO.prototype.lista = async function (addFilter) {
         }
     }
 
-    return await this._connection.query(`SELECT 
+    return await this._connection.query(`SELECT
         e.id,
         e.cnes,
         e.cnpj,
@@ -115,14 +115,14 @@ EstabelecimentoDAO.prototype.lista = async function (addFilter) {
         m.id as idMunicipio,
         u.id as idUf,
         e.telefone1,
-        e.telefone2, 
+        e.telefone2,
         e.email,
         e.cnpjMantedora,
         e.grauDependencia,
         e.terceiros,
         tu.nome as idTipoUnidade,
         e.esferaAdministradora,
-        e.situacao, 
+        e.situacao,
         e.dataCriacao,
         e.latitude,
         e.longitude,
@@ -131,27 +131,27 @@ EstabelecimentoDAO.prototype.lista = async function (addFilter) {
         e.idUnidadeRegistroReceitaDim,
         e.nivelSuperior,
         e.idEstabelecimentoNivelSuperior,
-        e.cnsProfissionaleSus, 
+        e.cnsProfissionaleSus,
         e.obrigaCpfNovoPaciente,
         e.obrigaCartaoSusNovoPaciente,
         e.obrigaIdSAP,
         e.obrigaCiap2,
         e.enviaMedicamentoSus
-    FROM 
-        tb_estabelecimento AS e 
-    INNER JOIN 
-        tb_municipio as m ON(e.idMunicipio = m.id) 
-    INNER JOIN 
-        tb_uf as u ON(e.idUf = u.id) 
+    FROM
+        tb_estabelecimento AS e
+    INNER JOIN
+        tb_municipio as m ON(e.idMunicipio = m.id)
+    INNER JOIN
+        tb_uf as u ON(e.idUf = u.id)
     INNER JOIN
         tb_especialidade es ON(e.cboProfissionalEsus = es.id)
-    INNER JOIN 
+    INNER JOIN
         tb_tipo_unidade as tu ON(e.idTipoUnidade = tu.id) WHERE e.situacao = 1 ORDER BY e.nomeFantasia ASC ${where} `);
 }
 
 EstabelecimentoDAO.prototype.buscaPorId = async function (id, callback) {
 
-    return await this._connection.query(`SELECT 
+    return await this._connection.query(`SELECT
             e.id,
             e.cnes,
             e.cnpj,
@@ -165,14 +165,14 @@ EstabelecimentoDAO.prototype.buscaPorId = async function (id, callback) {
             m.id as idMunicipio,
             u.id as idUf,
             e.telefone1,
-            e.telefone2, 
+            e.telefone2,
             e.email,
             e.cnpjMantedora,
             e.grauDependencia,
             e.terceiros,
             tu.id as idTipoUnidade,
             e.esferaAdministradora,
-            e.situacao, 
+            e.situacao,
             e.dataCriacao,
             e.latitude,
             e.longitude,
@@ -181,8 +181,8 @@ EstabelecimentoDAO.prototype.buscaPorId = async function (id, callback) {
             e.idUnidadeRegistroReceitaDim,
             e.nivelSuperior,
             e.idEstabelecimentoNivelSuperior,
-            e.cboProfissionalEsus, 
-            e.cnsProfissionaleSus, 
+            e.cboProfissionalEsus,
+            e.cnsProfissionaleSus,
             e.obrigaCpfNovoPaciente,
             e.obrigaCartaoSusNovoPaciente,
             e.obrigaIdSAP,
@@ -190,22 +190,22 @@ EstabelecimentoDAO.prototype.buscaPorId = async function (id, callback) {
             e.enviaMedicamentoSus,
             e.obrigaValidarPacienteAtendimento,
             e.celularDefaultNovoPaciente
-        FROM 
+        FROM
             tb_estabelecimento AS e
-        INNER JOIN 
-            tb_municipio as m ON(e.idMunicipio = m.id) 
-        INNER JOIN 
-            tb_uf as u ON(e.idUf = u.id) 
+        INNER JOIN
+            tb_municipio as m ON(e.idMunicipio = m.id)
+        INNER JOIN
+            tb_uf as u ON(e.idUf = u.id)
         INNER JOIN
         	tb_especialidade es ON(e.cboProfissionalEsus = es.id)
-        INNER JOIN 
+        INNER JOIN
             tb_tipo_unidade as tu ON(e.idTipoUnidade = tu.id) WHERE e.id = ?`, id, callback);
 }
 
 EstabelecimentoDAO.prototype.buscaCidadePorIdEstabelecimento = function (id, callback) {
     this._connection.query(`select te.idUf , idMunicipio , CONCAT(mun.nome,'/',uf.uf) textoCidade
-                            from tb_estabelecimento te 
-                            inner join tb_uf uf on uf.id = te.idUf 
+                            from tb_estabelecimento te
+                            inner join tb_uf uf on uf.id = te.idUf
                             inner join tb_municipio mun on mun.id = te.idMunicipio where te.id=?`, id, callback);
 }
 
@@ -215,6 +215,11 @@ EstabelecimentoDAO.prototype.buscaDominio = function (callback) {
 
 EstabelecimentoDAO.prototype.dominio = function (callback) {
     this._connection.query("select id, razaoSocial as nome FROM " + this._table + " WHERE situacao = 1", callback);
+}
+
+EstabelecimentoDAO.prototype.dominioAsync = async function () {
+  const resp = await this._connection.query("select id, razaoSocial as nome FROM " + this._table + " WHERE situacao = 1");
+  return resp
 }
 
 EstabelecimentoDAO.prototype.deletaPorId = function (id, callback) {
@@ -281,9 +286,9 @@ EstabelecimentoDAO.prototype.buscarPacientes = function (id, raio, idModalidade,
         INNER JOIN tb_uf nat ON (pac.idNaturalidade = nat.id)
         INNER JOIN tb_municipio mun ON (pac.idMunicipio = mun.id)
         INNER JOIN tb_uf uf ON (pac.idUf = uf.id)
-        INNER JOIN tb_modalidade md ON (pac.idModalidade = md.id) 
+        INNER JOIN tb_modalidade md ON (pac.idModalidade = md.id)
         INNER JOIN tb_estabelecimento est ON (est.id = ? AND ROUND(ST_Distance_Sphere(pac.geom, est.geom)) <= ?)
-        WHERE pac.situacao = 1 
+        WHERE pac.situacao = 1
         ${where}`,
         [id, raio],
         callback
@@ -304,11 +309,11 @@ EstabelecimentoDAO.prototype.buscaEstabelecimentoESus = async function (id) {
 }
 
 EstabelecimentoDAO.prototype.buscarTipoFichaEstabelecimento = function (idEstabelecimento) {
-    return this._connection.query(`SELECT ttf.id, ttf.nome FROM 
-                                                     tb_estabelecimento_ficha tef 
-                                                  INNER JOIN 
-                                                     tb_tipo_ficha ttf ON ttf.id = tef.idTipoFicha  
-                                                 WHERE 
+    return this._connection.query(`SELECT ttf.id, ttf.nome FROM
+                                                     tb_estabelecimento_ficha tef
+                                                  INNER JOIN
+                                                     tb_tipo_ficha ttf ON ttf.id = tef.idTipoFicha
+                                                 WHERE
                                                     ttf.situacao = 1 AND
                                                     tef.idEstabelecimento =?`, [idEstabelecimento] + " ORDER BY ttf.id ASC");
 

@@ -40,8 +40,9 @@ TipoFichaDAO.prototype.dominio = async function (callback) {
     this._connection.query("select id, nome FROM " + this._table + " WHERE situacao = 1 ORDER BY id ASC", callback);
 }
 
-TipoFichaDAO.prototype.externalDominio = function (callback) {
-  this._connection.query("select id, nome FROM " + this._table + " WHERE situacao = 1 ORDER BY id ASC", callback);
+TipoFichaDAO.prototype.dominioAsync = async function () {
+  const resp = await this._connection.query("select id, nome FROM " + this._table + " WHERE situacao = 1 ORDER BY id ASC");
+  return resp;
 }
 
 TipoFichaDAO.prototype.buscarPorIdEstabelecimento = async function (idEstabelecimento) {

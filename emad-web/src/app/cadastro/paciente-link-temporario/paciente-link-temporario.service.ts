@@ -530,6 +530,22 @@ export class PacienteLinkTemporarioService extends GenericsService {
     }
   }
 
+  async listaTodosDominiosExterno(): Promise<any> {
+    try {
+      return await new Promise((resolve) => {
+        this.http.get('external/dominios', this._getHeaders())
+          .subscribe((data) => {
+            return resolve(data)
+          }
+          )
+      })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
+
   carregaNaturalidadePorNacionalidade(id: any): Observable<any> {
     return this.http.get('external/uf/pais/' + id, this._getHeaders());
   }
@@ -539,7 +555,7 @@ export class PacienteLinkTemporarioService extends GenericsService {
   }
 
   findHipoteseByPacienteAgrupado(id: any): Observable<any> {
-    return this.http.get('external/atendimento-hipotese/paciente-agrupado/' + id);
+    return this.http.get('external/atendimento-hipotese/paciente-agrupado/' + id, this._getHeaders());
   }
 
   saveHipotese(obj: any) {
@@ -552,11 +568,11 @@ export class PacienteLinkTemporarioService extends GenericsService {
 
   findAtendimentoByPaciente(id: any, tipo: any): Observable<any> {
     return this.http.get(
-      'atendimento/prontuario-paciente/paciente/' +
+      'external/atendimento/prontuario-paciente/paciente/' +
       id +
       '/tipo-atendimento/' +
       tipo,
-    );
+      this._getHeaders());
   }
 
   findExameByPaciente(id: any): Observable<any> {
@@ -585,10 +601,10 @@ export class PacienteLinkTemporarioService extends GenericsService {
 
   findSinaisVitaisByPaciente(id: any, tipo: any): Observable<any> {
     return this.http.get(
-      'atendimento/prontuario-paciente/paciente/' +
+      'external/atendimento/prontuario-paciente/paciente/' +
       id +
       '/sinais-vitais/' +
-      tipo,
+      tipo, this._getHeaders()
     );
   }
 
