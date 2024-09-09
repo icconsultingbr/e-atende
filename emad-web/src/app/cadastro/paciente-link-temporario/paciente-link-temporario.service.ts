@@ -477,8 +477,9 @@ export class PacienteLinkTemporarioService extends GenericsService {
     localStorage.setItem('externalToken', token)
     try {
       return await new Promise((resolve) => {
-        this.http.get('external/paciente/ficha-temporaria', this._getHeaders()).subscribe((id: any) => {
-          return resolve(parseInt(id))
+        this.http.get('external/paciente/ficha-temporaria', this._getHeaders()).subscribe((paciente: any) => {
+          localStorage.setItem('externalEstabelecimento', `${paciente.idEstabelecimentoCadastro}`)
+          return resolve(paciente)
         })
       })
     } catch (e) {
@@ -566,7 +567,7 @@ export class PacienteLinkTemporarioService extends GenericsService {
     }
   }
 
-  findAtendimentoByPaciente(id: any, tipo: any): Observable<any> {
+  findAtendimentoByPaciente(id: number, tipo: number): Observable<any> {
     return this.http.get(
       'external/atendimento/prontuario-paciente/paciente/' +
       id +
@@ -576,23 +577,35 @@ export class PacienteLinkTemporarioService extends GenericsService {
   }
 
   findExameByPaciente(id: any): Observable<any> {
-    return this.http.get('exame/prontuario-paciente/paciente/' + id);
+    return this.http.get('external/exame/prontuario-paciente/paciente/' + id, this._getHeaders());
   }
 
-  findReceitaByPaciente(id: any): Observable<any> {
-    return this.http.get('receita/prontuario-paciente/paciente/' + id);
+  findReceitaByPaciente(id: number): Observable<any> {
+    return this.http.get('external/receita/prontuario-paciente/paciente/' + id, this._getHeaders());
+  }
+
+  findItemReceitaId(id: number): Observable<any> {
+    return this.http.get('external/item-receita/' + id, this._getHeaders());
+  }
+
+  findAtendimentoById(id: number): Observable<any> {
+    return this.http.get('external/atendimento/' + id, this._getHeaders());
+  }
+
+  findHipoteseByAtendimentoId(id: number): Observable<any> {
+    return this.http.get('external/atendimento-hipotese/atendimento/' + id, this._getHeaders());
   }
 
   findProntuarioVacinacaoByPaciente(id: any): Observable<any> {
-    return this.http.get('receita/prontuario-vacinacao/paciente/' + id);
+    return this.http.get('external/receita/prontuario-vacinacao/paciente/' + id);
   }
 
   findCarteiraVacinacaoByPaciente(id: any): Observable<any> {
-    return this.http.get('receita/carteira-vacinacao/paciente/' + id);
+    return this.http.get('external/receita/carteira-vacinacao/paciente/' + id);
   }
 
   findAtendimentoProcedimentoByPaciente(id: any): Observable<any> {
-    return this.http.get('atendimento-procedimento/paciente/' + id);
+    return this.http.get('external/atendimento-procedimento/paciente/' + id, this._getHeaders());
   }
 
   removeHipotese(params: any) {
@@ -608,34 +621,34 @@ export class PacienteLinkTemporarioService extends GenericsService {
     );
   }
 
-  carregaAtendimentosPorPeriodo(periodo: number): Observable<any> {
-    return this.http.get(
-      'atendimentos-por-periodo?periodo=' +
-      periodo +
-      '&idEstabelecimento=' +
-      JSON.parse(localStorage.getItem('est'))[0].id,
-    );
-  }
+  // carregaAtendimentosPorPeriodo(periodo: number): Observable<any> {
+  //   return this.http.get(
+  //     'atendimentos-por-periodo?periodo=' +
+  //     periodo +
+  //     '&idEstabelecimento=' +
+  //     localStorage.getItem('externalEstabelecimento'), this._getHeaders()
+  //   );
+  // }
 
-  carregaAtendimentoSituacaoExistentePorPeriodo(
-    periodo: number,
-  ): Observable<any> {
-    return this.http.get(
-      'atendimento-situacao-existente-por-periodo?periodo=' +
-      periodo +
-      '&idEstabelecimento=' +
-      JSON.parse(localStorage.getItem('est'))[0].id,
-    );
-  }
+  // carregaAtendimentoSituacaoExistentePorPeriodo(
+  //   periodo: number,
+  // ): Observable<any> {
+  //   return this.http.get(
+  //     'atendimento-situacao-existente-por-periodo?periodo=' +
+  //     periodo +
+  //     '&idEstabelecimento=' +
+  //     localStorage.getItem('externalEstabelecimento'), this._getHeaders()
+  //   );
+  // }
 
-  carregaAtendimentoSituacaoPorPeriodo(periodo: number): Observable<any> {
-    return this.http.get(
-      'atendimento-situacao-por-periodo?periodo=' +
-      periodo +
-      '&idEstabelecimento=' +
-      JSON.parse(localStorage.getItem('est'))[0].id,
-    );
-  }
+  // carregaAtendimentoSituacaoPorPeriodo(periodo: number): Observable<any> {
+  //   return this.http.get(
+  //     'atendimento-situacao-por-periodo?periodo=' +
+  //     periodo +
+  //     '&idEstabelecimento=' +
+  //     localStorage.getItem('externalEstabelecimento'), this._getHeaders()
+  //   );
+  // }
 
   obterProntuarioPacienteRelatorio(
     idPaciente: number,
@@ -643,28 +656,28 @@ export class PacienteLinkTemporarioService extends GenericsService {
     profissional: number,
   ): Observable<any> {
     return this.http.get(
-      `paciente/prontuario/report?idPaciente=${idPaciente}&tipoFicha=${tipoFicha}&profissional=${profissional}`
+      `external/paciente/prontuario/report?idPaciente=${idPaciente}&tipoFicha=${tipoFicha}&profissional=${profissional}`, this._getHeaders()
     );
   }
 
-  obterCamposEstabelecimento(idEstabelecimento: number): Observable<any> {
-    return this.http.get(
-      'paciente/campos-estabelecimento/' + idEstabelecimento,
-    );
-  }
+  // obterCamposEstabelecimento(idEstabelecimento: number): Observable<any> {
+  //   return this.http.get(
+  //     'paciente/campos-estabelecimento/' + idEstabelecimento,
+  //   );
+  // }
 
-  salvarArquivo(obj: any) {
-    return this.http.post('paciente-documento/', JSON.stringify(obj));
-  }
+  // salvarArquivo(obj: any) {
+  //   return this.http.post('paciente-documento/', JSON.stringify(obj));
+  // }
 
-  removeArquivo(obj: any) {
-    return this.http.put(
-      'paciente-documento/atualiza/' + obj.id,
-      JSON.stringify(obj),
-    );
-  }
+  // removeArquivo(obj: any) {
+  //   return this.http.put(
+  //     'paciente-documento/atualiza/' + obj.id,
+  //     JSON.stringify(obj),
+  //   );
+  // }
 
-  _getHeaders(): GetHeaders {
+  private _getHeaders(): GetHeaders {
     return {
       headers: {
         'Authorization': localStorage.getItem('externalToken')

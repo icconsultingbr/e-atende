@@ -198,6 +198,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     funcionalidade: 'ATENDIMENTO',
     idEstabelecimento: 1
   };
+  idEstabelecimentoCadastro: number = null;
   method: string = 'paciente';
   fields = [];
   label = 'Paciente';
@@ -327,8 +328,9 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     })
 
     console.log('TOKEN', this.token)
-    const id = await this.service.findByToken(this.token)
-    this.id = id
+    const pacientePorIdSap = await this.service.findByToken(this.token)
+    console.log("pacientePorIdSap", pacientePorIdSap)
+    this.id = pacientePorIdSap.id
 
     this.object.id = this.id
 
@@ -366,7 +368,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       this.loadPhoto = true
       this.loading = false
       this.carregaNaturalidade()
-      this.service.list('external/profissional/estabelecimento/' + paciente.idEstabelecimentoCadastro)
+      this.service.list('external/profissional/estabelecimento/' + pacientePorIdSap.idEstabelecimentoCadastro)
     }
 
     this.listaArquivosUpload = arquivos
@@ -873,7 +875,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     });
 
     item.expandir = !item.expandir;
-    this.service.list(`item-receita/receita/` + item.id).subscribe(
+    this.service.findItemReceitaId(item.id).subscribe(
       (estoque) => {
         this.listaMaterialLoteDispensadoGravado = estoque;
         this.loading = false;
@@ -996,13 +998,14 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   encontraAtendimentoHistorico(idAtendimento: number, idHistorico: number) {
+    console.log('idAtendimento', idAtendimento);
     this.object.id = this.id;
     this.errors = [];
     this.message = '';
 
     if (idAtendimento) {
       this.loading = true;
-      this.atendimentoService.findById(idAtendimento, 'atendimento').subscribe(
+      this.service.findAtendimentoById(idAtendimento).subscribe(
         (result) => {
           this.objectHistorico = result;
           this.objectHistorico.pacienteHistoriaProgressa =
@@ -1073,7 +1076,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService.findHipoteseByAtendimento(idAtendimento).subscribe(
+    this.service.findHipoteseByAtendimentoId(idAtendimento).subscribe(
       (result) => {
         this.allItemsHipoteseHistorico = result;
         this.loading = false;

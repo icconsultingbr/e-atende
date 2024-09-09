@@ -14,7 +14,7 @@ class AtendimentoHipoteseExternoController{
         if(!response){
           return ApiResponse.notFound(res, "Atendimento Hipotese não encontrado")
         }
-        return ApiResponse.ok(res, response.id);
+        return ApiResponse.ok(res, response);
       } finally {
         await conn.close();
       }
@@ -25,6 +25,21 @@ class AtendimentoHipoteseExternoController{
       try{
         const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
         const response = await atendimentoHipoteseRepository.listarPorPacienteAgrupada(id);
+        if(!response){
+          return ApiResponse.notFound(res, "Atendimento Hipotese não encontrado")
+        }
+        return ApiResponse.ok(res, response);
+      } finally {
+        await conn.close();
+      }
+    }
+
+    async obterAtendimentoHipotesePorAtendimentoId(req, res, app){
+      const id = req.params.id;
+      const conn = await connection();
+      try{
+        const atendimentoHipoteseRepository = new AtendimentoHipoteseRepository(conn);
+        const response = await atendimentoHipoteseRepository.buscarPorAtendimentoId(id);
         if(!response){
           return ApiResponse.notFound(res, "Atendimento Hipotese não encontrado")
         }

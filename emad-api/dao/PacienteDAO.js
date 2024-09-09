@@ -4,7 +4,7 @@ function PacienteDAO(connection, connectionDim) {
     this._table = "tb_paciente";
 }
 PacienteDAO.prototype.buscaPorIdSapAsync = async function (idSap) {
-  let paciente = await this._connection.query(`select id from tb_paciente tp where idSap = ?` , idSap);
+  let paciente = await this._connection.query(`select id, idEstabelecimentoCadastro from tb_paciente tp where idSap = ?` , idSap);
 
   return paciente[0]
 }

@@ -7,5 +7,6 @@ const routes = Router()
 
 routes.get('/paciente/ficha-temporaria', externalAuth, paciente.obterIdPortIdSap)
 routes.get('/paciente/:id', externalAuth, paciente.obterPacientePortId)
+routes.get('/paciente/prontuario/report', externalAuth, paciente.obterProntuarioReportPorPacienteId)
 
 module.exports = { routes }
