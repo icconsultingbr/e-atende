@@ -924,7 +924,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       dataFinalConvertida = this.dataFinal.toISOString();
     }
 
-    this.prontuarioPacienteImpressao.imprimir(
+    this.prontuarioPacienteImpressao.externalImprimir(
       this.id,
       dataInicialConvertida,
       dataFinalConvertida,
@@ -1113,7 +1113,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService.findEncaminhamentoByPaciente(idUsuario).subscribe(
+    this.service.findEncaminhamentoByPaciente(idUsuario).subscribe(
       (result) => {
         this.allItemsEncaminhamentoHistoricoPaciente = result;
         this.loading = false;

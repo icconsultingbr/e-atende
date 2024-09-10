@@ -609,15 +609,19 @@ export class PacienteLinkTemporarioService extends GenericsService {
   }
 
   findProntuarioVacinacaoByPaciente(id: any): Observable<any> {
-    return this.http.get('external/receita/prontuario-vacinacao/paciente/' + id);
+    return this.http.get('external/receita/prontuario-vacinacao/paciente/' + id, this._getHeaders());
   }
 
   findCarteiraVacinacaoByPaciente(id: any): Observable<any> {
-    return this.http.get('external/receita/carteira-vacinacao/paciente/' + id);
+    return this.http.get('external/receita/carteira-vacinacao/paciente/' + id, this._getHeaders());
   }
 
   findAtendimentoProcedimentoByPaciente(id: any): Observable<any> {
     return this.http.get('external/atendimento-procedimento/paciente/' + id, this._getHeaders());
+  }
+
+  findEncaminhamentoByPaciente(id: any): Observable<any> {
+    return this.http.get('external/atendimento-encaminhamento/usuario/' + id, this._getHeaders());
   }
 
   removeHipotese(params: any) {

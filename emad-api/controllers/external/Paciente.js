@@ -60,11 +60,24 @@ class PacienteExternoController {
     }
 
     async obterProntuarioReportPorPacienteId(req, res){
-
-      const idPaciente = req.params.id
+      console.log("ENTROU NO PRONTUARIO REPORT")
+      const query = req.query
+      console.log("QUERY", query)
+      const idPaciente = req.query.idPaciente
       const tipoFicha = req.query.tipoFicha == 'undefined' || req.query.tipoFicha == 'null' ? 0 : req.query.tipoFicha;
       const profissional = req.query.profissional == 'undefined' || req.query.profissional == 'null' ? 0 : req.query.profissional;
-
+      const escolaridade = [
+        { id: 1, nome: "Educação infantil" },
+        { id: 2, nome: "Fundamental" },
+        { id: 3, nome: "Médio" },
+        { id: 4, nome: "Superior (Graduação)" },
+        { id: 5, nome: "Pós-graduação" },
+        { id: 6, nome: "Mestrado" },
+        { id: 7, nome: "Doutorado" },
+        { id: 8, nome: "Escola" },
+        { id: 9, nome: "Analfabeto" },
+        { id: 10, nome: "Não informado" }
+    ];
       const conn = await connection()
 
       try{
@@ -82,13 +95,14 @@ class PacienteExternoController {
         const atendimentoProcedimentoRepository = new AtendimentoProcedimentoRepository(conn)
 
         let paciente=await pacienteRepository.buscaPorIdSync(idPaciente)
+        console.log("PACIENTE SIM IMPRESSAO", paciente)
         let gruposAtencaoContinuada = await atencaoContinuadaPacienteRepository.buscaPorPacienteSync(idPaciente)
 
         paciente[0].gruposAtencaoContinuada = gruposAtencaoContinuada
 
         const sinaisVitais = await atendimentoRepository.buscaSinaisVitaisPorPacienteId(idPaciente, '', tipoFicha, profissional)
-        const nacionalidade = await nacionalidadeRepository.buscaPorIdSync(paciente[0].nacionalidade)
-        const naturalidade = await ufRepository.buscaPorIdSync(paciente[0].ufNaturalidade)
+        const nacionalidade = await nacionalidadeRepository.buscaPorIdSync(paciente[0].idNacionalidade)
+        const naturalidade = await ufRepository.buscaPorIdSync(paciente[0].idNaturalidade)
 
         if (nacionalidade) {
             paciente[0].nacionalidadeNome = nacionalidade[0].nome;
@@ -97,10 +111,14 @@ class PacienteExternoController {
       if (naturalidade) {
             paciente[0].naturalidadeNome = naturalidade[0].nome;
         }
+      console.log("chegou antes escolaridade")
+
 
       if (paciente[0].escolaridade) {
             paciente[0].escolaridadeNome = escolaridade.find(x => x.id == paciente[0].escolaridade).nome;
         }
+
+      console.log("chegou depois escolaridade")
 
       let atendimentos = await atendimentoRepository.buscaPorPacienteIdProntuario(idPaciente, 1, tipoFicha, profissional);
       if (atendimentos) {
