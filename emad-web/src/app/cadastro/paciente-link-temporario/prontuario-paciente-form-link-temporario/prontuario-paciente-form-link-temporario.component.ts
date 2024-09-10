@@ -896,7 +896,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     numero_receita: number,
     unidade_receita: number,
   ) {
-    this.reciboReceitaService.imprimir(
+    this.reciboReceitaService.externalImprimir(
       ano_receita,
       unidade_receita,
       numero_receita,

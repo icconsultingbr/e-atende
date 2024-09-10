@@ -691,6 +691,10 @@ export class PacienteLinkTemporarioService extends GenericsService {
     );
   }
 
+  obterRelatorio(ano: number, idEstabelecimento: number, numero: number): Observable<any> {
+    return this.http.get('external/receita' + '/ano/' + ano + '/idEstabelecimento/' + idEstabelecimento + '/numero/' + numero, this._getHeaders());
+  }
+
   findByHistoricoId(id: any): Observable<any> {
     return this.http.get('external/atendimento/historico/' + id, this._getHeaders());
   }
