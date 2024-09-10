@@ -672,6 +672,14 @@ export class PacienteLinkTemporarioService extends GenericsService {
     );
   }
 
+  findByHistoricoId(id: any): Observable<any> {
+    return this.http.get('external/atendimento/historico/' + id, this._getHeaders());
+  }
+
+  findEncaminhamentoByAtendimento(id: number): Observable<any> {
+    return this.http.get('external/atendimento-encaminhamento/atendimento/' + id, this._getHeaders());
+  }
+
   // obterCamposEstabelecimento(idEstabelecimento: number): Observable<any> {
   //   return this.http.get(
   //     'paciente/campos-estabelecimento/' + idEstabelecimento,

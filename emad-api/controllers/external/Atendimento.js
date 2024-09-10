@@ -56,5 +56,20 @@ class AtendimentoExternoController{
       }
     }
 
+    async obterAtendimentoPorHistoricoId(req, res, app){
+      const id = req.params.id;
+      const conn = await connection();
+      try{
+        const atendimentoRepository = new AtendimentoRepository(conn);
+        const response = await atendimentoRepository.buscaPorHistoricoId(id);
+        if(!response){
+          return ApiResponse.notFound(res, 'Atendimento por histórico não encontrado');
+        }
+        return ApiResponse.ok(res, response[0]);
+      } finally {
+        await conn.close();
+      }
+    }
+
 }
 module.exports ={ AtendimentoExternoController }
