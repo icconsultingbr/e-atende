@@ -9,6 +9,13 @@ AtendimentoEncaminhamentoDAO.prototype.buscaPorAtendimentoId = function (idAtend
     WHERE pe.situacao = 1 AND pe.idAtendimento = ?` , idAtendimento, callback);
 }
 
+AtendimentoEncaminhamentoDAO.prototype.buscaPorAtendimentoIdAsync = async function (idAtendimento) {
+    const resp = await this._connection.query(` SELECT pe.id, e.nome, pe.motivo from ${this._table} pe
+    INNER JOIN tb_especialidade e ON(pe.idEspecialidade = e.id)
+    WHERE pe.situacao = 1 AND pe.idAtendimento = ?` , idAtendimento);
+    return resp;
+}
+
 AtendimentoEncaminhamentoDAO.prototype.buscaEncaminhamentoPorPacienteId = function (idUsuario, tipoFicha, profissional, callback) {
     var where = "";
 

@@ -8,5 +8,6 @@ const routes = Router()
 routes.get('/atendimento/prontuario-paciente/paciente/:id/sinais-vitais/:tipo', externalAuth, atendimento.obterSinaisVitaisPorPacienteId)
 routes.get('/atendimento/prontuario-paciente/paciente/:id/tipo-atendimento/:tipo', externalAuth, atendimento.obterPronturarioPorPacienteId)
 routes.get('/atendimento/:id', externalAuth, atendimento.obterAtendimentoPorId)
+routes.get('/atendimento/historico/:id', externalAuth, atendimento.obterAtendimentoPorHistoricoId)
 
 module.exports = { routes }

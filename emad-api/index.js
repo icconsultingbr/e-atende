@@ -12,6 +12,7 @@ const externalAtendimentoProcedimentoRoutes = require('./routes/external/Atendim
 const externalReceitaRoutes = require('./routes/external/ReceitaRoute');
 const externalItemReceitaRoutes = require('./routes/external/ItemReceitaRoute');
 const externalExameRoutes = require('./routes/external/ExameRoute');
+const externalAtendimentoEncaminhamentoRoutes = require('./routes/external/AtendimentoEncaminhamentoRoute');
 
 app.use('/external', externalDominiosRoutes.routes);
 app.use('/external', externalPacienteRoutes.routes);
@@ -23,6 +24,7 @@ app.use('/external', externalAtendimentoProcedimentoRoutes.routes);
 app.use('/external', externalReceitaRoutes.routes);
 app.use('/external', externalItemReceitaRoutes.routes);
 app.use('/external', externalExameRoutes.routes);
+app.use('/external', externalAtendimentoEncaminhamentoRoutes.routes);
 
 var server = app.listen(config.apiPort, function () {
     console.log('Server listen at ' + config.apiPort);

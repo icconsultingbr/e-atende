@@ -1026,8 +1026,9 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       );
     } else {
       this.loading = true;
-      this.atendimentoService.findByHistoricoId(idHistorico).subscribe(
+      this.service.findByHistoricoId(idHistorico).subscribe(
         (result) => {
+          console.log('result HISTIRICO', result);
           this.objectHistorico = result;
           this.objectHistorico.pacienteHistoriaProgressa =
             result.pacienteHistoriaProgressa;
@@ -1092,7 +1093,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService
+    this.service
       .findEncaminhamentoByAtendimento(idAtendimento)
       .subscribe(
         (result) => {
