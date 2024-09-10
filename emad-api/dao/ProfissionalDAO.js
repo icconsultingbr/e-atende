@@ -6,9 +6,9 @@ function ProfissionalDAO(connection, connectionDim) {
 
 ProfissionalDAO.prototype.listaPorEstabelecimento = function (estabelecimento, callback) {
     this._connection.query(`
-        SELECT * 
-        FROM ${this._table} as t 
-        INNER JOIN tb_estabelecimento_usuario as ep ON (t.idUsuario = ep.idUsuario) 
+        SELECT *
+        FROM ${this._table} as t
+        INNER JOIN tb_estabelecimento_usuario as ep ON (t.idUsuario = ep.idUsuario)
         WHERE ep.idEstabelecimento = ?`,
         estabelecimento.id,
         callback);
@@ -43,7 +43,7 @@ ProfissionalDAO.prototype.lista = function (addFilter, callback) {
             prof.nomeMae,
             prof.nomePai,
             prof.dataNascimento,
-            GROUP_CONCAT(e.razaoSocial) as estabelecimentos, 
+            GROUP_CONCAT(e.razaoSocial) as estabelecimentos,
             prof.sexo,
             nac.nome AS idNacionalidade,
             nat.nome AS idNaturalidade,
@@ -75,7 +75,7 @@ ProfissionalDAO.prototype.lista = function (addFilter, callback) {
             usu.nome nomeUsuario,
             prof.profissionalCNS profissionalCNS,
             prof.idConselho
-        FROM tb_profissional prof 
+        FROM tb_profissional prof
         INNER JOIN tb_estabelecimento_usuario ep ON (ep.idUsuario = prof.idUsuario)
         INNER JOIN tb_usuario usu ON (prof.idUsuario = usu.id)
         INNER JOIN tb_estabelecimento e ON (ep.idEstabelecimento = e.id AND e.situacao = 1)
@@ -83,10 +83,10 @@ ProfissionalDAO.prototype.lista = function (addFilter, callback) {
         LEFT JOIN tb_uf nat ON (prof.idNaturalidade = nat.id)
         INNER JOIN tb_municipio mun ON (prof.idMunicipio = mun.id)
         INNER JOIN tb_uf uf ON (prof.idUf = uf.id)
-        INNER JOIN tb_especialidade esp ON (prof.idEspecialidade = esp.id)  
-        WHERE prof.situacao = 1 
-        ${where}          
-        GROUP BY         
+        INNER JOIN tb_especialidade esp ON (prof.idEspecialidade = esp.id)
+        WHERE prof.situacao = 1
+        ${where}
+        GROUP BY
             prof.id,
             prof.cpf,
             prof.nome,
@@ -127,37 +127,37 @@ ProfissionalDAO.prototype.lista = function (addFilter, callback) {
 }
 
 ProfissionalDAO.prototype.buscaPorId = function (id, callback) {
-    this._connection.query(`SELECT 
+    this._connection.query(`SELECT
         pro.id,
         pro.cpf,
         pro.nome,
-        pro.nomeMae, 
-        pro.nomePai, 
+        pro.nomeMae,
+        pro.nomePai,
         DATE_FORMAT(pro.dataNascimento,'%d/%m/%Y') as dataNascimento,
-        pro.sexo,  
-        pro.idNacionalidade, 
-        pro.idNaturalidade, 
-        pro.profissionalSus, 
-        pro.rg, 
-        DATE_FORMAT(pro.dataEmissao,'%d/%m/%Y') as dataEmissao, 
-        pro.orgaoEmissor, 
-        pro.escolaridade, 
-        pro.cep, 
-        pro.logradouro, 
-        pro.numero, 
-        pro.complemento, 
-        pro.idMunicipio, 
-        pro.idUf, 
-        pro.bairro, 
+        pro.sexo,
+        pro.idNacionalidade,
+        pro.idNaturalidade,
+        pro.profissionalSus,
+        pro.rg,
+        DATE_FORMAT(pro.dataEmissao,'%d/%m/%Y') as dataEmissao,
+        pro.orgaoEmissor,
+        pro.escolaridade,
+        pro.cep,
+        pro.logradouro,
+        pro.numero,
+        pro.complemento,
+        pro.idMunicipio,
+        pro.idUf,
+        pro.bairro,
         pro.foneResidencial,
-        pro.foneCelular, 
-        pro.email, 
-        pro.idEspecialidade, 
-        pro.vinculo, 
-        pro.crm, 
-        pro.cargaHorariaSemanal, 
-        pro.cargoProfissional, 
-        pro.situacao, 
+        pro.foneCelular,
+        pro.email,
+        pro.idEspecialidade,
+        pro.vinculo,
+        pro.crm,
+        pro.cargaHorariaSemanal,
+        pro.cargoProfissional,
+        pro.situacao,
         pro.dataCriacao,
         pro.latitude,
         pro.longitude,
@@ -167,7 +167,7 @@ ProfissionalDAO.prototype.buscaPorId = function (id, callback) {
         pro.idConselho,
         pro.teleatendimento
      FROM ${this._table} as pro
-     LEFT JOIN tb_usuario as usu ON (usu.id = pro.idUsuario) 
+     LEFT JOIN tb_usuario as usu ON (usu.id = pro.idUsuario)
      WHERE pro.id = ?`, id, callback);
 }
 
@@ -191,10 +191,10 @@ ProfissionalDAO.prototype.deletaPorId = function (id, callback) {
 
                 novoprod = results;
                 console.log('Update no e-atend do ID ' + id);
-                conn.query(`SELECT 
+                conn.query(`SELECT
                         CASE WHEN tp.situacao = 1 THEN 'A' ELSE 'I' END as status_2,
-                        6 usua_alt, 
-                        now() as data_alt, 
+                        6 usua_alt,
+                        now() as data_alt,
                         idProfissionalCorrespondenteDim
                     from tb_profissional tp where tp.id = ?`, id,
 
@@ -244,17 +244,27 @@ ProfissionalDAO.prototype.buscaProfissionalPorEstabelecimentoEEspecialidade = fu
 ProfissionalDAO.prototype.buscarPorEstabelecimento = function (id, callback) {
     this._connection.query(`
         SELECT t.id, t.nome, t.profissionalCNS, t.cargoProfissional
-        FROM ${this._table} as t 
-        INNER JOIN tb_estabelecimento_usuario as ep ON (t.idUsuario = ep.idUsuario) 
-        WHERE ep.idEstabelecimento = ? AND t.situacao = 1 
+        FROM ${this._table} as t
+        INNER JOIN tb_estabelecimento_usuario as ep ON (t.idUsuario = ep.idUsuario)
+        WHERE ep.idEstabelecimento = ? AND t.situacao = 1
         ORDER BY t.nome asc`, id, callback);
+}
+
+ProfissionalDAO.prototype.buscarPorEstabelecimentoAsync = async function (id) {
+  const resp = await this._connection.query(`
+      SELECT t.id, t.nome, t.profissionalCNS, t.cargoProfissional
+      FROM ${this._table} as t
+      INNER JOIN tb_estabelecimento_usuario as ep ON (t.idUsuario = ep.idUsuario)
+      WHERE ep.idEstabelecimento = ? AND t.situacao = 1
+      ORDER BY t.nome asc`, id);
+  return resp;
 }
 
 ProfissionalDAO.prototype.buscaPorEquipe = function (id, callback) {
     this._connection.query(`
-        SELECT p.id, p.nome 
-        FROM ${this._table} as p 
-        INNER JOIN tb_profissional_equipe as pe ON (p.id = pe.idProfissional) 
+        SELECT p.id, p.nome
+        FROM ${this._table} as p
+        INNER JOIN tb_profissional_equipe as pe ON (p.id = pe.idProfissional)
         WHERE pe.idEquipe = ?`, id, callback);
 }
 
@@ -266,7 +276,7 @@ ProfissionalDAO.prototype.atualizaEstabelecimentosPorProfissionalDim = function 
 
     connDim.beginTransaction(function (err) {
         if (err) { throw err; }
-        conn.query(`SELECT 
+        conn.query(`SELECT
                         idProfissionalCorrespondenteDim
                         from tb_profissional tp where tp.idUsuario = ?`, idUsuario,
 
@@ -307,23 +317,23 @@ ProfissionalDAO.prototype.atualizaEstabelecimentosPorProfissionalDim = function 
 }
 
 ProfissionalDAO.prototype.buscaEstabelecimentoPorProfissionalParaDim = function (idUsuario, callback) {
-    this._connection.query(`SELECT pro.idProfissionalCorrespondenteDim , est.idUnidadeCorrespondenteDim 
-            FROM tb_estabelecimento_usuario tep 
-        INNER JOIN tb_estabelecimento est on est.id = tep.idEstabelecimento 
-        INNER JOIN tb_profissional pro on tep.idUsuario = pro.idUsuario 
+    this._connection.query(`SELECT pro.idProfissionalCorrespondenteDim , est.idUnidadeCorrespondenteDim
+            FROM tb_estabelecimento_usuario tep
+        INNER JOIN tb_estabelecimento est on est.id = tep.idEstabelecimento
+        INNER JOIN tb_profissional pro on tep.idUsuario = pro.idUsuario
         WHERE tep.idUsuario = ?  AND est.situacao = 1`, idUsuario, callback);
 }
 
 ProfissionalDAO.prototype.buscaPorUsuario = function (idUsuario, callback) {
     this._connection.query(`
-        SELECT e.id, e.razaoSocial as nome FROM tb_estabelecimento_usuario as ep 
-        INNER JOIN tb_estabelecimento e ON(ep.idEstabelecimento = e.id) 
+        SELECT e.id, e.razaoSocial as nome FROM tb_estabelecimento_usuario as ep
+        INNER JOIN tb_estabelecimento e ON(ep.idEstabelecimento = e.id)
         WHERE ep.idUsuario = ? AND e.situacao = 1`, id, callback);
 }
 
 ProfissionalDAO.prototype.buscaProfissionalPorUsuario = function (idUsuario, callback) {
     this._connection.query(`
-        SELECT * FROM tb_profissional as p         
+        SELECT * FROM tb_profissional as p
         WHERE p.idUsuario = ? AND p.situacao = 1`, idUsuario, callback);
 }
 
@@ -334,37 +344,37 @@ ProfissionalDAO.prototype.buscaProfissionalPorUsuarioSync = async function (idUs
 }
 
 ProfissionalDAO.prototype.buscaPorIdSync = async function (id) {
-    let profissional = await this._connection.query(`SELECT 
+    let profissional = await this._connection.query(`SELECT
         pro.id,
         pro.cpf,
         pro.nome,
-        pro.nomeMae, 
-        pro.nomePai, 
+        pro.nomeMae,
+        pro.nomePai,
         DATE_FORMAT(pro.dataNascimento,'%d/%m/%Y') as dataNascimento,
-        pro.sexo,  
-        pro.idNacionalidade, 
-        pro.idNaturalidade, 
-        pro.profissionalSus, 
-        pro.rg, 
-        DATE_FORMAT(pro.dataEmissao,'%d/%m/%Y') as dataEmissao, 
-        pro.orgaoEmissor, 
-        pro.escolaridade, 
-        pro.cep, 
-        pro.logradouro, 
-        pro.numero, 
-        pro.complemento, 
-        pro.idMunicipio, 
-        pro.idUf, 
-        pro.bairro, 
+        pro.sexo,
+        pro.idNacionalidade,
+        pro.idNaturalidade,
+        pro.profissionalSus,
+        pro.rg,
+        DATE_FORMAT(pro.dataEmissao,'%d/%m/%Y') as dataEmissao,
+        pro.orgaoEmissor,
+        pro.escolaridade,
+        pro.cep,
+        pro.logradouro,
+        pro.numero,
+        pro.complemento,
+        pro.idMunicipio,
+        pro.idUf,
+        pro.bairro,
         pro.foneResidencial,
-        pro.foneCelular, 
-        pro.email, 
-        pro.idEspecialidade, 
-        pro.vinculo, 
-        pro.crm, 
-        pro.cargaHorariaSemanal, 
-        pro.cargoProfissional, 
-        pro.situacao, 
+        pro.foneCelular,
+        pro.email,
+        pro.idEspecialidade,
+        pro.vinculo,
+        pro.crm,
+        pro.cargaHorariaSemanal,
+        pro.cargoProfissional,
+        pro.situacao,
         pro.dataCriacao,
         pro.latitude,
         pro.longitude,
@@ -374,7 +384,7 @@ ProfissionalDAO.prototype.buscaPorIdSync = async function (id) {
         pro.idConselho,
         pro.teleatendimento
      FROM ${this._table} as pro
-     LEFT JOIN tb_usuario as usu ON (usu.id = pro.idUsuario) 
+     LEFT JOIN tb_usuario as usu ON (usu.id = pro.idUsuario)
      WHERE pro.id = ?`, id);
 
     return profissional[0];
@@ -419,38 +429,38 @@ ProfissionalDAO.prototype.carregaProfissionalPorMedicamento = async function (ad
                                                             mat.descricao as nomeMaterial,
                                                         sum(item.qtdPrescrita) as totalQtdPrescrita,
                                                         sum(item.qtdDispAnterior) as totalQtdDispensada
-                                                    from tb_receita as rec              
+                                                    from tb_receita as rec
                                                         inner join tb_item_receita as item on rec.id=item.idReceita
                                                         inner join tb_estabelecimento as unid on rec.idEstabelecimento =unid.id
                                                         inner join tb_profissional as prof on rec.idProfissional=prof.id
-                                                        inner join tb_material as mat on mat.id = item.idMaterial 
-                                                    where 
+                                                        inner join tb_material as mat on mat.id = item.idMaterial
+                                                    where
                                                         prof.situacao=1 and
                                                         unid.situacao=1 and
-                                                        mat.situacao=1 
-                                                        ${where}                                                                                                                                                                 
+                                                        mat.situacao=1
+                                                        ${where}
                                                         group by mat.id
                                                         order by mat.descricao desc`);
     } else {
         medicamento = await this._connection.query(`select prof.nome nomeProfissional,
                                                         prof.crm inscricaoProfissional,
-                                                        espec.nome nomeEspecialidade, 
+                                                        espec.nome nomeEspecialidade,
                                                         sum(item.qtdPrescrita) as qtdPrescrita,
                                                         sum(item.qtdDispAnterior) as qtdDispensada,
                                                         max(rec.dataUltimaDispensacao) as dataUltimaDispensacao,
                                                         unid.nomeFantasia
-                                                from tb_receita as rec              
+                                                from tb_receita as rec
                                                     inner join tb_item_receita as item on rec.id=item.idReceita
                                                     inner join tb_estabelecimento as unid on rec.idEstabelecimento =unid.id
                                                     inner join tb_profissional as prof on rec.idProfissional=prof.id
-                                                    inner join tb_especialidade as espec on espec.id = prof.idEspecialidade 
-                                                    inner join tb_material as mat on mat.id = item.idMaterial  
-                                                    where 
+                                                    inner join tb_especialidade as espec on espec.id = prof.idEspecialidade
+                                                    inner join tb_material as mat on mat.id = item.idMaterial
+                                                    where
                                                     prof.situacao=1 and
                                                     unid.situacao=1 and
-                                                    mat.situacao=1 
-                                                    ${where}                                                   
-                                                group by prof.nome, prof.crm, espec.nome, unid.nomeFantasia                                                 
+                                                    mat.situacao=1
+                                                    ${where}
+                                                group by prof.nome, prof.crm, espec.nome, unid.nomeFantasia
                                                 ${orderBy} `);
     }
 
@@ -459,13 +469,13 @@ ProfissionalDAO.prototype.carregaProfissionalPorMedicamento = async function (ad
 }
 
 ProfissionalDAO.prototype.buscarProfissionalPorEstabelecimentoEsus = async function (id) {
-    return await this._connection.query(`        
-        SELECT tp.id, tp.profissionalCNS, te.codigoCBO,    
+    return await this._connection.query(`
+        SELECT tp.id, tp.profissionalCNS, te.codigoCBO,
         (select te2.ine from tb_profissional_equipe tpeInterno
-        inner JOIN tb_equipe te2 ON te2.id = tpeInterno.idEquipe 
+        inner JOIN tb_equipe te2 ON te2.id = tpeInterno.idEquipe
         where  tpeInterno.idProfissional = tp.id AND te2.idEstabelecimento = ep.idEstabelecimento limit 1) ine
-        FROM ${this._table} tp 
-        INNER JOIN tb_estabelecimento_usuario as ep ON (tp.idUsuario = ep.idUsuario) 
+        FROM ${this._table} tp
+        INNER JOIN tb_estabelecimento_usuario as ep ON (tp.idUsuario = ep.idUsuario)
         INNER JOIN tb_especialidade te ON (tp.idEspecialidade = te.id)
         WHERE ep.idEstabelecimento = ? AND tp.situacao = 1 `, id);
 }
@@ -476,7 +486,7 @@ ProfissionalDAO.prototype.buscarProfissionalPorEstabelecimentoAtividadeColetiva 
 }
 
 ProfissionalDAO.prototype.buscaProfissionalSusPorUsuarioSync = async function (idUsuario) {
-    let profissional = await this._connection.query(`SELECT *, te.codigoCBO FROM tb_profissional as p 
+    let profissional = await this._connection.query(`SELECT *, te.codigoCBO FROM tb_profissional as p
     INNER JOIN tb_especialidade te ON (p.idEspecialidade = te.id)
     WHERE p.idUsuario = ? AND p.situacao = 1`, [idUsuario]);
 

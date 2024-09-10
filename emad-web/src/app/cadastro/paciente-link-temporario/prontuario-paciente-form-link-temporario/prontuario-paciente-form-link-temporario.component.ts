@@ -356,7 +356,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     const atencaoContinuada = atencaoContinuadas
     const tipoExame = tipoExames
     const escolaridade = escolaridades
-
+    let profissionaisPorEstabelecimento = []
     if (!paciente) {
       this.object = new Paciente()
       this.loadPhoto = true
@@ -368,7 +368,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       this.loadPhoto = true
       this.loading = false
       this.carregaNaturalidade()
-      this.service.list('external/profissional/estabelecimento/' + pacientePorIdSap.idEstabelecimentoCadastro)
+      profissionaisPorEstabelecimento = await this.service.findProfissionalByEstabelecimento(pacientePorIdSap.idEstabelecimentoCadastro)
     }
 
     this.listaArquivosUpload = arquivos
@@ -385,7 +385,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
       idEstabelecimentoCadastro:
         estabelecimentos,
       tipoFichas: tipoFichas,
-      profissionais: /* profissionais */[],
+      profissionais: profissionaisPorEstabelecimento,
       classificacaoRiscos:
         classificacaoRiscos,
       tipoHistoriaClinica: [

@@ -551,6 +551,21 @@ export class PacienteLinkTemporarioService extends GenericsService {
     return this.http.get('external/uf/pais/' + id, this._getHeaders());
   }
 
+  async findProfissionalByEstabelecimento(id: number): Promise<any> {
+    try {
+      return await new Promise((resolve) => {
+        this.http.get('external/profissional/estabelecimento/' + id, this._getHeaders())
+          .subscribe((data) => {
+            return resolve(data)
+          }
+          )
+      })
+    } catch (e) {
+      console.error(e)
+      return null
+    }
+  }
+
   findHipoteseByPaciente(id: any): Observable<any> {
     return this.http.get('external/atendimento-hipotese/paciente/' + id, this._getHeaders());
   }
