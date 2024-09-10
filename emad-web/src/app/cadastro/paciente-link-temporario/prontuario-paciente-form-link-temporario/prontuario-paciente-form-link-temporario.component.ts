@@ -938,6 +938,8 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   openHistorico(content: any, idAtendimento: number, idHistorico: number) {
+    console.log('idAtendimento', idAtendimento);
+    console.log('idHistorico', idHistorico);
     this.createGroupHistorico();
     this.encontraAtendimentoHistorico(idAtendimento, idHistorico);
     this.mostraHistorico = idAtendimento ? false : true;
@@ -998,7 +1000,6 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   }
 
   encontraAtendimentoHistorico(idAtendimento: number, idHistorico: number) {
-    console.log('idAtendimento', idAtendimento);
     this.object.id = this.id;
     this.errors = [];
     this.message = '';
@@ -1006,7 +1007,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     if (idAtendimento) {
       this.loading = true;
       this.service.findAtendimentoById(idAtendimento).subscribe(
-        (result) => {
+        ([result]) => {
           this.objectHistorico = result;
           this.objectHistorico.pacienteHistoriaProgressa =
             result.pacienteHistoriaProgressa;
@@ -1078,6 +1079,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.loading = true;
     this.service.findHipoteseByAtendimentoId(idAtendimento).subscribe(
       (result) => {
+        console.log('resultasd123', result);
         this.allItemsHipoteseHistorico = result;
         this.loading = false;
       },
@@ -1092,7 +1094,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService
+    this.service
       .findEncaminhamentoByAtendimento(idAtendimento)
       .subscribe(
         (result) => {
@@ -1126,7 +1128,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService
+    this.service
       .findMedicamentoByAtendimento(idAtendimento)
       .subscribe(
         (result) => {
@@ -1144,10 +1146,11 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     this.message = '';
     this.errors = [];
     this.loading = true;
-    this.atendimentoService
+    this.service
       .findProcedimentoByAtendimento(idAtendimento)
       .subscribe(
         (result) => {
+          console.log('result link temporario', result);
           this.allItemsProcedimentos = result;
           this.loading = false;
         },

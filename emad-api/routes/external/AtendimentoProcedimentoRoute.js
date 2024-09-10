@@ -6,5 +6,6 @@ const atendimentoProcedimento = new AtendimentoProcedimentoExternoController()
 const routes = Router()
 
 routes.get('/atendimento-procedimento/paciente/:id', externalAuth, atendimentoProcedimento.obterListaPacienteId)
+routes.get('/atendimento-procedimento/atendimento/:id', externalAuth, atendimentoProcedimento.obterPorAtendimentoId)
 
 module.exports = { routes }

@@ -19,6 +19,20 @@ class AtendimentoProcedimentoExternoController{
         await conn.close();
       }
     }
+    async obterPorAtendimentoId(req, res, app){
+      const id = req.params.id;
+      const conn = await connection();
+      try{
+        const atendimentoRepository = new AtendimentoProcedimentoRepository(conn);
+        const response = await atendimentoRepository.buscarPorAtendimentoId(id);
+        if(!response){
+          return ApiResponse.notFound(res, 'Atendimento Procedimento não encontrado');
+        }
+        return ApiResponse.ok(res, response);
+      } finally {
+        await conn.close();
+      }
+    }
 
 }
 module.exports ={ AtendimentoProcedimentoExternoController }

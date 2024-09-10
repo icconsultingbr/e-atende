@@ -559,6 +559,18 @@ export class PacienteLinkTemporarioService extends GenericsService {
     return this.http.get('external/atendimento-hipotese/paciente-agrupado/' + id, this._getHeaders());
   }
 
+  findMedicamentoByAtendimento(id: number): Observable<any> {
+    return this.http.get('external/atendimento-medicamento/atendimento/' + id, this._getHeaders());
+  }
+
+  findEncaminhamentoByAtendimento(id: any): Observable<any> {
+    return this.http.get('external/atendimento-encaminhamento/atendimento/' + id, this._getHeaders());
+  }
+
+  findProcedimentoByAtendimento(id: any): Observable<any> {
+    return this.http.get('external/atendimento-procedimento/atendimento/' + id, this._getHeaders());
+  }
+
   saveHipotese(obj: any) {
     if (obj.id) {
       return this.http.put('atendimento-hipotese', JSON.stringify(obj));
