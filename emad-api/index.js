@@ -1,5 +1,6 @@
 var app = require('./config/custom-express')();
 var config = require("./config/config");
+
 const WebToken = require('./utilities/WebToken');
 
 const externalPacienteRoutes = require('./routes/external/PacienteRoute');
@@ -16,19 +17,26 @@ const externalAtendimentoMedicamentoRoutes = require('./routes/external/Atendime
 const externalAtendimentoEncaminhamentoRoutes = require('./routes/external/AtendimentoEncaminhamentoRoute');
 const externalProfissionalRoutes = require('./routes/external/ProfissionalRoute');
 
-app.use('/external', externalDominiosRoutes.routes);
-app.use('/external', externalPacienteRoutes.routes);
-app.use('/external', externalUfRoutes.routes);
-app.use('/external', externalAtendimentoHipoteseRoutes.routes);
-app.use('/external', externalPacienteDocumentoRoutes.routes);
-app.use('/external', externalAtendimentoRoutes.routes);
-app.use('/external', externalAtendimentoProcedimentoRoutes.routes);
-app.use('/external', externalReceitaRoutes.routes);
-app.use('/external', externalItemReceitaRoutes.routes);
-app.use('/external', externalExameRoutes.routes);
-app.use('/external', externalAtendimentoMedicamentoRoutes.routes);
-app.use('/external', externalAtendimentoEncaminhamentoRoutes.routes);
-app.use('/external', externalProfissionalRoutes.routes);
+const external = '/external';
+const externalRoutes = [
+    externalDominiosRoutes,
+    externalPacienteRoutes,
+    externalUfRoutes,
+    externalAtendimentoHipoteseRoutes,
+    externalPacienteDocumentoRoutes,
+    externalAtendimentoRoutes,
+    externalAtendimentoProcedimentoRoutes,
+    externalReceitaRoutes,
+    externalItemReceitaRoutes,
+    externalExameRoutes,
+    externalAtendimentoMedicamentoRoutes,
+    externalAtendimentoEncaminhamentoRoutes,
+    externalProfissionalRoutes
+  ];
+  
+  externalRoutes.forEach(route => {
+    app.use(external, route.routes);
+  });
 
 var server = app.listen(config.apiPort, function () {
     console.log('Server listen at ' + config.apiPort);
