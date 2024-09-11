@@ -182,7 +182,6 @@ module.exports = function (app) {
         const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
         const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
         const profissionalDAO = new app.dao.ProfissionalDAO(connection);
-        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
 
 
         let listaVacinas = [];
@@ -199,7 +198,7 @@ module.exports = function (app) {
             await connection.close();
         }
         console.log("listaVacinas", listaVacinas)
-        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais, atendimentoDAO);
+        return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
     }
 
     async function listaProcedimentos(filtro) {
@@ -212,27 +211,23 @@ module.exports = function (app) {
         }
 
         const connection = await app.dao.connections.EatendConnection.connection();
-        const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
-        const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
-        const profissionalDAO = new app.dao.ProfissionalDAO(connection);
-        const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
-        let listaProcedimentos = [];
-        let estabelecimento = {};
-        let profissionais = [];
-
         try {
+            const integracaoESusDAO = new app.dao.IntegracaoESusDAO(connection, tipoCampoData);
+            const estabelecimentoDAO = new app.dao.EstabelecimentoDAO(connection);
+            const profissionalDAO = new app.dao.ProfissionalDAO(connection);
+            const atendimentoDAO = new app.dao.AtendimentoDAO(connection);
+            let listaProcedimentos = [];
+            let estabelecimento = {};
+            let profissionais = [];
             profissionais = await profissionalDAO.buscarProfissionalPorEstabelecimentoEsus(filtro.idEstabelecimento)
             estabelecimento = await estabelecimentoDAO.buscaEstabelecimentoESus(filtro.idEstabelecimento);
             listaProcedimentos = await integracaoESusDAO.listaProcedimentos(filtro);
+            return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais, atendimentoDAO);
         } catch (error) {
             console.log(error);
         } finally {
             await connection.close();
         }
-        console.log('listaProcedimentos', listaProcedimentos)
-        console.log("estabelecimento", estabelecimento)
-        console.log("profissionais", profissionais)
-        return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais, atendimentoDAO);
     }
 
     async function listaAtividadeColetiva(filtro) {
@@ -364,7 +359,7 @@ module.exports = function (app) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
         let xmls = [];
-        
+
         profissionais.forEach(async (profissional) => {
             const listAtendimentos = list.atendimentos.filter(x => x.idProfissional == profissional.id);
             const uuidGenerated = uuidv4();
@@ -377,7 +372,7 @@ module.exports = function (app) {
                     await atendimentoDao.atualizaPorIdSync({
                         downloadUuid: uuidFicha
                     }, atendimento.idAtendimento);
-                }    
+                }
             })
 
             // Garantir que o comprimento total não exceda 44 caracteres
@@ -386,8 +381,8 @@ module.exports = function (app) {
             }
 
             if (listAtendimentos.length == 0) { return; }
-           
-            const dataReal = new moment(listAtendimentos[0].dataCriacao).subtract({ hours: 3}); 
+
+            const dataReal = new moment(listAtendimentos[0].dataCriacao).subtract({ hours: 3});
             const dataCriacao = new moment(dataReal).hours(3).minutes(0).seconds(0).toDate();
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', keepNullNodes: false, keepNullAttributes: false })
@@ -464,7 +459,7 @@ module.exports = function (app) {
                     .ele('turno').txt(atendimento.turno).up()
                     .ele('tipoAtendimento').txt(atendimento.tipoAtendimentoSus ? atendimento.tipoAtendimentoSus : undefined).up()
                     .import(avaliacao);
-                   
+
                 atend.ele('vacinaEmDia').txt(atendimento.vacinaEmDia ? atendimento.vacinaEmDia == 1 ? true : false : false).up()
                 .ele('ficouEmObservacao').txt(atendimento.ficouEmObservacao ? atendimento.ficouEmObservacao == 1 ? true : false : false).up()
 
@@ -597,7 +592,7 @@ module.exports = function (app) {
             let c = fragment().ele('tiposVigilanciaSaudeBucal').txt('99').up()
             tipoVigilancia.push(c);
         }
-        
+
         return tipoVigilancia
     }
 
@@ -688,7 +683,7 @@ module.exports = function (app) {
                     .ele('dose').txt(x.dose).up()
                     .ele('doseUnica').txt(true).up()
                     .ele('usoContinuo').txt(false).up()
-                    .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()                                
+                    .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()
                     .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
                     medicamentos.push(frag);
                 }
@@ -701,7 +696,7 @@ module.exports = function (app) {
                     .ele('usoContinuo').txt(false).up()
                     .ele('doseFrequenciaTipo').txt(x.doseFrequenciaTipo).up()
                     .ele('doseFrequencia').txt(x.doseFrequencia).up()
-                    .ele('doseFrequenciaQuantidade').txt(x.doseFrequenciaQuantidade).up()                    
+                    .ele('doseFrequenciaQuantidade').txt(x.doseFrequenciaQuantidade).up()
                     .ele('doseFrequenciaUnidadeMedida').txt(x.doseFrequenciaUnidadeMedida).up()
                     .ele('dtInicioTratamento').txt(new Date(x.dtInicioTratamento).getTime()).up()
                     .ele('duracaoTratamento').txt(x.duracaoTratamento).up()
@@ -709,12 +704,12 @@ module.exports = function (app) {
                     .ele('quantidadeReceitada').txt(x.quantidadeReceitada).up()
                     medicamentos.push(frag);
                 }
-            }           
+            }
         })
         return medicamentos
     }
 
-    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais, atendimentoDAO) {
+    function preencheXMLFichaVacinacao(list, estabelecimento, profissionais) {
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -732,7 +727,7 @@ module.exports = function (app) {
             //         await atendimentoDao.atualizaPorIdSync({
             //             downloadUuid: uuidFicha
             //         }, atendimento.idAtendimento);
-            //     }    
+            //     }
             // })
 
             // Garantir que o comprimento total não exceda 44 caracteres
@@ -843,13 +838,13 @@ module.exports = function (app) {
 
                     //CAMPO = grupoAtendimento
                     // Só pode ser preenchido se o campo estrategiaVacinacao = 5 (Campanha indiscriminada). Neste caso o preenchimento é obrigatório;
-                    //Não pode ser preenchido se o campo stRegistroAnterior = true;    
+                    //Não pode ser preenchido se o campo stRegistroAnterior = true;
                     if (x.stRegistroAnterior == 1 || x.estrategiaVacinacao != '5') {
                         removeNode(frag.doc(), ['grupoAtendimento']);
                     }
 
-                    //CAMPO = estrategiaVacinacao                    
-                    //Não pode ser preenchido se o campo stRegistroAnterior = true;    
+                    //CAMPO = estrategiaVacinacao
+                    //Não pode ser preenchido se o campo stRegistroAnterior = true;
                     if (x.stRegistroAnterior == 1) {
                         removeNode(frag.doc(), ['estrategiaVacinacao']);
                     }
@@ -872,7 +867,7 @@ module.exports = function (app) {
     }
 
     function preencheXMLFichaProcedimentos(list, estabelecimento, profissionais, atendimentoDAO) {
-        
+
         const { create, fragment } = require('xmlbuilder2');
         const { v4: uuidv4 } = require('uuid');
 
@@ -897,7 +892,7 @@ module.exports = function (app) {
                     await atendimentoDAO.atualizaPorIdSync({
                         downloadUuid: uuidFicha
                     }, atendimento.idAtendimento);
-                }    
+                }
             })
 
             // Garantir que o comprimento total não exceda 44 caracteres
@@ -907,12 +902,12 @@ module.exports = function (app) {
 
             console.log("uuidDadoSerializado",uuidDadoSerializado);
             console.log("uuidFicha",uuidFicha);
-            
-            if (listProcedimento.length == 0 
-                && (numTotalAfericaoPa && numTotalAfericaoPa == 0) 
-                && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0) 
-                && (numTotalMedicaoAltura && numTotalMedicaoAltura == 0) 
-                && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0) 
+
+            if (listProcedimento.length == 0
+                && (numTotalAfericaoPa && numTotalAfericaoPa == 0)
+                && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0)
+                && (numTotalMedicaoAltura && numTotalMedicaoAltura == 0)
+                && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0)
                 ) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
@@ -963,7 +958,7 @@ module.exports = function (app) {
                 })
 
             listProcedimento.forEach(atendimento => {
-               
+
                 const listProcedimentoChild = list.procedimentos.filter(x => x.idAtendimento == atendimento.idAtendimento);
 
                 if (listProcedimentoChild.length == 0) { return; }
@@ -1039,7 +1034,7 @@ module.exports = function (app) {
                 await atendimentoDAO.atualizaPorIdSync({
                     downloadUuid: uuidFicha
                 }, atendimento.idAtendimento);
-            }    
+            }
             // })
 
             // Garantir que o comprimento total não exceda 44 caracteres
@@ -1070,7 +1065,7 @@ module.exports = function (app) {
             // Não pode ser preenchido se pseEducacao = true e pseSaude = false
             if (!(atendimento.pseEducacao == 1 && atendimento.pseSaude  == 0)) {
                 itemProfissionais.forEach(x => doc.find(x => x.node.nodeName == 'ns4:fichaAtividadeColetivaTransport', true, true).import(x));
-            }            
+            }
 
             doc.ele('atividadeTipo').txt(atendimento.atividadeTipo).up()
                 .ele('temasParaReuniao').txt(atendimento.temasParaReuniao).up()
@@ -1267,7 +1262,7 @@ module.exports = function (app) {
                     await atendimentoDao.atualizaPorIdSync({
                         downloadUuid: uuidFicha
                     }, atendimento.idAtendimento);
-                }    
+                }
             })
 
             // Garantir que o comprimento total não exceda 44 caracteres
@@ -1440,7 +1435,7 @@ module.exports = function (app) {
                     await atendimentoDAO.atualizaPorIdSync({
                         downloadUuid: uuidFicha
                     }, atendimento.idAtendimento);
-                }    
+                }
             })
 
             // Garantir que o comprimento total não exceda 44 caracteres
