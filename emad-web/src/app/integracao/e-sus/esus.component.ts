@@ -119,6 +119,7 @@ export class ESusComponent implements OnInit {
       link.click();
 
       this.object.periodoExtracao = [];
+      this.errors = [];
 
     }, () => {
       this.object.periodoExtracao = [];
