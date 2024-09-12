@@ -29,6 +29,10 @@ export class ESusComponent implements OnInit {
   ngOnInit() {
     this.nav.show();
     this.loadDomain();
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    this.object.periodoExtracao = [yesterday, today];
   }
 
   loadDomain() {
@@ -84,6 +88,8 @@ export class ESusComponent implements OnInit {
     this.object.periodoExtracao[0] = dataInicialConvertida;
     this.object.periodoExtracao[1] = dataFinalConvertida;
 
+    this.loading = true;
+
     this.service.obterXmlsPorTipoFicha(this.object).subscribe((result: ArrayBuffer) => {
       const blob = new Blob([result], { type: 'application/zip;' });
       const url = window.URL.createObjectURL(blob);
@@ -118,8 +124,10 @@ export class ESusComponent implements OnInit {
 
       this.object.periodoExtracao = [];
       this.errors = [];
+      this.loading = false;
 
     }, () => {
+      this.loading = false;
       this.object.periodoExtracao = [];
       this.errors = [{ message: "Não há dados no período selecionado" }];
     });

@@ -7,7 +7,6 @@ let uuidInstalacao = "";
 let major = "";
 let minor = "";
 let revision = "";
-let uuidSaved = new Map();
 module.exports = function (app) {
 
     app.post('/integracao-e-sus', async function (req, res) {
