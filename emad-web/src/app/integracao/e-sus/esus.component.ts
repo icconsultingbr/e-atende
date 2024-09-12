@@ -60,10 +60,8 @@ export class ESusComponent implements OnInit {
 
   isEnable() {
     if (!this.object.idFichaEsus || !this.object.idTipoPeriodo || !this.object.periodoExtracao[0] || !this.object.periodoExtracao[1]) {
-      console.log("true");
       return true;
     }
-    console.log("false");
     return false;
   }
 
