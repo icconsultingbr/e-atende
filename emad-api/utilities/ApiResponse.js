@@ -4,6 +4,10 @@ class ApiResponse {
     return res.status(200).json(data);
   }
 
+  static created(res, data) {
+    return res.status(201).send(data);
+  }
+
   static badRequest(res, data) {
     return res.status(400).json(data);
   }

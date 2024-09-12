@@ -58,6 +58,15 @@ export class ESusComponent implements OnInit {
     }
   }
 
+  isEnable() {
+    if (!this.object.idFichaEsus || !this.object.idTipoPeriodo || !this.object.periodoExtracao[0] || !this.object.periodoExtracao[1]) {
+      console.log("true");
+      return true;
+    }
+    console.log("false");
+    return false;
+  }
+
   gerarXMLsPorTipoFicha() {
 
 
@@ -111,10 +120,9 @@ export class ESusComponent implements OnInit {
 
       this.object.periodoExtracao = [];
 
-    }, erro => {
-      const encoded = String.fromCharCode.apply(null, new Uint8Array(erro) as any);
-      const err = JSON.parse(decodeURIComponent(escape(encoded)));
-      this.errors = Util.customHTTPResponse(err);
+    }, () => {
+      this.object.periodoExtracao = [];
+      this.errors = [{ message: "Não há dados no período selecionado" }];
     });
   }
 }

@@ -1,5 +1,6 @@
 const { async } = require('q');
 const moment = require('moment');
+const ApiResponse = require('../../utilities/ApiResponse');
 
 let versao = "";
 let uuidInstalacao = "";
@@ -73,8 +74,10 @@ module.exports = function (app) {
                         return retorno;
                 }
             }
-
-            res.status(200).send(retorno);
+            if(retorno.length<=22){
+                return ApiResponse.notFound(res, 'Sem dados no período selecionado');
+            }
+            return ApiResponse.created(res, retorno);
 
         } catch (error) {
             console.log(error);
@@ -131,8 +134,6 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-
-        console.log("listESUS CADASTROINDIVIDUAL", list)
 
         return preencheXMLCadastroIndividual(list, estabelecimento);
     }
@@ -197,7 +198,6 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-        console.log("listaVacinas", listaVacinas)
         return preencheXMLFichaVacinacao(listaVacinas, estabelecimento, profissionais);
     }
 
@@ -714,28 +714,18 @@ module.exports = function (app) {
         const { v4: uuidv4 } = require('uuid');
 
         let xmls = [];
-        console.log("lista VACINAÇÃO", list)
         profissionais.forEach(profissional => {
             const listVacinas = list.vacinas.filter(x => x.idProfissional == profissional.id);
             const uuidGenerated = uuidv4();
             let uuidFicha = uuidGenerated;
             let uuidDadoSerializado =  `${estabelecimento.cnes}-${uuidGenerated}`;
-            // listAtendimentos.forEach(async (atendimento) => {
-            //     uuidFicha = atendimento.downloadUuid||uuidGenerated;
-            //     uuidDadoSerializado = `${estabelecimento.cnes}-${atendimento.downloadUuid||uuidGenerated}`;
-            //     if(atendimento.downloadUuid===null){
-            //         await atendimentoDao.atualizaPorIdSync({
-            //             downloadUuid: uuidFicha
-            //         }, atendimento.idAtendimento);
-            //     }
-            // })
 
             // Garantir que o comprimento total não exceda 44 caracteres
             if (uuidDadoSerializado.length > 44) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            if (listVacinas.length == 0) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
+            if (listVacinas.length == 0) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichavacinacaomaster' })
@@ -900,15 +890,12 @@ module.exports = function (app) {
                 uuidDadoSerializado = uuidDadoSerializado.substring(0, 44);
             }
 
-            console.log("uuidDadoSerializado",uuidDadoSerializado);
-            console.log("uuidFicha",uuidFicha);
-
             if (listProcedimento.length == 0
                 && (numTotalAfericaoPa && numTotalAfericaoPa == 0)
                 && (numTotalAfericaoTemperatura && numTotalAfericaoTemperatura == 0)
                 && (numTotalMedicaoAltura && numTotalMedicaoAltura == 0)
                 && (numTotalMedicaoPeso && numTotalMedicaoPeso == 0)
-                ) { return; } //|| (!profissional.profissionalCNS || !profissional.codigoCBO)
+                ) { return; }
 
             let doc = create({ version: '1.0', encoding: 'UTF-8', standalone: 'yes' })
                 .ele('ns3:dadoTransporteTransportXml', { 'xmlns:ns2': 'http://esus.ufsc.br/dadoinstalacao', 'xmlns:ns3': 'http://esus.ufsc.br/dadotransporte', 'xmlns:ns4': 'http://esus.ufsc.br/fichaprocedimentomaster' })
@@ -1412,7 +1399,6 @@ module.exports = function (app) {
         } finally {
             await connection.close();
         }
-        console.log('ATENDIMENTO DOMICILIAR',list)
         return preencheXMLAtendimentoDomiciliar(list, estabelecimento, profissionais, atendimentoDAO);
     }
 
