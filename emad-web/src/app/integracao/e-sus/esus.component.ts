@@ -71,7 +71,6 @@ export class ESusComponent implements OnInit {
 
   gerarXMLsPorTipoFicha() {
 
-
     let dataInicialConvertida;
     let dataFinalConvertida;
 
@@ -88,8 +87,8 @@ export class ESusComponent implements OnInit {
     this.object.periodoExtracao[0] = dataInicialConvertida;
     this.object.periodoExtracao[1] = dataFinalConvertida;
 
-    this.loading = true;
 
+    this.loading = true;
     this.service.obterXmlsPorTipoFicha(this.object).subscribe((result: ArrayBuffer) => {
       const blob = new Blob([result], { type: 'application/zip;' });
       const url = window.URL.createObjectURL(blob);
@@ -124,12 +123,12 @@ export class ESusComponent implements OnInit {
 
       this.object.periodoExtracao = [];
       this.errors = [];
-      this.loading = false;
 
     }, () => {
       this.loading = false;
       this.object.periodoExtracao = [];
       this.errors = [{ message: "Não há dados no período selecionado" }];
     });
+    this.loading = false;
   }
 }
