@@ -4,13 +4,14 @@
 <p *ngIf="warning.length" class="alert alert-danger sticky-top">
   {{ warning }}
 </p>
-<div *ngIf="errors.length" class="alert alert-danger sticky-top">
-  <div *ngFor="let error of errors" class="row">
+<div *ngIf="verifyIsValidToken() === false" class="alert alert-danger sticky-top">
+  <div class="row">
     <div class="col-12 text-left">
-      {{ error.message }}
+      Token expirado ou idSap inválido.
     </div>
   </div>
 </div>
+<div *ngIf="verifyIsValidToken() === true">
 <div class="card mb-4">
   <div class="card-body text-left">
     <div class="row">
@@ -2000,3 +2001,4 @@
     </button>
   </div>
 </ng-template>
+</div>

@@ -476,10 +476,12 @@ export class PacienteLinkTemporarioService extends GenericsService {
   async findByToken(token: string): Promise<any> {
     localStorage.setItem('externalToken', token)
     try {
-      return await new Promise((resolve) => {
+      return await new Promise((resolve, reject) => {
         this.http.get('external/paciente/ficha-temporaria', this._getHeaders()).subscribe((paciente: any) => {
           localStorage.setItem('externalEstabelecimento', `${paciente.idEstabelecimentoCadastro}`)
           return resolve(paciente)
+        }, (error) => {
+          return reject(error)
         })
       })
     } catch (e) {

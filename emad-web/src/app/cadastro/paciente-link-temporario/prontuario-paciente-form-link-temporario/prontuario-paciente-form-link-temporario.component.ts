@@ -214,6 +214,7 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
   message = '';
   warning = '';
   errors: any[] = [];
+  isValidToken: boolean = true;
   dropdownList = [];
   selectedItems = [];
   dropdownSettings = {};
@@ -329,6 +330,10 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
 
     console.log('TOKEN', this.token)
     const pacientePorIdSap = await this.service.findByToken(this.token)
+    if (!pacientePorIdSap) {
+      this.isValidToken = false
+      return
+    }
     console.log("pacientePorIdSap", pacientePorIdSap)
     this.id = pacientePorIdSap.id
 
@@ -442,6 +447,10 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
 
 
     this.loadPhoto = true
+  }
+
+  verifyIsValidToken() {
+    return this.isValidToken
   }
 
   tabSelected(tab: number) {
