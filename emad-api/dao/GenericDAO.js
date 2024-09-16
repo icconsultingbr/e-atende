@@ -12,7 +12,7 @@ GenericDAO.prototype.atualiza = function(obj, id, callback) {
 }
 
 GenericDAO.prototype.lista = function(callback) {
-   
+
     this._connection.query(`SELECT * FROM ${this._table} WHERE situacao = 1`, callback);
 }
 
@@ -26,6 +26,12 @@ GenericDAO.prototype.buscaDominio = function (callback) {
 
 GenericDAO.prototype.dominio = function (callback) {
     this._connection.query(`SELECT id, nome FROM ${this._table} WHERE situacao = 1`, callback);
+}
+
+GenericDAO.prototype.dominioAsync = async function() {
+  console.log('dominq', this._table)
+  const resp = await this._connection.query(`SELECT id, nome FROM ${this._table} WHERE situacao = 1`);
+  return resp;
 }
 
 GenericDAO.prototype.deletaPorId = function (id,callback) {

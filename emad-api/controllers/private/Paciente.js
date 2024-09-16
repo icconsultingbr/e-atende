@@ -1,5 +1,20 @@
+const ApiResponse = require('../../utilities/ApiResponse');
+const WebToken = require('../../utilities/WebToken');
+const {externalSecret} = require('../../config/config.json');
 module.exports = function (app) {
-
+    app.get('/paciente/gerar-link-temporario', function (req, res) {
+        const usuario = req.usuario;
+        const idSap = req.query.idSap;
+        const token = WebToken.create(
+          {...usuario, allowedRoute: 'paciente-ficha',
+            idSap:parseInt(idSap)
+          },
+          externalSecret, "1h"
+        );
+        console.log("PACIENTE TOKEN GERADO PRIVATE", token)
+        const link = `http://localhost:4200/#/paciente-link-temporario/prontuario/${token}?hideMenu=true`;
+        return ApiResponse.ok(res, link);
+    })
     app.get('/paciente', async function (req, res) {
         let usuario = req.usuario;
         let util = new app.util.Util();
@@ -13,11 +28,11 @@ module.exports = function (app) {
 
             const response = await pacienteRepository.listarAsync(queryFilter, usuario.id);
 
-            res.status(200).json(response);
+            ApiResponse.ok(res, response);
         }
         catch (exception) {
             errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
-            res.status(500).send(errors);
+            ApiResponse.serverError(res, errors);
         }
         finally {
             await connection.close();
@@ -25,6 +40,7 @@ module.exports = function (app) {
     });
 
     app.get('/paciente/:id', async function (req, res) {
+
         let usuario = req.usuario;
         let id = req.params.id;
         let util = new app.util.Util();

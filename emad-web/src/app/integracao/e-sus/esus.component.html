@@ -1,3 +1,4 @@
+<app-loader [loading]="loading"></app-loader>
 <h2 class="text-left">Integração e-SUS</h2><br />
 
 <div *ngIf="errors.length" class="alert alert-danger">
@@ -75,7 +76,7 @@
             <div class="row">
                 <div class="col-12">
                     <div class="form-group text-right">
-                        <button class="btn btn-primary" type="submit" (click)="gerarXMLsPorTipoFicha()">
+                        <button class="btn btn-primary" type="submit" (click)="gerarXMLsPorTipoFicha()" [disabled]="isEnable()">
                             <i class="fa fa-file-archive"></i> Gerar arquivos
                         </button>
                     </div>

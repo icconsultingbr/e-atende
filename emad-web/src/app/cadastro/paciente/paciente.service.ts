@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Validators } from '@angular/forms';
 import { GenericsService } from '../../_core/_services/generics.service';
-import { Http } from '@angular/http';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -467,6 +466,14 @@ export class PacienteService extends GenericsService {
     },
   ];
 
+  gerarLinkTemporario(obj: any): Observable<any> {
+    console.log("SERVICE", obj)
+    return this.http.get('paciente/gerar-link-temporario/', {
+      params: {
+        idSap: '491636234' //mocked idSap
+      }
+    });
+  }
   transfereEstabelecimento(obj: any) {
     return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
   }

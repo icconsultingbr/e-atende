@@ -3,6 +3,11 @@ function PacienteDAO(connection, connectionDim) {
     this._connectionDim = connectionDim;
     this._table = "tb_paciente";
 }
+PacienteDAO.prototype.buscaPorIdSapAsync = async function (idSap) {
+  let paciente = await this._connection.query(`select id, idEstabelecimentoCadastro from tb_paciente tp where idSap = ?` , idSap);
+
+  return paciente[0]
+}
 
 PacienteDAO.prototype.salva = function (paciente, callback) {
     const conn = this._connection;
@@ -58,8 +63,8 @@ PacienteDAO.prototype.salva = function (paciente, callback) {
                         tp.stGravidezPlanejada,
                         tp.nuGestasPrevias,
                         tp.nuPartos
-                    from tb_paciente tp 
-                    inner join tb_municipio mun on mun.id = tp.idMunicipio 
+                    from tb_paciente tp
+                    inner join tb_municipio mun on mun.id = tp.idMunicipio
                     inner join tb_estabelecimento est on est.id = tp.idEstabelecimentoCadastro
                     where tp.id = ?`, results.insertId,
 
@@ -109,7 +114,7 @@ PacienteDAO.prototype.salva = function (paciente, callback) {
                                     if (error) { return connDim.rollback(function () { console.log('Erro no insert' + error); conn.rollback(); throw error; }); }
 
                                     console.log('Select ' + JSON.stringify(dadosPaciente));
-                                    connDim.query(`INSERT INTO cartao_sus (paciente_id_paciente, cartao_sus, tipo_cartao, data_incl, usua_incl) 
+                                    connDim.query(`INSERT INTO cartao_sus (paciente_id_paciente, cartao_sus, tipo_cartao, data_incl, usua_incl)
                                 VALUES (?,?,?,?,?) `,
                                         [novoPaciente.insertId,
                                         dadosPaciente[0].cartaoSus,
@@ -231,8 +236,8 @@ PacienteDAO.prototype.atualiza = function (paciente, id, callback) {
                                     tp.nuGestasPrevias,
                                     tp.nuPartos
                                     'P' as tipo_cartao
-                                from tb_paciente tp 
-                                inner join tb_municipio mun on mun.id = tp.idMunicipio 
+                                from tb_paciente tp
+                                inner join tb_municipio mun on mun.id = tp.idMunicipio
                                 inner join tb_estabelecimento est on est.id = tp.idEstabelecimentoCadastro
                                 where tp.id = ?`, id,
 
@@ -240,12 +245,12 @@ PacienteDAO.prototype.atualiza = function (paciente, id, callback) {
                             if (error) { return connDim.rollback(function () { console.log('Erro' + error); conn.rollback(); throw error; }); }
 
                             console.log('Select ' + JSON.stringify(dadosPaciente));
-                            connDim.query(`UPDATE paciente SET                     
-                                        id_status_paciente=?, unidade_cadastro=?, unidade_referida=?, 
+                            connDim.query(`UPDATE paciente SET
+                                        id_status_paciente=?, unidade_cadastro=?, unidade_referida=?,
                                         cidade_id_cidade=(select cid.id_cidade from cidade cid inner join estado est on est.id_estado = cid.estado_id_estado where cid.nome=? and est.uf=? LIMIT 1),
-                                        nome=?, tipo_logradouro=?, 
-                                        nome_logradouro=?, numero=?, complemento=?, bairro=?, nome_mae=?, sexo=?, data_nasc=?, status_2=?, 
-                                        data_alt=?, usua_alt=?, telefone=?, cpf=?, nome_mae_nasc=?, nome_mae_sem_espaco=?, num_pasta=? 
+                                        nome=?, tipo_logradouro=?,
+                                        nome_logradouro=?, numero=?, complemento=?, bairro=?, nome_mae=?, sexo=?, data_nasc=?, status_2=?,
+                                        data_alt=?, usua_alt=?, telefone=?, cpf=?, nome_mae_nasc=?, nome_mae_sem_espaco=?, num_pasta=?
                                         WHERE id_paciente=?`,
                                 [dadosPaciente[0].id_status_paciente,
                                 dadosPaciente[0].unidade_cadastro,
@@ -288,7 +293,7 @@ PacienteDAO.prototype.atualiza = function (paciente, id, callback) {
                                     console.log('Ultimo ' + JSON.stringify(novoPaciente));
 
                                     console.log('Select ' + JSON.stringify(dadosPaciente));
-                                    connDim.query(`UPDATE cartao_sus SET                     
+                                    connDim.query(`UPDATE cartao_sus SET
                                             cartao_sus=?, tipo_cartao=?
                                             WHERE paciente_id_paciente=?`,
                                         [dadosPaciente[0].cartaoSus,
@@ -367,7 +372,7 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
         if (addFilter.idEstabelecimento && addFilter.pacienteOutroEstabelecimento == 2 && !addFilter.pesquisa) {
             where += " AND pac.idEstabelecimentoCadastro = " + addFilter.idEstabelecimento + "";
         }
-        
+
         if (addFilter.pacienteAtivoInativo) {
             if (addFilter.pacienteAtivoInativo == '2') {
                 where += " AND pac.situacao = 1 ";
@@ -383,7 +388,7 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
         if (addFilter.pesquisaCentral) {
             where += ` AND (pac.cartaoSus LIKE '%${addFilter.pesquisaCentral}%' OR
                             pac.idSap LIKE '%${addFilter.pesquisaCentral}%' OR
-                            UPPER(pac.nome) LIKE UPPER('%${addFilter.pesquisaCentral}%') OR                            
+                            UPPER(pac.nome) LIKE UPPER('%${addFilter.pesquisaCentral}%') OR
                             replace(replace(pac.cpf,'.',''),'-','') LIKE replace(replace('%${addFilter.pesquisaCentral}%','.',''),'-','') OR
                             UPPER(pac.observacao) LIKE UPPER('%${addFilter.pesquisaCentral}%'))`;
         }
@@ -393,9 +398,9 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
     INNER JOIN tb_uf nat ON (pac.idNaturalidade = nat.id)
     LEFT JOIN tb_municipio mun ON (pac.idMunicipio = mun.id)
     LEFT JOIN tb_uf uf ON (pac.idUf = uf.id)
-    LEFT JOIN tb_modalidade md ON (pac.idModalidade = md.id) 
-    LEFT JOIN tb_estabelecimento est ON (pac.idEstabelecimentoCadastro = est.id and est.situacao = 1 and est.id = ${addFilter.idEstabelecimento})                    
-    LEFT JOIN tb_estabelecimento estCadastro ON (pac.idEstabelecimentoCadastro = estCadastro.id)                                    
+    LEFT JOIN tb_modalidade md ON (pac.idModalidade = md.id)
+    LEFT JOIN tb_estabelecimento est ON (pac.idEstabelecimentoCadastro = est.id and est.situacao = 1 and est.id = ${addFilter.idEstabelecimento})
+    LEFT JOIN tb_estabelecimento estCadastro ON (pac.idEstabelecimentoCadastro = estCadastro.id)
     WHERE 1 = 1 ${where} `;
 
     const count = await this._connection.query(`SELECT COUNT(1) as total ${join}`);
@@ -437,7 +442,7 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
                                                     pac.idSap,
                                                     pac.idPacienteCorrespondenteDim,
                                                     pac.apelido,
-                                                    pac.observacao, 
+                                                    pac.observacao,
                                                     pac.historiaProgressaFamiliar,
                                                     est.id idEstabelecimento,
                                                     estCadastro.nomeFantasia nomeEstabelecimento,
@@ -451,10 +456,10 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
                                                     stGravidezPlanejada,
                                                     nuGestasPrevias,
                                                     nuPartos,
-                                                    (select case when usuario.idTipoUsuario = 3 then 1 else count(*) end from tb_usuario usuario 
+                                                    (select case when usuario.idTipoUsuario = 3 then 1 else count(*) end from tb_usuario usuario
                                                     inner join tb_estabelecimento_usuario estabelecimentoUsuario on estabelecimentoUsuario.idUsuario = usuario.id
                                                     where usuario.id = ${idUsuario} and estabelecimentoUsuario.idEstabelecimento = estCadastro.id) vinculadoEstabelecimentoUsuario
-                                                ${join}  
+                                                ${join}
                                             ORDER BY pac.nome ASC ${offset}`);
     return {
         total: count[0].total,
@@ -463,39 +468,41 @@ PacienteDAO.prototype.listarAsync = async function (addFilter, idUsuario) {
 }
 
 PacienteDAO.prototype.buscaPorId = function (id, callback) {
-    this._connection.query(`SELECT 
+  console.log('ID', id)
+  console.log("callback", callback)
+    this._connection.query(`SELECT
     id,
     cartaoSus,
-    nome, 
-    nomeSocial, 
-    nomeMae, 
-    nomePai, 
+    nome,
+    nomeSocial,
+    nomeMae,
+    nomePai,
     DATE_FORMAT(dataNascimento,'%d/%m/%Y') as dataNascimento,
     sexo,
     idOrientacaoSexual,
     idGenero,
-    idNacionalidade, 
-    idNaturalidade, 
-    ocupacao, 
-    cpf, 
-    rg, 
+    idNacionalidade,
+    idNaturalidade,
+    ocupacao,
+    cpf,
+    rg,
     DATE_FORMAT(dataEmissao,'%d/%m/%Y') as dataEmissao,
-    orgaoEmissor, 
-    escolaridade, 
-    cep, 
-    logradouro, 
-    numero, 
-    complemento, 
-    bairro, 
-    idMunicipio, 
-    idUf, 
-    foneResidencial, 
-    foneCelular, 
-    foneContato, 
-    contato, 
-    email, 
-    situacao, 
-    idModalidade, 
+    orgaoEmissor,
+    escolaridade,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    idMunicipio,
+    idUf,
+    foneResidencial,
+    foneCelular,
+    foneContato,
+    contato,
+    email,
+    situacao,
+    idModalidade,
     DATE_FORMAT(dataCriacao,'%d/%m/%Y') as dataCriacao,
     latitude,
     longitude,
@@ -509,7 +516,7 @@ PacienteDAO.prototype.buscaPorId = function (id, callback) {
     idAtencaoContinuada,
     idEstabelecimentoCadastro,
     apelido,
-    observacao, 
+    observacao,
     historiaProgressaFamiliar,
     foto,
     necessidadeEspeciais,
@@ -524,40 +531,104 @@ PacienteDAO.prototype.buscaPorId = function (id, callback) {
     FROM ${this._table} WHERE id = ?`, id, callback);
 }
 
+PacienteDAO.prototype.buscaPorIdAsync = async function (id) {
+  console.log('ID', id)
+   const resp = await this._connection.query(`SELECT
+    id,
+    cartaoSus,
+    nome,
+    nomeSocial,
+    nomeMae,
+    nomePai,
+    DATE_FORMAT(dataNascimento,'%d/%m/%Y') as dataNascimento,
+    sexo,
+    idOrientacaoSexual,
+    idGenero,
+    idNacionalidade,
+    idNaturalidade,
+    ocupacao,
+    cpf,
+    rg,
+    DATE_FORMAT(dataEmissao,'%d/%m/%Y') as dataEmissao,
+    orgaoEmissor,
+    escolaridade,
+    cep,
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    idMunicipio,
+    idUf,
+    foneResidencial,
+    foneCelular,
+    foneContato,
+    contato,
+    email,
+    situacao,
+    idModalidade,
+    DATE_FORMAT(dataCriacao,'%d/%m/%Y') as dataCriacao,
+    latitude,
+    longitude,
+    idSap,
+    idPacienteCorrespondenteDim,
+    idTipoSanguineo,
+    idRaca,
+    numeroProntuario,
+    numeroProntuarioCnes,
+    falecido,
+    idAtencaoContinuada,
+    idEstabelecimentoCadastro,
+    apelido,
+    observacao,
+    historiaProgressaFamiliar,
+    foto,
+    necessidadeEspeciais,
+    reeducando,
+    gestante,
+    aleitamentoMaterno,
+    DATE_FORMAT(dumDaGestante,'%d/%m/%Y') as dumDaGestante,
+    idadeGestacional,
+    stGravidezPlanejada,
+    nuGestasPrevias,
+    nuPartos
+    FROM ${this._table} WHERE id = ?`, id);
+    return resp;
+}
+
 PacienteDAO.prototype.buscaPorIdSync = async function (id) {
     const responsePaciente = await this._connection.query(`SELECT
     pac.id,
     pac.cartaoSus,
-    pac.nome, 
-    pac.nomeSocial, 
-    pac.nomeMae, 
-    pac.nomePai, 
+    pac.nome,
+    pac.nomeSocial,
+    pac.nomeMae,
+    pac.nomePai,
     DATE_FORMAT(pac.dataNascimento,'%d/%m/%Y') as dataNascimento,
-    pac.sexo, 
+    pac.sexo,
     pac.idOrientacaoSexual,
     pac.idGenero,
-    pac.idNacionalidade, 
-    pac.idNaturalidade, 
-    pac.ocupacao, 
-    pac.cpf, 
-    pac.rg, 
+    pac.idNacionalidade,
+    pac.idNaturalidade,
+    pac.ocupacao,
+    pac.cpf,
+    pac.rg,
     DATE_FORMAT(pac.dataEmissao,'%d/%m/%Y') as dataEmissao,
-    pac.orgaoEmissor, 
-    pac.escolaridade, 
-    pac.cep, 
-    pac.logradouro, 
-    pac.numero, 
-    pac.complemento, 
-    pac.bairro, 
-    pac.idMunicipio, 
-    pac.idUf, 
-    pac.foneResidencial, 
-    pac.foneCelular, 
-    pac.foneContato, 
-    pac.contato, 
-    pac.email, 
-    pac.situacao, 
-    pac.idModalidade, 
+    pac.orgaoEmissor,
+    pac.escolaridade,
+    pac.cep,
+    pac.logradouro,
+    pac.numero,
+    pac.complemento,
+    pac.bairro,
+    pac.idMunicipio,
+    pac.idUf,
+    pac.foneResidencial,
+    pac.foneCelular,
+    pac.foneContato,
+    pac.contato,
+    pac.email,
+    pac.situacao,
+    pac.idModalidade,
     DATE_FORMAT(pac.dataCriacao,'%d/%m/%Y') as dataCriacao,
     pac.latitude,
     pac.longitude,
@@ -571,7 +642,7 @@ PacienteDAO.prototype.buscaPorIdSync = async function (id) {
     pac.idAtencaoContinuada,
     pac.idEstabelecimentoCadastro,
     pac.apelido,
-    pac.observacao, 
+    pac.observacao,
     pac.historiaProgressaFamiliar,
     pac.foto,
     pac.necessidadeEspeciais,
@@ -586,7 +657,7 @@ PacienteDAO.prototype.buscaPorIdSync = async function (id) {
     YEAR(CURRENT_TIMESTAMP) - YEAR(pac.dataNascimento) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(pac.dataNascimento, 5)) as pacienteIdade,
     est.obrigaCpfNovoPaciente,
     est.obrigaCartaoSusNovoPaciente,
-    est.obrigaValidarPacienteAtendimento 
+    est.obrigaValidarPacienteAtendimento
     FROM ${this._table} pac
     left join tb_estabelecimento est on est.id = pac.idEstabelecimentoCadastro WHERE pac.id = ?`, id);
     return responsePaciente;
@@ -607,36 +678,36 @@ PacienteDAO.prototype.consultaPaciente = async function (tipo, valor) {
     const responsePaciente = await this._connection.query(`SELECT
         pac.id,
         pac.cartaoSus,
-        pac.nome, 
-        pac.nomeSocial, 
-        pac.nomeMae, 
-        pac.nomePai, 
+        pac.nome,
+        pac.nomeSocial,
+        pac.nomeMae,
+        pac.nomePai,
         DATE_FORMAT(pac.dataNascimento,'%d/%m/%Y') as dataNascimento,
         pac.sexo,
         pac.idOrientacaoSexual,
         pac.idGenero,
-        pac.idNacionalidade, 
-        pac.idNaturalidade, 
-        pac.ocupacao, 
-        pac.cpf, 
-        pac.rg, 
+        pac.idNacionalidade,
+        pac.idNaturalidade,
+        pac.ocupacao,
+        pac.cpf,
+        pac.rg,
         DATE_FORMAT(pac.dataEmissao,'%d/%m/%Y') as dataEmissao,
-        pac.orgaoEmissor, 
-        pac.escolaridade, 
-        pac.cep, 
-        pac.logradouro, 
-        pac.numero, 
-        pac.complemento, 
-        pac.bairro, 
-        pac.idMunicipio, 
-        pac.idUf, 
-        pac.foneResidencial, 
-        pac.foneCelular, 
-        pac.foneContato, 
-        pac.contato, 
-        pac.email, 
-        pac.situacao, 
-        pac.idModalidade, 
+        pac.orgaoEmissor,
+        pac.escolaridade,
+        pac.cep,
+        pac.logradouro,
+        pac.numero,
+        pac.complemento,
+        pac.bairro,
+        pac.idMunicipio,
+        pac.idUf,
+        pac.foneResidencial,
+        pac.foneCelular,
+        pac.foneContato,
+        pac.contato,
+        pac.email,
+        pac.situacao,
+        pac.idModalidade,
         DATE_FORMAT(pac.dataCriacao,'%d/%m/%Y') as dataCriacao,
         pac.latitude,
         pac.longitude,
@@ -650,7 +721,7 @@ PacienteDAO.prototype.consultaPaciente = async function (tipo, valor) {
         pac.idAtencaoContinuada,
         pac.idEstabelecimentoCadastro,
         pac.apelido,
-        pac.observacao, 
+        pac.observacao,
         pac.historiaProgressaFamiliar,
         pac.foto,
         pac.necessidadeEspeciais,
@@ -665,7 +736,7 @@ PacienteDAO.prototype.consultaPaciente = async function (tipo, valor) {
         YEAR(CURRENT_TIMESTAMP) - YEAR(pac.dataNascimento) - (RIGHT(CURRENT_TIMESTAMP, 5) < RIGHT(pac.dataNascimento, 5)) as pacienteIdade,
         est.obrigaCpfNovoPaciente,
         est.obrigaCartaoSusNovoPaciente,
-        est.obrigaValidarPacienteAtendimento 
+        est.obrigaValidarPacienteAtendimento
         FROM ${this._table} pac
         left join tb_estabelecimento est on est.id = pac.idEstabelecimentoCadastro
         WHERE ${camposDeConsulta[tipo]} = ?`, valor);
@@ -674,43 +745,43 @@ PacienteDAO.prototype.consultaPaciente = async function (tipo, valor) {
 }
 
 PacienteDAO.prototype.buscaPorIdFicha = function (id, callback) {
-    this._connection.query(`SELECT 
+    this._connection.query(`SELECT
     p.id,
     p.cartaoSus,
-    DATE_FORMAT(current_date(),'%d/%m/%y') as dataAtendimento,    
+    DATE_FORMAT(current_date(),'%d/%m/%y') as dataAtendimento,
     DATE_FORMAT(DATE_ADD(current_timestamp(), INTERVAL -3 hour),'%H:%i:%s') as hora_atendimento,
-    TIMESTAMPDIFF(YEAR, p.dataNascimento, NOW()) as idade, 
-    m.nome as nomeMunicipio, 
-    p.nome, 
-    p.nomeSocial, 
-    p.nomeMae, 
-    p.nomePai, 
+    TIMESTAMPDIFF(YEAR, p.dataNascimento, NOW()) as idade,
+    m.nome as nomeMunicipio,
+    p.nome,
+    p.nomeSocial,
+    p.nomeMae,
+    p.nomePai,
     DATE_FORMAT(p.dataNascimento,'%d/%m/%y') as dataNascimento,
     p.sexo,
     p.idOrientacaoSexual,
     p.idGenero,
-    p.idNacionalidade, 
-    p.idNaturalidade, 
-    p.ocupacao, 
-    p.cpf, 
-    p. rg, 
+    p.idNacionalidade,
+    p.idNaturalidade,
+    p.ocupacao,
+    p.cpf,
+    p. rg,
     DATE_FORMAT(p.dataEmissao,'%d/%m/%Y') as dataEmissao,
-    p.orgaoEmissor, 
-    p.escolaridade, 
-    p.cep, 
-    p.logradouro, 
-    p.numero, 
-    p.complemento, 
-    p.bairro, 
-    p.idMunicipio, 
-    p.idUf, 
-    p.foneResidencial, 
-    p.foneCelular, 
-    p.foneContato, 
-    p.contato, 
-    p.email, 
-    p.situacao, 
-    p.idModalidade, 
+    p.orgaoEmissor,
+    p.escolaridade,
+    p.cep,
+    p.logradouro,
+    p.numero,
+    p.complemento,
+    p.bairro,
+    p.idMunicipio,
+    p.idUf,
+    p.foneResidencial,
+    p.foneCelular,
+    p.foneContato,
+    p.contato,
+    p.email,
+    p.situacao,
+    p.idModalidade,
     DATE_FORMAT(p.dataCriacao,'%d/%m/%Y') as dataCriacao,
     p.latitude,
     p.longitude ,
@@ -732,7 +803,7 @@ PacienteDAO.prototype.buscaPorIdFicha = function (id, callback) {
     p.stGravidezPlanejada,
     p.nuGestasPrevias,
     p.nuPartos
-    FROM ${this._table} p 
+    FROM ${this._table} p
     INNER JOIn tb_municipio m ON(p.idMunicipio = m.id) WHERE p.id = ?`, id, callback);
 }
 
@@ -775,8 +846,8 @@ PacienteDAO.prototype.buscarEstabelecimentos = function (id, raio, idTipoUnidade
             e.idUnidadePesquisaMedicamentoDim,
             e.idUnidadeRegistroReceitaDim
         FROM tb_estabelecimento e
-        INNER JOIN tb_municipio as m ON (e.idMunicipio = m.id) 
-        INNER JOIN tb_uf as u ON (e.idUf = u.id) 
+        INNER JOIN tb_municipio as m ON (e.idMunicipio = m.id)
+        INNER JOIN tb_uf as u ON (e.idUf = u.id)
         INNER JOIN tb_tipo_unidade as tu ON (e.idTipoUnidade = tu.id)
         INNER JOIN tb_paciente p ON (p.id = ? AND ROUND(ST_Distance_Sphere(e.geom, p.geom)) <= ?)
         WHERE e.idTipoUnidade = ?`,
@@ -855,14 +926,14 @@ PacienteDAO.prototype.carregaPacientePorMedicamento = async function (addFilter,
     let medicamento;
 
     if (material) {
-        medicamento = await this._connection.query(`select 
+        medicamento = await this._connection.query(`select
                                                             distinct mat.id idMaterial,
                                                             mat.codigo as codigoMaterial,
-                                                            mat.descricao as nomeMaterial, 
-                                                            count(*) medicamentosPorUnidade , 
+                                                            mat.descricao as nomeMaterial,
+                                                            count(*) medicamentosPorUnidade ,
                                                             sum(img.quantidade) qtdRetirada
                                                         from tb_material mat
-                                                            inner join tb_item_movimento_geral img on mat.id = img.idMaterial 
+                                                            inner join tb_item_movimento_geral img on mat.id = img.idMaterial
                                                             inner join tb_fabricante_material fab on img.idFabricante = fab.id
                                                             inner join tb_movimento_geral mvg on img.idMovimentoGeral = mvg.id
                                                             inner join tb_estabelecimento und on mvg.idEstabelecimento = und.id
@@ -874,15 +945,15 @@ PacienteDAO.prototype.carregaPacientePorMedicamento = async function (addFilter,
                                                             and fab.situacao = 1
                                                             and und.situacao = 1
                                                             and pac.situacao = 1
-                                                            ${where} 
+                                                            ${where}
                                                             group by mat.id
                                                             order by mat.descricao asc`);
     } else {
-        medicamento = await this._connection.query(`select 
-                                                    mat.codigo as codigoMaterial, 
+        medicamento = await this._connection.query(`select
+                                                    mat.codigo as codigoMaterial,
                                                     mat.descricao as nomeMaterial,
-                                                    img.lote as lote, 
-                                                    fab.nome as nomeFabricanteMaterial, 
+                                                    img.lote as lote,
+                                                    fab.nome as nomeFabricanteMaterial,
                                                     img.validade as validade,
                                                     img.quantidade as quantidade,
                                                     mvg.dataMovimento as dataMovimento,
@@ -892,15 +963,15 @@ PacienteDAO.prototype.carregaPacientePorMedicamento = async function (addFilter,
                                                     CONCAT(UPPER(IFNULL(pac.logradouro,'')), ', ', UPPER(IFNULL(pac.numero,'')), ' ', UPPER(IFNULL(pac.complemento,'')), UPPER(IFNULL(pac.bairro,'')) ) enderecoPaciente,
                                                     und.nomeFantasia nomeEstabelecimento
                                                 from tb_material mat
-                                                inner join tb_item_movimento_geral img on mat.id = img.idMaterial 
+                                                inner join tb_item_movimento_geral img on mat.id = img.idMaterial
                                                 inner join tb_fabricante_material fab on img.idFabricante = fab.id
                                                 inner join tb_movimento_geral mvg on img.idMovimentoGeral = mvg.id
                                                 inner join tb_estabelecimento und on mvg.idEstabelecimento = und.id
                                                 inner join tb_paciente pac on mvg.idPaciente = pac.id
                                                 inner join tb_item_receita irc on img.idItemReceita = irc.id
                                                 inner join tb_receita rec on irc.idReceita = rec.id
-                                                where mat.situacao = 1 and mat.dispensavel = 1 and fab.situacao = 1 and und.situacao = 1 and pac.situacao = 1 
-                                                ${where} 
+                                                where mat.situacao = 1 and mat.dispensavel = 1 and fab.situacao = 1 and und.situacao = 1 and pac.situacao = 1
+                                                ${where}
                                                 ${orderBy} `);
     }
 

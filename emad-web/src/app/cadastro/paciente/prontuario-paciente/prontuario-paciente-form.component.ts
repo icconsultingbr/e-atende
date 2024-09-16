@@ -327,6 +327,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
   }
 
   carregaNaturalidade() {
+    console.log('this.object.idNacionalidad', this.object.idNacionalidade);
     this.loading = true;
     this.service
       .carregaNaturalidadePorNacionalidade(this.object.idNacionalidade)
@@ -816,6 +817,8 @@ export class ProntuarioPacienteFormComponent implements OnInit {
   }
 
   openHistorico(content: any, idAtendimento: number, idHistorico: number) {
+    console.log('idAtendimento', idAtendimento);
+    console.log('idHistorico', idHistorico);
     this.createGroupHistorico();
     this.encontraAtendimentoHistorico(idAtendimento, idHistorico);
     this.mostraHistorico = idAtendimento ? false : true;
@@ -955,6 +958,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
     this.loading = true;
     this.atendimentoService.findHipoteseByAtendimento(idAtendimento).subscribe(
       (result) => {
+        console.log('resultasd321', result);
         this.allItemsHipoteseHistorico = result;
         this.loading = false;
       },
@@ -1025,6 +1029,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
       .findProcedimentoByAtendimento(idAtendimento)
       .subscribe(
         (result) => {
+          console.log('result normal', result);
           this.allItemsProcedimentos = result;
           this.loading = false;
         },

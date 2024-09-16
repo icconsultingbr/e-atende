@@ -429,6 +429,15 @@ export class AtendimentoService extends GenericsService {
     }
   }
 
+  gerarLinkTemporario(obj: any): Observable<any> {
+
+    return this.http.get('paciente/gerar-link-temporario/', {
+      params: {
+        idSap: '491636234' //mocked idSap
+      }
+    });
+  }
+
   findProcedimentoByAtendimento(id: any): Observable<any> {
     return this.http.get('atendimento-procedimento/atendimento/' + id);
   }
@@ -471,9 +480,9 @@ export class AtendimentoService extends GenericsService {
   ): Observable<any> {
     return this.http.get(
       'dominios/dose-vacina-sus/' +
-        codigoVacinaSus +
-        '?codigoEstrategiaVacinacaoSus=' +
-        codigoEstrategiaVacinacaoSus,
+      codigoVacinaSus +
+      '?codigoEstrategiaVacinacaoSus=' +
+      codigoEstrategiaVacinacaoSus,
     );
   }
 

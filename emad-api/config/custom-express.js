@@ -6,11 +6,13 @@ var cookieParser = require('cookie-parser');
 var expressSession = require('express-session');
 var cors = require('cors');
 const config = require('./config');
+const { externalSecret } = require('./config.json');
 
 module.exports = function () {
-    var app = express(); 
+    var app = express();
 
     app.set('superSecret', 'ed281fe0f84dceef9a11e89f9159046c'); // usado para gerar o token no JWT
+    app.set('externalSecret', externalSecret)
     app.use(bodyParser.json({ limit: "5mb", extended: true }));
     app.use(bodyParser.urlencoded({ limit: "5mb", extended: true, parameterLimit:5000 }));
     app.use(expressValidator());

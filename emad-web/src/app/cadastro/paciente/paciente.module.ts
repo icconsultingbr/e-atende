@@ -27,6 +27,7 @@ import { AppImageCropperUploadModule } from '../../_core/_components/app-image-c
 import { ChartsModule } from 'ng2-charts';
 import { AtendimentoService } from '../../operacao/atendimento/atendimento.service';
 import { AppFileUploadModule } from '../../_core/_components/app-file-upload/app-file-upload.module';
+import { PacienteLinkTemporarioService } from '../paciente-link-temporario/paciente-link-temporario.service';
 
 @NgModule({
   imports: [
@@ -58,6 +59,6 @@ import { AppFileUploadModule } from '../../_core/_components/app-file-upload/app
     PacienteFormComponent,
     ProntuarioPacienteFormComponent,
   ],
-  providers: [PacienteService, AtendimentoService],
+  providers: [PacienteService, AtendimentoService, PacienteLinkTemporarioService],
 })
-export class PacienteModule {}
+export class PacienteModule { }

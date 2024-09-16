@@ -11,8 +11,8 @@ RacaDAO.prototype.atualiza = function(obj, id, callback) {
     this._connection.query(`UPDATE ${this._table} SET ? WHERE id= ?`, [obj, id], callback);
 }
 
-RacaDAO.prototype.lista = function(callback) {    
-    this._connection.query(`SELECT id, nome, situacao FROM ${this._table}  WHERE situacao = 1`,callback);    
+RacaDAO.prototype.lista = function(callback) {
+    this._connection.query(`SELECT id, nome, situacao FROM ${this._table}  WHERE situacao = 1`,callback);
 }
 
 RacaDAO.prototype.buscaPorId = function (id, callback) {
@@ -25,6 +25,11 @@ RacaDAO.prototype.buscaDominio = function (callback) {
 
 RacaDAO.prototype.dominio = function(callback) {
     this._connection.query("select id, nome FROM "+this._table+" WHERE situacao = 1 ORDER BY id ASC",callback);
+}
+
+RacaDAO.prototype.dominioAsync = async function() {
+  const resp = await this._connection.query("select id, nome FROM "+this._table+" WHERE situacao = 1 ORDER BY id ASC");
+  return resp
 }
 
 RacaDAO.prototype.deletaPorId = function (id,callback) {

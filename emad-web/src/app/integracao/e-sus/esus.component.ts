@@ -29,6 +29,10 @@ export class ESusComponent implements OnInit {
   ngOnInit() {
     this.nav.show();
     this.loadDomain();
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    this.object.periodoExtracao = [yesterday, today];
   }
 
   loadDomain() {
@@ -58,8 +62,14 @@ export class ESusComponent implements OnInit {
     }
   }
 
-  gerarXMLsPorTipoFicha() {
+  isEnable() {
+    if (!this.object.idFichaEsus || !this.object.idTipoPeriodo || !this.object.periodoExtracao[0] || !this.object.periodoExtracao[1]) {
+      return true;
+    }
+    return false;
+  }
 
+  gerarXMLsPorTipoFicha() {
 
     let dataInicialConvertida;
     let dataFinalConvertida;
@@ -77,6 +87,8 @@ export class ESusComponent implements OnInit {
     this.object.periodoExtracao[0] = dataInicialConvertida;
     this.object.periodoExtracao[1] = dataFinalConvertida;
 
+
+    this.loading = true;
     this.service.obterXmlsPorTipoFicha(this.object).subscribe((result: ArrayBuffer) => {
       const blob = new Blob([result], { type: 'application/zip;' });
       const url = window.URL.createObjectURL(blob);
@@ -110,11 +122,13 @@ export class ESusComponent implements OnInit {
       link.click();
 
       this.object.periodoExtracao = [];
+      this.errors = [];
 
-    }, erro => {
-      const encoded = String.fromCharCode.apply(null, new Uint8Array(erro) as any);
-      const err = JSON.parse(decodeURIComponent(escape(encoded)));
-      this.errors = Util.customHTTPResponse(err);
+    }, () => {
+      this.loading = false;
+      this.object.periodoExtracao = [];
+      this.errors = [{ message: "Não há dados no período selecionado" }];
     });
+    this.loading = false;
   }
 }

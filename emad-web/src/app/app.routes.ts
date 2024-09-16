@@ -5,6 +5,7 @@ import { AuthGuard } from "./_core/_guards";
 import { NotFoundComponent } from "./not-found/not-found.component";
 import { UsuarioResetComponent } from "./seguranca/usuario/usuario-reset.component";
 
+
 const appRoutes: Routes = [
   { path: "", component: MainComponent, canActivate: [AuthGuard] },
   { path: "login", component: LoginComponent },
@@ -66,6 +67,10 @@ const appRoutes: Routes = [
     path: "pacientes",
     canActivate: [AuthGuard],
     loadChildren: "./cadastro/paciente/paciente.module#PacienteModule",
+  },
+  {
+    path: "paciente-link-temporario",
+    loadChildren: "./cadastro/paciente-link-temporario/paciente-link-temporario.module#PacienteLinkTemporarioModule",
   },
   {
     path: "equipes",
@@ -146,6 +151,11 @@ const appRoutes: Routes = [
     canActivate: [AuthGuard],
     loadChildren: "./operacao/atendimento/atendimento.module#AtendimentoModule",
   },
+  // {
+  //   path: "atendimento-link-temporario",
+  //   // canActivate: [AuthGuard],
+  //   loadChildren: "./operacao/atendimento-link-temporario/atendimento-link-temporario.module#AtendimentoLinkTemporarioModule",
+  // },
   {
     path: "logs",
     canActivate: [AuthGuard],
