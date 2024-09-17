@@ -298,6 +298,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
     this.service.findById(this.id, this.method).subscribe(
       (result) => {
         this.object = result;
+
         this.loadPhoto = true;
         this.loading = false;
         this.carregaNaturalidade();

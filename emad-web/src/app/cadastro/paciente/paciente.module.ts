@@ -23,7 +23,6 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
 import { ProntuarioPacienteFormComponent } from './prontuario-paciente/prontuario-paciente-form.component';
 import { AppSelectModule } from '../../_core/_components/app-select/app-select.module';
 import { AppSelectModalModule } from '../../_core/_components/app-select-modal/app-select-modal.module';
-import { AppImageCropperUploadModule } from '../../_core/_components/app-image-cropper-upload/app-image-cropper-upload.module';
 import { ChartsModule } from 'ng2-charts';
 import { AtendimentoService } from '../../operacao/atendimento/atendimento.service';
 import { AppFileUploadModule } from '../../_core/_components/app-file-upload/app-file-upload.module';
@@ -50,7 +49,6 @@ import { PacienteLinkTemporarioService } from '../paciente-link-temporario/pacie
     TabsModule.forRoot(),
     AppSelectModule,
     AppSelectModalModule,
-    AppImageCropperUploadModule,
     ChartsModule,
     AppFileUploadModule,
   ],
