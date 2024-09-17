@@ -1,6 +1,17 @@
 const ApiResponse = require('../../utilities/ApiResponse');
 const WebToken = require('../../utilities/WebToken');
 const {externalSecret} = require('../../config/config.json');
+const config = require('../../config/config');
+const eatendeURL = config.dbConfig.database;
+let currentUrl
+if (eatendeURL === 'e-atend-al') {
+  currentURL = 'saude.icconsulting.com.br/e-atende-al';
+} else if (eatendeURL === 'e-atend') {
+  currentURL = 'saude.icconsulting.com.br/e-atende';
+} else {
+  currentURL = 'localhost:4000'; // Valor padrão ou tratamento de erro
+}
+console.log("URL ATUAL", currentURL)
 module.exports = function (app) {
     app.get('/paciente/gerar-link-temporario', function (req, res) {
         const usuario = req.usuario;
@@ -12,7 +23,7 @@ module.exports = function (app) {
           externalSecret, "1h"
         );
         console.log("PACIENTE TOKEN GERADO PRIVATE", token)
-        const link = `http://saude.icconsulting.com.br/#/paciente-link-temporario/prontuario/${token}?hideMenu=true`;
+        const link = `http://${currentUrl}/#/paciente-link-temporario/prontuario/${token}?hideMenu=true`;
         return ApiResponse.ok(res, link);
     })
     app.get('/paciente', async function (req, res) {
