@@ -466,14 +466,6 @@ export class PacienteService extends GenericsService {
     },
   ];
 
-  gerarLinkTemporario(obj: any): Observable<any> {
-    console.log("SERVICE", obj)
-    return this.http.get('paciente/gerar-link-temporario/', {
-      params: {
-        idSap: '491636234' //mocked idSap
-      }
-    });
-  }
   transfereEstabelecimento(obj: any) {
     return this.http.put('paciente/transferencia-unidade', JSON.stringify(obj));
   }

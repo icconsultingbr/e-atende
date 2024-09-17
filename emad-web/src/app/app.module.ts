@@ -36,6 +36,7 @@ import { LogService } from './seguranca/log/log.service';
 import { CoreModule } from './_core/core.module';
 import { UsuarioResetComponent } from './seguranca/usuario/usuario-reset.component';
 import { FileUploadService } from './_core/_components/app-file-upload/services/file-upload.service';
+import { PacienteLinkTemporarioService } from './cadastro/paciente-link-temporario/paciente-link-temporario.service';
 
 if (environment.production) {
   enableProdMode();
@@ -84,7 +85,8 @@ defineLocale('pt-br', deLocale);
     PreviousRouteService,
     EstabelecimentoService,
     LogService,
-    FileUploadService
+    FileUploadService,
+    PacienteLinkTemporarioService
   ]
 
 })

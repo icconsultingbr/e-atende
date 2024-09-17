@@ -12,7 +12,7 @@ module.exports = function (app) {
           externalSecret, "1h"
         );
         console.log("PACIENTE TOKEN GERADO PRIVATE", token)
-        const link = `http://localhost:4200/#/paciente-link-temporario/prontuario/${token}?hideMenu=true`;
+        const link = `http://saude.icconsulting.com.br/#/paciente-link-temporario/prontuario/${token}?hideMenu=true`;
         return ApiResponse.ok(res, link);
     })
     app.get('/paciente', async function (req, res) {
