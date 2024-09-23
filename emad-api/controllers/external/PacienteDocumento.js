@@ -12,9 +12,9 @@ class PacienteDocumentoExternoController{
       const conn = await connection();
       try{
 
-        const atendimentoHipoteseRepository = new PacienteDocumentoRepository(conn);
+        const pacienteDocumentoRepository = new PacienteDocumentoRepository(conn);
         let items = [];
-        items = await atendimentoHipoteseRepository.buscaPorIdPaciente(id);
+        items = await pacienteDocumentoRepository.buscaPorIdPaciente(id);
         console.log('ITEMS ==>',items);
         for (const itemfile of items) {
           const fs = require('fs');
