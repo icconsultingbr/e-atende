@@ -5,17 +5,7 @@ const config = require('../../config/config');
 const dotenv = require('dotenv');
 dotenv.config();
 const eatendeURL = process.env.EATENDE_URL;
-// let currentUrl
-// if (eatendeURL === 'e-atend-al') {
-//   currentURL = 'saude.icconsulting.com.br/e-atende-al';
-// } else if (eatendeURL === 'e-atend') {
-//   currentURL = 'saude.icconsulting.com.br/e-atende';
-// } else {
-//   currentURL = 'localhost:4000'; // Valor padrão ou tratamento de erro
-// }
-// console.log("URL ATUAL", currentURL)
 module.exports = function (app) {
-  console.log("eatendeURL", eatendeURL)
   app.get('/paciente/gerar-link-temporario', function (req, res) {
 
         const usuario = req.usuario;
