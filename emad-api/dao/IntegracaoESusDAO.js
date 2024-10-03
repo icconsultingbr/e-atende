@@ -103,15 +103,11 @@ IntegracaoESusDAO.prototype.listaProcedimentos = async function (filtro) {
                                                                      WHERE tap.${this.campoData} BETWEEN ? AND ?  
                                                                      AND ta.idEstabelecimento = ?
                                                                      group by tap.idAtendimento, tp.co_procedimento, tap.situacao, tp2.id`, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);
-   listaProcedimentos.atendimentoProcedimentos = await this._connection.query(`SELECT distinct vw.idAtendimento, vw.idEstabelecimento, vw.cartaoSus, vw.dataNascimento, vw.localDeAtendimentoSus,
-                                                                                 vw.sexo, vw.turno, vw.tipoAtendimentoSus, vw.dataCriacao, vw.dataFinalizacao, vw.cpfCidadao,
-                                                                                 tp2.id idProfissional FROM vw_atendimento_individual_sus vw
-                                                                                 inner join tb_atendimento_procedimento tap on tap.idAtendimento = vw.idAtendimento 
-                                                                                 INNER JOIN tb_procedimento tp ON (tap.idProcedimento = tp.id and tap.situacao=1)
-                                                                                 INNER JOIN tb_usuario tu on tu.id = tap.idUsuarioCriacao 
-                                                                                 INNER JOIN tb_profissional tp2 on tp2.idUsuario = tu.id
-                                                                                 WHERE tap.${this.campoData} BETWEEN ? AND ? AND vw.idEstabelecimento = ?
-                                                                                 ORDER BY vw.dataCriacao asc`, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);
+   listaProcedimentos.atendimentoProcedimentos = await this._connection.query(`SELECT * FROM vw_atendimento_procedimento_esus vw
+                                                                                 WHERE vw.${this.campoData} BETWEEN  ? AND ?
+                                                                                 AND vw.idEstabelecimento = ?
+                                                                                 ORDER BY vw.dataCriacao asc 
+                                                                                 `, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);
    listaProcedimentos.numTotalAfericaoPa = await this._connection.query(`SELECT count(1) qtd, vw.idProfissional FROM vw_atendimento_afericoes_sus vw INNER JOIN tb_atendimento ta ON (ta.id = vw.idAtendimento) WHERE vw.pressaoArterial is not null and vw.pressaoArterial <> '' and vw.${this.campoData} BETWEEN ? AND ? AND ta.idEstabelecimento = ? group by vw.idProfissional`, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);
    listaProcedimentos.numTotalAfericaoTemperatura = await this._connection.query(`SELECT count(1) qtd, vw.idProfissional FROM vw_atendimento_afericoes_sus vw INNER JOIN tb_atendimento ta ON (ta.id = vw.idAtendimento) WHERE vw.temperatura is not null and vw.temperatura <> '' and vw.${this.campoData} BETWEEN ? AND ? AND ta.idEstabelecimento = ?  group by vw.idProfissional`, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);
    listaProcedimentos.numTotalMedicaoAltura = await this._connection.query(`SELECT count(1) qtd, vw.idProfissional FROM vw_atendimento_afericoes_sus vw INNER JOIN tb_atendimento ta ON (ta.id = vw.idAtendimento) WHERE vw.altura is not null and vw.altura <> '' and vw.${this.campoData} BETWEEN ? AND ? AND ta.idEstabelecimento = ?  group by vw.idProfissional`, [filtro.periodoExtracao[0], filtro.periodoExtracao[1], filtro.idEstabelecimento]);

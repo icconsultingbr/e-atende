@@ -480,6 +480,17 @@ ProfissionalDAO.prototype.buscarProfissionalPorEstabelecimentoEsus = async funct
         WHERE ep.idEstabelecimento = ? AND tp.situacao = 1 `, id);
 }
 
+ProfissionalDAO.prototype.buscarProfissionalEsus = async function (id) {
+    return await this._connection.query(`
+       SELECT tp.id, tp.profissionalCNS, te.codigoCBO,
+        (select te2.ine from tb_profissional_equipe tpeInterno
+        inner JOIN tb_equipe te2 ON te2.id = tpeInterno.idEquipe
+        where  tpeInterno.idProfissional = tp.id limit 1) ine
+        FROM tb_profissional  tp        
+        INNER JOIN tb_especialidade te ON (tp.idEspecialidade = te.id)
+        WHERE tp.situacao = 1`);
+}
+
 ProfissionalDAO.prototype.buscarProfissionalPorEstabelecimentoAtividadeColetiva = async function (id) {
     return await this._connection.query(`
         SELECT * from vw_atividade_coletiva_profissionais WHERE idEstabelecimento = ?`, id);

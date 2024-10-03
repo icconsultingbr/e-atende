@@ -218,7 +218,7 @@ module.exports = function (app) {
             let listaProcedimentos = [];
             let estabelecimento = {};
             let profissionais = [];
-            profissionais = await profissionalDAO.buscarProfissionalPorEstabelecimentoEsus(filtro.idEstabelecimento)
+            profissionais = await profissionalDAO.buscarProfissionalEsus();
             estabelecimento = await estabelecimentoDAO.buscaEstabelecimentoESus(filtro.idEstabelecimento);
             listaProcedimentos = await integracaoESusDAO.listaProcedimentos(filtro);
             return preencheXMLFichaProcedimentos(listaProcedimentos, estabelecimento, profissionais, atendimentoDAO);
