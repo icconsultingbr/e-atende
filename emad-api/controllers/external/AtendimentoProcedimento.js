@@ -9,8 +9,8 @@ class AtendimentoProcedimentoExternoController{
       const id = req.params.id;
       const conn = await connection();
       try{
-        const atendimentoRepository = new AtendimentoProcedimentoRepository(conn);
-        const response = await atendimentoRepository.listarPorPaciente(id,0,0);
+        const atendimentoProcedimentoRepository = new AtendimentoProcedimentoRepository(conn);
+        const response = await atendimentoProcedimentoRepository.listarPorPaciente(id,0,0);
         if(!response){
           return ApiResponse.notFound(res, 'Atendimento não encontrado');
         }
@@ -23,8 +23,8 @@ class AtendimentoProcedimentoExternoController{
       const id = req.params.id;
       const conn = await connection();
       try{
-        const atendimentoRepository = new AtendimentoProcedimentoRepository(conn);
-        const response = await atendimentoRepository.buscarPorAtendimentoId(id);
+        const atendimentoProcedimentoRepository = new AtendimentoProcedimentoRepository(conn);
+        const response = await atendimentoProcedimentoRepository.buscarPorAtendimentoId(id);
         if(!response){
           return ApiResponse.notFound(res, 'Atendimento Procedimento não encontrado');
         }
