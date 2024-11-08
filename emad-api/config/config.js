@@ -17,5 +17,12 @@ module.exports = config.util.getEnv('NODE_CONFIG') !== '{}' ? JSON.parse(config.
         "password": "zCAV%xf2",
         "database": "e-atend-al-dev"
     },
-    "idUsuarioIntegracao": 53
+    "idUsuarioIntegracao": 53,
+    "zoomConfig": {
+        "apiKey": "UMwzWZllQQyyeaXIn-xxiQ",
+        "apiSecret": "Xym30DYqbR7hDGFoE5neuXbEt6u6TmrBeadh",
+        "videoSDKKey": "UGp6IZBF98kdB4QFp2uDAIQPUvP8SvGNUMcn",
+        "videoSDKSecret": "xYKIrg50l0kLBZoG79rS5HVIbrOyOviaf2qv",
+        "baseUrl": "https://api.zoom.us/v2"
+    }
 }
