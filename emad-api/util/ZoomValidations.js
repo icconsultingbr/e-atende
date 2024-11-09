@@ -95,9 +95,9 @@ const matchesStringArray = (allowedStrings) => (property, value) => {
 const validateRequest = (body, validator) =>
   Object.keys(validator)
     .flatMap((property) => {
-      const value = body?.[property];
+      const value = body ? body[property] : '';
       const func = validator[property];
-      const validations = Array.isArray(func) ? func.map((f) => f(property, value)) : func?.(property, value);
+      const validations = Array.isArray(func) ? func.map((f) => f(property, value)) : func(property, value);
       return Array.isArray(validations) ? validations : [validations];
     })
     .filter(isValidationError);
