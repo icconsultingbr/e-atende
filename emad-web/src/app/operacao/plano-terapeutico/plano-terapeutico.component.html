@@ -130,7 +130,7 @@
                         Atendimento <span class="text-danger font-weight-bold"> *</span>
                     </label>
                     <div class="col-xl-9">
-                        <select class="custom-select d-block w-100" formControlName="formaAtendimento" disabled>
+                        <select class="custom-select d-block w-100" formControlName="formaAtendimento">
                             <option [value]="null">Selecione...</option>
                             <!-- Iterando sobre as opções em this.formaAtendimento -->
                             <option *ngFor="let item of formaAtendimento" [value]="item.id">{{ item.nome }}</option>

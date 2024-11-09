@@ -1253,7 +1253,55 @@
         </ng-template>
         <div class="card mb-4">
           <div class="card-body text-left">
-            <div class="row"></div>
+            <div class="row">
+              <div class="col-12 table-responsive">
+                <div class="form-group row">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Forma</th>
+                        <th>Data Inicial</th>
+                        <th>Data Final</th>
+                        <th>Observação</th>
+                        <th>Conferência</th>
+                        <th>Data de cancelamento</th>
+                      </tr>
+                    </thead>
+                    <tbody *ngIf="this.listaAgendamento?.length">
+                      <tr class="text-left" *ngFor="let item of listaAgendamento">
+                        <td class="text-secondary">{{ item.formaAtendimento }}</td>
+                        <td class="text-secondary">{{ item.dataInicial | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="text-secondary">{{ item.dataFinal | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
+                        <td class="text-secondary">{{ item.observacao }}</td>
+                        <td class="text-secondary">                          
+                          <a *ngIf="item.formaAtendimentoId === 2" [href]="item.urlConferencia" target="_blank">
+                              Acessar conferência  <i class="fa fa-solid fa-video"></i>
+                          </a>
+                        </td>
+                        <td class="text-secondary">
+                          <span *ngIf="item.deletedAt">
+                              {{ item.deletedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                              <span class="tooltip-icon">
+                                  <i class="fa fa-info-circle"></i>
+                                  <span class="tooltip-text">
+                                      Usuário: {{ item.usuarioCancelamento }}<br>
+                                      Motivo: {{ item.justificativaCancelamento }}
+                                  </span>
+                              </span>
+                          </span>
+                          <ng-container *ngIf="!item.deletedAt">
+                            <button *ngIf="item.dataInicial && isFutureDate(item.dataInicial)" type="button" class="btn btn-danger" (click)="cancelarAgendamento(item)">
+                              Cancelar
+                            </button>
+                              <span *ngIf="!item.dataInicial || item.dataInicial <= now">-</span>
+                          </ng-container>
+                      </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </tab>

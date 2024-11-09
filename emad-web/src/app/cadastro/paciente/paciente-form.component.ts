@@ -38,7 +38,9 @@ export class PacienteFormComponent implements OnInit {
   //documentos
   public images;
   public listaArquivosUpload: any[] = [];
-
+  public listaAgendamento: any[] = [];
+  now: Date = new Date();
+  
   object: Paciente = new Paciente();
   objectEstabelecimento: Estabelecimento = new Estabelecimento();
   pacienteHipotese: PacienteHipotese = new PacienteHipotese();
@@ -115,6 +117,7 @@ export class PacienteFormComponent implements OnInit {
 
     this.onChangeEstabelecimento(this.object.idEstabelecimentoCadastro);
     this.recarregarDocumentos();
+    this.carregaAgendamentos();
   }
 
   ngAfterViewInit() {
@@ -740,6 +743,14 @@ export class PacienteFormComponent implements OnInit {
       });
   }
 
+  carregaAgendamentos() {
+    this.service
+      .list(`paciente-agendamento/${this.id}`)
+      .subscribe((lista) => {
+        this.listaAgendamento = lista;
+      });
+  }
+
   abrirDocumento(base: any) {
 
     if (base.tipo == 'pdf') {
@@ -767,5 +778,11 @@ export class PacienteFormComponent implements OnInit {
           this.listaArquivosUpload = arquivo;
         });
     });
+  }
+
+  isFutureDate(dateString: string): boolean {
+    // Substitui o espaço entre a data e hora por 'T' para que o formato seja reconhecido
+    const date = new Date(dateString.replace(' ', 'T'));
+    return date > this.now;
   }
 }

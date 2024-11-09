@@ -739,6 +739,30 @@ module.exports = function (app) {
         return d.promise;
     }
 
+    app.get('/paciente-agendamento/:idPaciente', async function (req, res) {
+        let usuario = req.usuario;
+        let util = new app.util.Util();
+        let idPaciente = req.params.idPaciente;
+        let errors = [];
+
+        const connection = await app.dao.connections.EatendConnection.connection();
+
+        try {
+            const pacienteRepository = new app.dao.PacienteDAO(connection);
+
+            const items = await pacienteRepository.buscaAgendamentoSync(idPaciente);
+
+            ApiResponse.ok(res, items);
+        }
+        catch (exception) {
+            errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
+            ApiResponse.serverError(res, errors);
+        }
+        finally {
+            await connection.close();
+        }
+    });
+
     const escolaridade = [
         { id: 1, nome: "Educação infantil" },
         { id: 2, nome: "Fundamental" },

@@ -8,5 +8,32 @@
     border: none;
 }
 
+.tooltip-icon {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+}
 
+.tooltip-icon .tooltip-text {
+    visibility: hidden;
+    max-width: 250px; /* Ajuste conforme necessário */
+    background-color: #555;
+    color: #fff;
+    text-align: left;
+    border-radius: 5px;
+    padding: 8px;
+    position: absolute;
+    z-index: 1000; /* Valor alto para garantir que o tooltip fique acima de outros elementos */
+    top: 50%; /* Centraliza verticalmente */
+    right: 105%; /* Posiciona à esquerda do ícone */
+    transform: translateY(-50%); /* Ajusta para alinhar no meio verticalmente */
+    opacity: 0;
+    transition: opacity 0.3s;
+    white-space: normal; /* Permite quebra de linha */
+}
+
+.tooltip-icon:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
 /* .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link */

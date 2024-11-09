@@ -984,6 +984,13 @@ PacienteDAO.prototype.buscaPacientePorSapId = async function (idSap) {
     return result[0] ? result[0] : "";
 }
 
+PacienteDAO.prototype.buscaAgendamentoSync = async function (id) {
+    const response = await this._connection.query(`    
+    SELECT * FROM vw_agenda_paciente
+    WHERE idPaciente = ?  order by dataInicial desc`, id);
+    return response;
+}
+
 module.exports = function () {
     return PacienteDAO;
 };

@@ -32,7 +32,10 @@ const coerceRequestBody = (body) => ({
 });
 
 // Helper to join geoRegions array
-const joinGeoRegions = (geoRegions) => toStringArray(geoRegions)?.join(',');
+const joinGeoRegions = function(geoRegions) { 
+    const value = toStringArray(geoRegions);
+    return value ? value.join(',') : '';
+}
 
 // JWT Creation Helper
 const createZoomJwt = (payload) => {
