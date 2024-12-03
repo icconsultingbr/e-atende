@@ -27,6 +27,7 @@ import { HipoteseDiagnostica } from '../../_core/_models/HipoteseDiagnostica';
 import { Estabelecimento } from '../../_core/_models/Estabelecimento';
 import { EstabelecimentoService } from '../../seguranca/estabelecimento/estabelecimento.service';
 import { FileUploadService } from '../../_core/_components/app-file-upload/services/file-upload.service';
+import { AgendaPacienteImpressaoService } from '../../shared/services/agenda-paciente-impressao.service';
 
 @Component({
   selector: 'app-paciente-form',
@@ -37,7 +38,7 @@ import { FileUploadService } from '../../_core/_components/app-file-upload/servi
 export class PacienteFormComponent implements OnInit {
   //documentos
   public images;
-  public listaArquivosUpload: any[] = [];
+  public listaArquivosUpload: any[] = []; 
   public listaAgendamento: any[] = [];
   now: Date = new Date();
   
@@ -69,6 +70,8 @@ export class PacienteFormComponent implements OnInit {
   cpfObrigatorio = false;
   susObrigatorio = false;
   telefoneDefault = '';
+  dataInicial: Date;
+  dataFinal: Date;
 
   @ViewChild('addresstext') addresstext: ElementRef;
 
@@ -85,7 +88,7 @@ export class PacienteFormComponent implements OnInit {
   totalPages: Number;
 
   constructor(
-    private service: PacienteService,
+    private service: PacienteService, 
     private serviceEstabelecimento: EstabelecimentoService,
     private route: ActivatedRoute,
     private fb: FormBuilder,
@@ -93,6 +96,7 @@ export class PacienteFormComponent implements OnInit {
     private modalService: NgbModal,
     private router: Router,
     private fileUploadService: FileUploadService,
+    private agendaPacienteImpressao: AgendaPacienteImpressaoService,
   ) {
     this.fields = service.fields;
   }
@@ -744,8 +748,26 @@ export class PacienteFormComponent implements OnInit {
   }
 
   carregaAgendamentos() {
+    let dataInicialConvertida = null;
+    let dataFinalConvertida = null;
+    if (this.dataFinal < this.dataInicial) {
+      this.warning =
+        'Atenção: A data final e menor que a data Inicial, efetue a correção.';
+      return;
+    }
+
+    if (this.dataInicial) {
+      this.dataInicial.setHours(0, 0, 0, 0);
+      dataInicialConvertida = this.dataInicial.toISOString();
+    }
+
+    if (this.dataFinal) {
+      this.dataFinal.setHours(23, 59, 0, 0);
+      dataFinalConvertida = this.dataFinal.toISOString();
+    }
+
     this.service
-      .list(`paciente-agendamento/${this.id}`)
+      .list(`paciente-agendamento/report?idPaciente=${this.id}&dataInicial=${dataInicialConvertida}&dataFinal=${dataFinalConvertida}`)
       .subscribe((lista) => {
         this.listaAgendamento = lista;
       });
@@ -784,5 +806,33 @@ export class PacienteFormComponent implements OnInit {
     // Substitui o espaço entre a data e hora por 'T' para que o formato seja reconhecido
     const date = new Date(dateString.replace(' ', 'T'));
     return date > this.now;
+  }
+
+  imprimirPdfAgenda() {
+    let dataInicialConvertida = null;
+    let dataFinalConvertida = null;
+
+    if (this.dataFinal < this.dataInicial) {
+      this.warning =
+        'Atenção: A data final e menor que a data Inicial, efetue a correção.';
+      return;
+    }
+
+    if (this.dataInicial) {
+      this.dataInicial.setHours(0, 0, 0, 0);
+      dataInicialConvertida = this.dataInicial.toISOString();
+    }
+
+    if (this.dataFinal) {
+      this.dataFinal.setHours(23, 59, 0, 0);
+      dataFinalConvertida = this.dataFinal.toISOString();
+    }
+
+    this.agendaPacienteImpressao.imprimir(
+      this.id,
+      dataInicialConvertida,
+      dataFinalConvertida,
+      this.object.nome
+    );
   }
 }

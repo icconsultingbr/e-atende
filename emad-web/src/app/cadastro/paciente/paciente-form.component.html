@@ -1254,6 +1254,54 @@
         <div class="card mb-4">
           <div class="card-body text-left">
             <div class="row">
+              <div class="col-xl-12">
+                <div class="form-group row">
+                  <div class="col-xl-2">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text btn">
+                          <i class="fa fa-calendar-alt"></i>
+                        </div>
+                      </div>
+                      <input type="text" [(ngModel)]="dataInicial" placeholder="Data Inicial" bsDatepicker [bsConfig]="{
+                          containerClass: 'theme-dark-blue',
+                          dateInputFormat: 'DD/MM/YYYY'
+                        }" class="form-control" autocomplete="off" />
+                    </div>
+                  </div>
+                  <div class="col-xl-2">
+                    <div class="input-group">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text btn">
+                          <i class="fa fa-calendar-alt"></i>
+                        </div>
+                      </div>
+                      <input type="text" [(ngModel)]="dataFinal" placeholder="Data Final" bsDatepicker [bsConfig]="{
+                          containerClass: 'theme-dark-blue',
+                          dateInputFormat: 'DD/MM/YYYY'
+                        }" class="form-control" autocomplete="off" />
+                    </div>
+                  </div>
+                  <div class="col-xl-2">
+                    <span class="input-group-btn ml-2">
+                      <a class="btn btn-primary" style="color: #fff !important" (click)="carregaAgendamentos()">
+                        <i class="fa fa-search"></i> Filtrar
+                      </a>
+                    </span>
+                    <span class="input-group-btn ml-2">
+                      <a class="btn btn-primary" style="color: #fff !important" (click)="imprimirPdfAgenda()">
+                        <i class="far fa-file-pdf"></i> Gerar PDF
+                      </a>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card mb-4">
+          <div class="card-body text-left">
+            <div class="row">
               <div class="col-12 table-responsive">
                 <div class="form-group row">
                   <table class="table table-striped">

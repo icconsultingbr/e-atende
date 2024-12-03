@@ -587,4 +587,14 @@ export class PacienteService extends GenericsService {
       JSON.stringify(obj),
     );
   }
+
+  obterAgendaPacienteRelatorio(
+    idPaciente: number,
+    dataInicial: Date,
+    dataFinal: Date
+  ): Observable<any> {
+    return this.http.get(
+      `paciente-agendamento/report?idPaciente=${idPaciente}&dataInicial=${dataInicial}&dataFinal=${dataFinal}&`
+    );
+  }
 }

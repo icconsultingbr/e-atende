@@ -94,6 +94,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
   mensagem = '';
   mensagemErro: string;
   msgAlert: any = [];
+  sessionPassword: string = '';
 
   modalData: {
     action: string;
@@ -529,8 +530,9 @@ export class PlanoTerapeuticoComponent implements OnInit {
     this.agendamentoSelecionado = event;
     const idAgendamento = parseInt(this.agendamentoSelecionado.id)
     this.modalData = { event, action };
-    this.openModalConsultaAgendamento(this.modalInfoAgendamento)
-    this.consultaAgendamentoId(idAgendamento)
+    this.openModalConsultaAgendamento(this.modalInfoAgendamento);
+    this.consultaAgendamentoId(idAgendamento);
+    this.sessionPassword = '';
   }
 
   openModalConsultaAgendamento(content: any) {
@@ -684,6 +686,46 @@ export class PlanoTerapeuticoComponent implements OnInit {
   togglePaciente() {
     return Util.isEmpty(this.paciente.cartaoSus) && Util.isEmpty(this.paciente.nome);
   }
+
+  abreSessao(): void {
+    let url = '';
+
+    if (!this.sessionPassword) {
+      this.sessionPassword = this.generatePassword();
+    }
+
+    if (this.agendamentoSelecionado.id) 
+      window.open("https://vinimoreira.github.io/videosdk-zoom-angular/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
+        this.sessionPassword +  "/1/medico", '_blank');      
+  }
+
+  copiarLinkSessao(): void {
+    let url = '';
+
+    if (!this.sessionPassword) {
+      this.sessionPassword = this.generatePassword(); 
+    }
+
+    const clipboard = (navigator as any).clipboard;
+
+    if (this.agendamentoSelecionado.id) 
+      clipboard.writeText("https://vinimoreira.github.io/videosdk-zoom-angular/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
+        this.sessionPassword +  "/1/paciente").then(() => {        
+      }).catch(err => {
+        console.error('Erro ao copiar o link: ', err);
+      });
+  }
+
+  enviarSessaoPorEmail(): void {
+    let url = '';
+  }
+
+  generatePassword(length: number = 12): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return password;
+  }
 }
-
-

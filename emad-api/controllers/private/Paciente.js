@@ -739,18 +739,19 @@ module.exports = function (app) {
         return d.promise;
     }
 
-    app.get('/paciente-agendamento/:idPaciente', async function (req, res) {
+    app.get('/paciente-agendamento/report', async function (req, res) {
         let usuario = req.usuario;
         let util = new app.util.Util();
         let idPaciente = req.params.idPaciente;
         let errors = [];
+        let addFilter = req.query;
 
         const connection = await app.dao.connections.EatendConnection.connection();
 
         try {
             const pacienteRepository = new app.dao.PacienteDAO(connection);
 
-            const items = await pacienteRepository.buscaAgendamentoSync(idPaciente);
+            const items = await pacienteRepository.buscaAgendamentoSync(addFilter.idPaciente, addFilter.dataInicial, addFilter.dataFinal);
 
             ApiResponse.ok(res, items);
         }

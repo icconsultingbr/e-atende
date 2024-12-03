@@ -348,7 +348,7 @@
             <i style="font-size: 25px;" class="col-xl-2" class="fas fa-user"></i>
             <div style="text-align: left; " class="col-xl-10">
                 <label style="margin-bottom: 0;">
-                    Pacientes
+                    Paciente
                 </label>
                 <h5>{{dadosAgendamento?.pacienteNome}}</h5>
             </div>
@@ -393,6 +393,28 @@
                 </label>
                 <h5>{{formatarDataHora(dadosAgendamento?.dataFinal).data + ' ás ' +
                     formatarDataHora(dadosAgendamento?.dataFinal).hora + ' Horas'}}</h5>
+            </div>
+        </div>
+
+        <div *ngIf="dadosAgendamento?.formaAtendimento == 2" class="row" style="align-items: center;">
+            <br/><br/>
+            <h5>Teleatendimento</h5>            
+            <div style="text-align: left; " class="col-xl-10">
+                <span class="input-group-btn ml-2">
+                    <a class="btn btn-primary" style="color: #fff !important" (click)="abreSessao()">
+                      <i class="far fa-video"></i> Iniciar Sessão
+                    </a>
+                </span>
+                <span class="input-group-btn ml-2">
+                    <a class="btn btn-primary" style="color: #fff !important" (click)="copiarLinkSessao()">
+                      <i class="far fa-copy"></i> Copiar Link
+                    </a>
+                </span>
+                <span class="input-group-btn ml-2">
+                    <a class="btn btn-primary" style="color: #fff !important" (click)="enviarSessaoPorEmail()">
+                      <i class="far fa-envelope"></i> Enviar por e-mail
+                    </a>
+                </span>
             </div>
         </div>
 

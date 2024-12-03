@@ -984,10 +984,22 @@ PacienteDAO.prototype.buscaPacientePorSapId = async function (idSap) {
     return result[0] ? result[0] : "";
 }
 
-PacienteDAO.prototype.buscaAgendamentoSync = async function (id) {
+PacienteDAO.prototype.buscaAgendamentoSync = async function (idPaciente,dataInicial,dataFinal) {
+    let where = "";
+    where += " WHERE idPaciente = " + idPaciente + "";
+
+    if (dataInicial && dataInicial != 'null' && dataInicial != 'undefined') {
+        where += " AND dataInicial >= '" + addFilter.dataInicial;
+    }
+
+    if (dataFinal && dataFinal != 'null' && dataFinal != 'undefined') {
+        where += " AND dataFinal >= '" + addFilter.dataFinal;
+    }
+
     const response = await this._connection.query(`    
     SELECT * FROM vw_agenda_paciente
-    WHERE idPaciente = ?  order by dataInicial desc`, id);
+    ${where}      
+    order by dataInicial desc`);
     return response;
 }
 

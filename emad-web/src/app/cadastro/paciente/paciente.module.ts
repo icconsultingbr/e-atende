@@ -27,6 +27,7 @@ import { ChartsModule } from 'ng2-charts';
 import { AtendimentoService } from '../../operacao/atendimento/atendimento.service';
 import { AppFileUploadModule } from '../../_core/_components/app-file-upload/app-file-upload.module';
 import { PacienteLinkTemporarioService } from '../paciente-link-temporario/paciente-link-temporario.service';
+import { AgendaPacienteImpressaoService } from '../../shared/services/agenda-paciente-impressao.service';
 
 @NgModule({
   imports: [
@@ -57,6 +58,6 @@ import { PacienteLinkTemporarioService } from '../paciente-link-temporario/pacie
     PacienteFormComponent,
     ProntuarioPacienteFormComponent,
   ],
-  providers: [PacienteService, AtendimentoService, PacienteLinkTemporarioService],
+  providers: [PacienteService, AtendimentoService, PacienteLinkTemporarioService, AgendaPacienteImpressaoService],
 })
 export class PacienteModule { }
