@@ -721,7 +721,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
     let url = '';
   }
 
-  generatePassword(length: number = 12): string {
+  generatePassword(length: number = 6): string {
     const characters = '0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
