@@ -6,10 +6,10 @@ module.exports = function (app) {
 
     app.use(function (req, res, next) {
 
-        var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+        var ip = req.headers['X-Forwarded-For'] || req.connection.remoteAddress;
 
         var userAgent = req.headers['user-agent'];
-        var host = req.headers['host'];
+        var host = req.headers['Host'];
         var token = req.headers.authorization;
         let errors = [];
 
@@ -20,7 +20,7 @@ module.exports = function (app) {
                     console.log('Erro token do usuário: ' + req.usuario + ', at: ' + datetime + ', token: ' + token);
                     console.log(err);
                     errors = [];
-                    errors = customError(errors, "header", "Não autorizado", "");
+                    errors = customError(errors, "header", "Não autorizado", "1");
                     return res.status(401).json(errors);
                 } else {
                     req.usuario = decoded.usuario;
@@ -32,17 +32,17 @@ module.exports = function (app) {
                             if (host != decoded.host) {
                                 errors = [];
                                 //errors = customError(errors, "header", "Não autorizado, IP, host ou user-agent estão diferentes", "");
-                                errors = customError(errors, "header", "Não autorizado, origem diferente.", "");
+                                errors = customError(errors, "header", "Não autorizado, origem diferente.", "2");
                                 return res.status(401).json(errors);
                             }
                             if (response[0].token != req.headers.authorization) {
                                 errors = [];
-                                errors = customError(errors, "header", "Não autorizado", "");
+                                errors = customError(errors, "header", "Não autorizado", "3");
                                 return res.status(401).json(errors);
                             }
                             if(response[0].diff >= 60){
                                 errors = [];
-                                errors = customError(errors, "header", "Tempo de ociosidade", "");
+                                errors = customError(errors, "header", "Tempo de ociosidade", "4");
                                 return res.status(401).json(errors);
                             }
                             if(req.usuario.id === config.idUsuarioIntegracao &&
@@ -56,7 +56,7 @@ module.exports = function (app) {
                             }
                         }
                         else {
-                            errors = customError(errors, "header", "Não autorizado", "");
+                            errors = customError(errors, "header", "Não autorizado", "5");
                             return res.status(401).json(errors);
                         }
                         if (req.url == '/usuario/redefinir-senha') {
@@ -87,7 +87,7 @@ module.exports = function (app) {
         } else {
             errors = [];
 
-            errors = customError(errors, "header", "Não autorizado", "");
+            errors = customError(errors, "header", "Não autorizado", "6");
             return res.status(401).json(errors);
         }
     });
