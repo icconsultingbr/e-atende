@@ -9,4 +9,6 @@ find . -type f -exec sed -i 's|:4001|:'$API_PORT'|g' {} \;
 
 find . -type f -exec sed -i 's|api-eatende|'$API_NAME'|g' {} \;
 
+find . -type f -exec sed -i 's|https://telemedicina.icconsulting.com.br/meeting|'$MEETING_URL'|g' {} \;
+
 nginx -g "daemon off;"

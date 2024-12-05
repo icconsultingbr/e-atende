@@ -13,4 +13,5 @@ export const environment = {
   utc : 0,
   virtualDirectory: '',
   socketPath: '',
+  meetingUrl: 'http://localhost:5000'
 };

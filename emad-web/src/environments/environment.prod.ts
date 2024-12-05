@@ -7,5 +7,6 @@ export const environment = {
   socketUrl: 'https://telemedicina.icconsulting.com.br',
   socketPath: '/api-eatende',
   utc : 3,
-  virtualDirectory: 'e-atende'
+  virtualDirectory: 'e-atende',
+  meetingUrl: 'https://telemedicina.icconsulting.com.br/meeting'
 };

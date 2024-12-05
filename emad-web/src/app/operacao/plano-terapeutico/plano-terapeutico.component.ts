@@ -24,6 +24,7 @@ import { startOfDay } from 'date-fns';
 import { TipoAtendimento } from '../../../utils/enums/agendamentos/tipo-atendimento';
 import { AgendamentoResponseListaDto } from './dtos/agendamento-response-lista.dto';
 import { UpdateAgendamentoRequestDto } from './dtos/agendamento-update.dto';
+import { environment } from '../../../environments/environment';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -695,7 +696,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
     }
 
     if (this.agendamentoSelecionado.id) 
-      window.open("https://vinimoreira.github.io/videosdk-zoom-angular/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
+      window.open(environment.meetingUrl + "/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
         this.sessionPassword +  "/1/medico", '_blank');      
   }
 
@@ -709,7 +710,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
     const clipboard = (navigator as any).clipboard;
 
     if (this.agendamentoSelecionado.id) 
-      clipboard.writeText("https://vinimoreira.github.io/videosdk-zoom-angular/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
+      clipboard.writeText(environment.meetingUrl + "/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
         this.sessionPassword +  "/1/paciente").then(() => {        
       }).catch(err => {
         console.error('Erro ao copiar o link: ', err);
@@ -721,7 +722,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   generatePassword(length: number = 12): string {
-    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const characters = '0123456789';
     let password = '';
     for (let i = 0; i < length; i++) {
       password += characters.charAt(Math.floor(Math.random() * characters.length));
