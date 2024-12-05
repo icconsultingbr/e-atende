@@ -4,8 +4,8 @@ export const environment = {
   superAdmin: 3,
   avancado : 2,
   admin: 1,
-  socketUrl: 'https://telemedicina.icconsulting.com.br/api-eatende',
-  socketPath: '',
+  socketUrl: 'https://telemedicina.icconsulting.com.br',
+  socketPath: '/api-eatende',
   utc : 3,
   virtualDirectory: 'e-atende'
 };

@@ -81,9 +81,9 @@ Util.prototype.checkPassword = function (pwd, hash) {
 Util.prototype.createWebToken = function (app, req, usuario) {
 
     let jwt = require('jsonwebtoken');
-    let ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    let ip = req.headers['X-Forwarded-For'] || req.connection.remoteAddress;
     let userAgent = req.headers['user-agent'];
-    let host = req.headers['host'];
+    let host = req.headers['Host'];
 
     let payload = {
         usuario: { id: usuario.id, idTipoUsuario: usuario.idTipoUsuario, ep: usuario.expiredPassword },
