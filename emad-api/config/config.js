@@ -24,5 +24,8 @@ module.exports = config.util.getEnv('NODE_CONFIG') !== '{}' ? JSON.parse(config.
         "videoSDKKey": "UGp6IZBF98kdB4QFp2uDAIQPUvP8SvGNUMcn",
         "videoSDKSecret": "xYKIrg50l0kLBZoG79rS5HVIbrOyOviaf2qv",
         "baseUrl": "https://api.zoom.us/v2"
+    },
+    "meeting": {
+        url:"https://telemedicina.icconsulting.com.br/meeting/#"
     }
 }

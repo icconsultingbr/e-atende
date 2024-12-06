@@ -405,12 +405,12 @@
                       <i class="far fa-video"></i> Iniciar Sessão
                     </a>
                 </span>
-                <span class="input-group-btn ml-2">
+                <span class="input-group-btn ml-2" *ngIf="urlMeeting">
                     <a class="btn btn-primary" style="color: #fff !important" (click)="copiarLinkSessao()">
                       <i class="far fa-copy"></i> Copiar Link
                     </a>
                 </span>
-                <span class="input-group-btn ml-2">
+                <span class="input-group-btn ml-2" *ngIf="urlMeeting">
                     <a class="btn btn-primary" style="color: #fff !important" (click)="enviarSessaoPorEmail()">
                       <i class="far fa-envelope"></i> Enviar por e-mail
                     </a>

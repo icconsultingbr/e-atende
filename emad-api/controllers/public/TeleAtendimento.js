@@ -3,11 +3,13 @@ const axios = require('axios');
 const KJUR = require('jsrsasign');
 const q = require('q');
 const crypto = require('crypto');
+const { v4: uuidv4 } = require('uuid');
 const {
     inNumberArray, isBetween, isLengthLessThan, isRequired, matchesStringArray, validateRequest
 } = require('../../util/ZoomValidations');
 const { toStringArray } = require('../../util/ZoomUtil');
 const config = require('../../config/config');
+const { error } = require('console');
 
 // Validator configuration
 const validator = {
@@ -150,6 +152,150 @@ module.exports = function (app) {
                 res.status(500).json({ error: error.message });
             });
     });
+
+
+    /**
+     * Cria uma nova sessao de atendimento
+     * @route POST /tele-atendimento/sessoes
+     * @param {Object} req.body.atendimentoId - ID do atendimento
+     * @param {boolean} req.body.medico - Flag indicando se e medico
+     * @returns {Object} Response contendo a URl da sessao
+     * @returns {string} Response.url - URL da sessao
+     * @throws {400} Se o atendimento nao for informado
+     */
+    app.post('/tele-atendimento/sessoes', async function (req, res) {
+        const body = req.body || {};
+        const payload = {
+            atendimentoId: body.atendimentoId,
+            perfil: body.medico ? 'medico' : 'paciente'
+        };
+
+        req.assert("atendimentoId").notEmpty().withMessage("Informe o Id do atendimento");
+
+        const errors = req.validationErrors();
+
+        if (errors) {
+            res.status(400).send(errors);
+            return;
+        }
+
+        if (!payload.atendimentoId) {
+            res.status(400).json({ error: 'Informe o número do atendimento' });
+            return;
+        }
+
+        if (!config.meeting) {
+            res.status(400).json({ error: 'Meeting não foi configurado' });
+        }
+
+        const connection = await app.dao.connections.EatendConnection.connection();
+
+        try {
+            const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
+
+            let teleAtendimento = await teleAtendimentoRepository.obterPorAgendamentoId(payload.atendimentoId);
+
+            if (teleAtendimento) {
+                const url = `${config.meeting.url}/tele-atendimento/${teleAtendimento.sessaoId}/${teleAtendimento.sessaoPassword}/1/${payload.perfil}`;
+                res.json({ url: url });
+                return;
+            }
+
+            teleAtendimento = {
+                id: 0,
+                agendamentoId: payload.atendimentoId,
+                sessaoId: uuidv4(),
+                sessaoPassword: generatePassword(),
+                situacao: 1,
+                sessaoIdZoom: null
+            };
+
+            await teleAtendimentoRepository.incluir(teleAtendimento);
+
+            const url = `${config.meeting.url}/tele-atendimento/${payload.atendimentoId}/${teleAtendimento.sessaoPassword}/1/${payload.perfil}`;
+
+            res.json({ url: url });
+        }
+        catch (exception) {
+            res.status(500).send(util.customError(errors, "header", "Ocorreu um erro inesperado " + exception, ""));
+        }
+        finally {
+            await connection.close();
+        }
+    });
+
+
+    app.post('/tele-atendimento/webhook', async function (request, response) {
+        const { event, payload } = request.body;
+
+        console.log(`Received Zoom Webhook Event: ${event}`);
+        console.log(payload);
+
+        if (event === 'endpoint.url_validation') {
+            const hashForValidate = crypto.createHmac('sha256', config.zoomConfig.zoomWebhookSecret)
+                .update(payload.plainToken)
+                .digest('hex');
+
+            return response.status(200).json({
+                plainToken: payload.plainToken,
+                encryptedToken: hashForValidate
+            });
+        }
+
+        const connection = await app.dao.connections.EatendConnection.connection();
+
+        try{
+            const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
+
+            const teleAtendimento = await teleAtendimentoRepository.obterPorSessaoId(payload.object.session_name);
+            if(!teleAtendimento){
+                return response.status(200).json({});
+                return;
+            }
+
+            teleAtendimento.sessaoIdZoom = payload.object.session_id;
+            if (event === 'session.started') {
+                teleAtendimento.situacao = 2;
+            }
+
+            await teleAtendimentoRepository.atualizar(teleAtendimento);
+
+            return response.status(200).json({});
+        }
+        catch (exception) {
+            res.status(500).send(util.customError(errors, "header", "Ocorreu um erro inesperado " + exception, ""));
+        }
+        finally {
+            await connection.close();
+        }
+
+        if (event === 'session.started') {
+            
+            
+            obj = {
+                agendamentoId:sessaoId,
+                sessaoId:sessaoId,
+                sessaoPassword: '1234',
+                sessaoIdZoom: payload.object.session_id,
+                situacao: 1
+            }
+
+            var dao = new app.dao.TeleAtendimentoDAO(connection);
+            return dao.salva(obj, function (exception, result) {
+                if (exception) {
+                    console.log(exception);
+                    d.reject(exception);
+                    errors = util.customError(errors, "data", "Erro ao atualizar os dados", dom);
+                    return res.status(500).send(errors);
+
+                } else {
+                    return response.status(200).json();
+                }
+            });
+        }
+
+        return response.status(200).json();
+    });
 };
 
 // Helper to fetch session by ID
@@ -169,4 +315,18 @@ function buscarPorId(id, res) {
     });
 
     return d.promise;
+}
+
+/**
+ * Gera um número aleatório
+ * @param {number} [length=6] - Quantidade de caracteres do numero
+ * @returns {string} O numero gerado
+ */
+function generatePassword(length = 6) {
+    const characters = '0123456789';
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        password += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return password;
 }

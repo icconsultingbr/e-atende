@@ -10,6 +10,7 @@ import { RelatoriosEstoqueService } from './relatorios-estoque.service';
 import { ProntuarioPacienteImpressaoService } from './prontuario-paciente-impressao.service';
 import { ReciboExameImpressaoService } from './recibo-exame-impressao.service';
 import { ExameService } from './exame.service';
+import { TeleAtendimentoService } from './tele-atendimento.service';
 
 @NgModule({
     imports: [
@@ -26,7 +27,8 @@ import { ExameService } from './exame.service';
         RelatoriosEstoqueService,
         ProntuarioPacienteImpressaoService,
         ReciboExameImpressaoService,
-        ExameService
+        ExameService,
+        TeleAtendimentoService
     ]
 })
 export class SharedServiceModule { }

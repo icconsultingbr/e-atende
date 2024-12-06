@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, ElementRef, Input, TemplateRef } from '@angular/core';
+import { Component, OnInit, ViewChild, Input, TemplateRef } from '@angular/core';
 import { NgbModalRef, NgbModal, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { PlanoTerapeuticoService } from './plano-terapeutico.service';
@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import { AgendaProfissional } from '../../_core/_models/AgendaProfissional';
 import {
   CalendarEvent,
-  CalendarEventAction,
   CalendarEventTimesChangedEvent,
 } from 'angular-calendar';
 import { Subject } from 'rxjs';
@@ -24,7 +23,7 @@ import { startOfDay } from 'date-fns';
 import { TipoAtendimento } from '../../../utils/enums/agendamentos/tipo-atendimento';
 import { AgendamentoResponseListaDto } from './dtos/agendamento-response-lista.dto';
 import { UpdateAgendamentoRequestDto } from './dtos/agendamento-update.dto';
-import { environment } from '../../../environments/environment';
+import { TeleAtendimentoService } from '../../shared/services/tele-atendimento.service';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -95,7 +94,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
   mensagem = '';
   mensagemErro: string;
   msgAlert: any = [];
-  sessionPassword: string = '';
+  urlMeeting: string = '';
 
   modalData: {
     action: string;
@@ -108,7 +107,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
     private modalService: NgbModal,
     private pagerService: PagerService,
     private router: Router,
-    private calendar: NgbCalendar) {
+    private calendar: NgbCalendar,
+    private readonly teleAtendimentoService: TeleAtendimentoService) {
     this.selectedDate = new Date();
     this.fromDate = calendar.getToday();
     this.toDate = calendar.getNext(calendar.getToday(), 'd', 10);
@@ -533,7 +533,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
     this.modalData = { event, action };
     this.openModalConsultaAgendamento(this.modalInfoAgendamento);
     this.consultaAgendamentoId(idAgendamento);
-    this.sessionPassword = '';
+    this.urlMeeting = '';
   }
 
   openModalConsultaAgendamento(content: any) {
@@ -689,44 +689,37 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   abreSessao(): void {
-    let url = '';
-
-    if (!this.sessionPassword) {
-      this.sessionPassword = this.generatePassword();
+    if(this.urlMeeting){
+      window.open(this.urlMeeting, '_blank');
+      return;
     }
 
-    if (this.agendamentoSelecionado.id) 
-      window.open(environment.meetingUrl + "/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
-        this.sessionPassword +  "/1/medico", '_blank');      
+    this.teleAtendimentoService
+      .gerarSessao({
+        atendimentoId: this.agendamentoSelecionado.id,
+        medico: true
+      })
+      .subscribe(result => {
+        this.urlMeeting = result.url;
+
+        window.open(this.urlMeeting, '_blank');
+      });
   }
 
   copiarLinkSessao(): void {
-    let url = '';
-
-    if (!this.sessionPassword) {
-      this.sessionPassword = this.generatePassword(); 
-    }
-
     const clipboard = (navigator as any).clipboard;
 
-    if (this.agendamentoSelecionado.id) 
-      clipboard.writeText(environment.meetingUrl + "/tele-atendimento/" + this.agendamentoSelecionado.id + "/" + 
-        this.sessionPassword +  "/1/paciente").then(() => {        
-      }).catch(err => {
-        console.error('Erro ao copiar o link: ', err);
-      });
+    if (!clipboard) {
+      return;
+    }
+
+    clipboard.writeText(this.urlMeeting).then(() => {
+    }).catch(err => {
+      console.error('Erro ao copiar o link: ', err);
+    });
   }
 
   enviarSessaoPorEmail(): void {
     let url = '';
-  }
-
-  generatePassword(length: number = 6): string {
-    const characters = '0123456789';
-    let password = '';
-    for (let i = 0; i < length; i++) {
-      password += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return password;
   }
 }
