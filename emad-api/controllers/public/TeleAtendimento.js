@@ -243,6 +243,7 @@ module.exports = function (app) {
         }
 
         const connection = await app.dao.connections.EatendConnection.connection();
+        const util = new app.util.Util();
 
         try{
             const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
@@ -254,8 +255,11 @@ module.exports = function (app) {
             }
 
             teleAtendimento.sessaoIdZoom = payload.object.session_id;
-            if (event === 'session.started') {
-                teleAtendimento.situacao = 2;
+            if(event == 'session.started'){
+                teleAtendimento.situacao = 3;
+            }
+            if (event == 'session.ended') {
+                teleAtendimento.situacao = 4;
             }
 
             await teleAtendimentoRepository.atualizar(teleAtendimento);
@@ -263,38 +267,11 @@ module.exports = function (app) {
             return response.status(200).json({});
         }
         catch (exception) {
-            res.status(500).send(util.customError(errors, "header", "Ocorreu um erro inesperado " + exception, ""));
+            response.status(500).send(util.customError([], "header", "Ocorreu um erro inesperado " + exception, ""));
         }
         finally {
             await connection.close();
         }
-
-        if (event === 'session.started') {
-            
-            
-            obj = {
-                agendamentoId:sessaoId,
-                sessaoId:sessaoId,
-                sessaoPassword: '1234',
-                sessaoIdZoom: payload.object.session_id,
-                situacao: 1
-            }
-
-            var dao = new app.dao.TeleAtendimentoDAO(connection);
-            return dao.salva(obj, function (exception, result) {
-                if (exception) {
-                    console.log(exception);
-                    d.reject(exception);
-                    errors = util.customError(errors, "data", "Erro ao atualizar os dados", dom);
-                    return res.status(500).send(errors);
-
-                } else {
-                    return response.status(200).json();
-                }
-            });
-        }
-
-        return response.status(200).json();
     });
 };
 
