@@ -212,7 +212,7 @@ module.exports = function (app) {
 
             await teleAtendimentoRepository.incluir(teleAtendimento);
 
-            const url = `${config.meeting.url}/tele-atendimento/${payload.atendimentoId}/${teleAtendimento.sessaoPassword}/1/${payload.perfil}`;
+            const url = `${config.meeting.url}/tele-atendimento/${teleAtendimento.sessaoId}/${teleAtendimento.sessaoPassword}/1/${payload.perfil}`;
 
             res.json({ url: url });
         }
