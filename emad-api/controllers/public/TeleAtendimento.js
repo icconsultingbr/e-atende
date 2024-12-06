@@ -261,6 +261,9 @@ module.exports = function (app) {
             if (event == 'session.ended') {
                 teleAtendimento.situacao = 4;
             }
+            if(event == 'session.recording_completed'){
+                teleAtendimento.situacao = 5;
+            }
 
             await teleAtendimentoRepository.atualizar(teleAtendimento);
 
