@@ -109,48 +109,62 @@ module.exports = function (app) {
         }
         return response.json({ signature: result });
     });
-
-    app.get('/tele-atendimento/sessao/:sessaoId/download', function (req, res) {
+    
+    /**
+     * Downloads the recording of a telehealth session
+     * @route GET /tele-atendimento/sessao/:sessaoId/download
+     * @param {string} req.params.sessaoId - ID of the session to download
+     * @returns {Buffer} Recording file as octet-stream
+     * @throws {400} If session ID is missing or video download fails
+     * @throws {404} If session is not found
+     * @throws {500} If an unexpected error occurs
+     */
+    app.get('/tele-atendimento/sessao/:sessaoId/download', async function (req, res) {
         const sessaoId = req.params.sessaoId;
 
         if (!sessaoId) {
             return res.status(400).json({ error: "Parametro não identificado." });
         }
 
-        buscarPorId(sessaoId, res)
-            .then(function (teleAtendimento) {
-                if (!teleAtendimento) {
-                    return res.status(404).json({ error: "Sessão não encontrada." });
-                }
+        const connection = await app.dao.connections.EatendConnection.connection();
 
-                const zoomApiUrl = 'https://api.zoom.us/v2/videosdk/sessions/' + teleAtendimento.sessaoIdZoom + '/recordings?include_fields=download_access_token';
+        try {
+            const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
 
-                return axios.get(zoomApiUrl, {
-                    headers: { Authorization: 'Bearer ' + generateAPIToken() }
-                });
-            })
-            .then(function (zoomResponse) {
-                const recordingFiles = zoomResponse.data && zoomResponse.data.recording_files;
-                const downloadUrl = recordingFiles && recordingFiles.length > 0 ? recordingFiles[0].download_url : null;
-                const downloadToken = zoomResponse.data && zoomResponse.data.download_access_token;
+            const teleAtendimento = await teleAtendimentoRepository.obterPorSessaoId(sessaoId);
 
-                if (!downloadUrl || !downloadToken) {
-                    throw new Error("Missing download URL or token");
-                }
+            if(!teleAtendimento){
+                return res.status(404).json({ error: "Sessão não encontrada." });
+            }
 
-                return axios.get(downloadUrl, {
-                    headers: { Authorization: 'Bearer ' + downloadToken },
-                    responseType: 'arraybuffer'
-                });
-            })
-            .then(function (downloadResponse) {
-                res.set('Content-Type', 'application/octet-stream');
-                res.send(downloadResponse.data);
-            })
-            .catch(function (error) {
-                console.error("Error downloading session:", error);
-                res.status(500).json({ error: error.message });
+            const zoomApiUrl = 'https://api.zoom.us/v2/videosdk/sessions/' + teleAtendimento.sessaoIdZoom + '/recordings?include_fields=download_access_token';
+
+            const zoomResponse = await axios.get(zoomApiUrl, {
+                headers: { Authorization: 'Bearer ' + generateAPIToken() }
             });
+
+            const recordingFiles = zoomResponse.data && zoomResponse.data.recording_files;
+            const downloadUrl = recordingFiles && recordingFiles.length > 0 ? recordingFiles[0].download_url : null;
+            const downloadToken = zoomResponse.data && zoomResponse.data.download_access_token;
+
+            if (!downloadUrl || !downloadToken) {
+                return res.status(400).json({ error: "Ocorreu um erro ao fazer download do video" });
+            }
+
+            const downloadResponse = await axios.get(downloadUrl, {
+                headers: { Authorization: 'Bearer ' + downloadToken },
+                responseType: 'arraybuffer'
+            });
+
+            res.set('Content-Type', 'application/octet-stream');
+            res.send(downloadResponse.data);
+        }
+        catch (exception) {
+            res.status(500).send(util.customError(errors, "header", "Ocorreu um erro inesperado " + exception, ""));
+        }
+        finally {
+            await connection.close();
+        }
     });
 
 
@@ -277,25 +291,6 @@ module.exports = function (app) {
         }
     });
 };
-
-// Helper to fetch session by ID
-function buscarPorId(id, res) {
-    const d = q.defer();
-    const connection = app.dao.ConnectionFactory();
-    const objDAO = new app.dao.TeleAtendimentoDAO(connection);
-
-    objDAO.buscaPorIdSessao(id, function (exception, result) {
-        if (exception) {
-            console.error(exception);
-            res.status(500).send("Erro ao acessar os dados");
-            d.reject(exception);
-        } else {
-            d.resolve(result[0]);
-        }
-    });
-
-    return d.promise;
-}
 
 /**
  * Gera um número aleatório
