@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, Input, TemplateRef } from '@angular/core';
 import { NgbModalRef, NgbModal, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { PlanoTerapeuticoService } from './plano-terapeutico.service';
 import { Paciente } from '../../_core/_models/Paciente';
 import { PagerService } from '../../_core/_services';
@@ -24,6 +24,8 @@ import { TipoAtendimento } from '../../../utils/enums/agendamentos/tipo-atendime
 import { AgendamentoResponseListaDto } from './dtos/agendamento-response-lista.dto';
 import { UpdateAgendamentoRequestDto } from './dtos/agendamento-update.dto';
 import { TeleAtendimentoService } from '../../shared/services/tele-atendimento.service';
+import { PacienteService } from '../../cadastro/paciente/paciente.service';
+import { AtendimentoService } from '../atendimento/atendimento.service';
 
 const colors: Record<string, EventColor> = {
   red: {
@@ -62,7 +64,7 @@ export class PlanoTerapeuticoComponent implements OnInit {
   viewDate: Date = new Date();
   activeDayIsOpen: boolean = true;
   refresh = new Subject<void>();
-  modalRef: NgbModalRef = null;
+  modalRef: NgbModalRef = null;  
   modalRefLocalizarPaciente: NgbModalRef = null;
   modalConsultaAgendamento: NgbModalRef = null;
   modalConfirmarExclusaoAgendamento: NgbModalRef = null;
@@ -109,7 +111,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
     private pagerService: PagerService,
     private router: Router,
     private calendar: NgbCalendar,
-    private readonly teleAtendimentoService: TeleAtendimentoService) {
+    private readonly teleAtendimentoService: TeleAtendimentoService,
+    private atendimentoService: AtendimentoService) {
     this.selectedDate = new Date();
     this.fromDate = calendar.getToday();
     this.toDate = calendar.getNext(calendar.getToday(), 'd', 10);
@@ -694,7 +697,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
   }
 
   close() {
-    if (this.modalRef) this.modalRef.close();    
+    if (this.modalRef) this.modalRef.close(); 
+    if (this.modalConsultaAgendamento) this.modalConsultaAgendamento.close();    
   }
 
   closeSemAtendimento() {
@@ -707,11 +711,32 @@ export class PlanoTerapeuticoComponent implements OnInit {
     this.openConfirmacao(this.contentConfirmacaoAtendimento);      
   }
 
-  simAbrirAtendimento():void{
-    //this.simAbrirAtendimento();
+  simAbrirAtendimento():void{    
     if (this.modalRef) this.modalRef.close(); 
+    if (this.modalConsultaAgendamento) this.modalConsultaAgendamento.close();     
     this.abreSessao();    
-    this.router.navigate(['/atendimentos']);
+
+    this.form = this.fb.group({
+      idPaciente: this.dadosAgendamento.idPaciente,
+      situacao: 'C',
+      idEstabelecimento: this.dadosAgendamento.pacienteEstabeleciomentoId,
+      tipoFicha: 1,
+      idClassificacaoRisco: 1,
+      integracaoPEC: new FormControl({ value: 1, disabled: false }),
+      localDeAtendimento: new FormControl({ value: '1', disabled: false }),
+      dataCriacao: new Date(),
+      agendamentoId: this.dadosAgendamento.idAgendamento
+    });
+        this.atendimentoService.save(this.form.getRawValue(), 'atendimento').subscribe(
+          (res: any) => {
+            this.object.id = res.id;
+            this.router.navigate(['/atendimentos/cadastros/'+this.object.id]);  
+          },
+          (erro) => {
+            setTimeout(() => (this.loading = false), 300);
+            this.errors = Util.customHTTPResponse(erro);
+          },
+        );
   }
 
   abreSessao(): void {
@@ -755,6 +780,23 @@ export class PlanoTerapeuticoComponent implements OnInit {
       keyboard: false,
       centered: true,
       windowClass: 'modal-gg',
+    });
+  }
+
+    download(sessaoId: string): void {
+    this.teleAtendimentoService.downloadVideo(sessaoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-${sessaoId}.mp4`; // Nome do arquivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Erro ao fazer download:', error);
+      },
     });
   }
 }

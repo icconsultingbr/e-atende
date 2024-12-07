@@ -1321,23 +1321,32 @@
                         <td class="text-secondary">{{ item.dataInicial | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
                         <td class="text-secondary">{{ item.dataFinal | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
                         <td class="text-secondary">{{ item.observacao }}</td>
-                        <td class="text-secondary">                                                    
-                          <button *ngIf="item.formaAtendimentoId === 2 && !item.situacaoTeleAtendimento" type="button" class="btn btn-danger">
-                            <i class="fa fa-solid fa-video"></i> Agendado
-                          </button>
-                          <button *ngIf="item.formaAtendimentoId === 2 && item.situacaoTeleAtendimento === 1" type="button" class="btn btn-danger">
-                            <i class="fa fa-solid fa-video"></i> Aguardando início
-                          </button>
-                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 3" type="button" class="btn btn-danger" (click)="abreSessao(item.idAgenda)">
-                            <i class="fa fa-solid fa-video"></i> Aguardando paciente
-                          </button>
-                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 4" type="button" class="btn btn-danger" (click)="abreSessao(item.idAgenda)">
-                            <i class="fa fa-solid fa-video"></i> Finalizado - Aguardando download
-                          </button>
-                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 5" type="button" class="btn btn-danger" (click)="download(item.sessaoId)">
-                            <i class="fa fa-solid fa-video"></i> Download
-                          </button>
-
+                        <td class="text-secondary">                       
+                          <div *ngIf="item.formaAtendimentoId === 2 && !item.situacaoTeleAtendimento">      
+                            <button type="button" class="btn">
+                              <i class="fa fa-solid fa-calendar"></i> Consulta Agendada                            
+                            </button>                                                    
+                          </div>                             
+                          <div *ngIf="item.formaAtendimentoId === 2 && item.situacaoTeleAtendimento === 1">                            
+                            <button type="button" class="btn btn-danger">
+                              <i class="fa fa-solid fa-video"></i> Aguardando início
+                            </button>
+                          </div>               
+                          <div *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 3">                            
+                            <button  type="button" class="btn btn-primary" (click)="abreSessao(item.idAgenda)">
+                              <i class="fa fa-solid fa-video"></i> Aguardando paciente
+                            </button>
+                          </div>               
+                          <div *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 4">
+                            <button  type="button" class="btn btn-warning" (click)="abreSessao(item.idAgenda)">
+                              <i class="fa fa-solid fa-spinner"></i> Finalizado - Processando gravação
+                            </button>
+                          </div>
+                          <div *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 5" >
+                            <button type="button" class="btn" (click)="download(item.sessaoId)">
+                              <i class="fa fa-solid fa-file"></i> Pronto para download
+                            </button>
+                          </div>
                         </td>
                         <td class="text-secondary">
                           <span *ngIf="item.deletedAt">
@@ -1351,7 +1360,7 @@
                               </span>
                           </span>
                           <ng-container *ngIf="!item.deletedAt">
-                            <button *ngIf="item.dataInicial && isFutureDate(item.dataInicial)" type="button" class="btn btn-danger" (click)="cancelarAgendamento(item)">
+                            <button *ngIf="item.dataInicial && isFutureDate(item.dataInicial) && !item.situacaoTeleAtendimento" type="button" class="btn btn-danger" (click)="cancelarAgendamento(item)">
                               Cancelar
                             </button>
                               <span *ngIf="!item.dataInicial || item.dataInicial <= now">-</span>

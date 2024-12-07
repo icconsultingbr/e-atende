@@ -431,7 +431,7 @@
         <div *ngIf="dadosAgendamento?.formaAtendimento == 2" class="row" style="align-items: center;">
             <br/><br/>
             <h5>Teleatendimento</h5>            
-            <div style="text-align: left; " class="col-xl-10">
+            <div  *ngIf="(!dadosAgendamento?.situacaoTeleAtendimento || dadosAgendamento?.situacaoTeleAtendimento < 4)" style="text-align: left; " class="col-xl-10">
                 <span class="input-group-btn ml-2">
                     <a class="btn btn-primary" style="color: #fff !important" (click)="inicioSessao()">
                       <i class="far fa-video"></i> Iniciar Sessão
@@ -448,6 +448,23 @@
                     </a>
                 </span>
             </div>
+
+            <div *ngIf="dadosAgendamento?.situacaoTeleAtendimento && dadosAgendamento?.situacaoTeleAtendimento == 4" style="text-align: left; " class="col-xl-10">
+                <span class="input-group-btn ml-2">
+                    <a class="btn btn-primary" style="color: #fff !important">
+                      <i class="far fa-video"></i> Processando gravação
+                    </a>
+                </span>
+            </div>
+
+            <div *ngIf="dadosAgendamento?.situacaoTeleAtendimento && dadosAgendamento?.situacaoTeleAtendimento >4" style="text-align: left; " class="col-xl-10">
+                <span class="input-group-btn ml-2">
+                    <a class="btn btn-primary" style="color: #fff !important" (click)="download(dadosAgendamento?.sessaoId)">
+                      <i class="far fa-video"></i> Download
+                    </a>
+                </span>
+            </div>
+
         </div>
 
     </div>

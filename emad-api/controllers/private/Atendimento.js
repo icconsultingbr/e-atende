@@ -255,6 +255,8 @@ module.exports = function (app) {
         let idEstabelecimento = req.headers.est;
         let mail = new app.util.Mail();
         let errors = [];
+        //var agendamentoId = Object.assign({}, obj.agendamentoId);
+        //delete obj.agendamentoId;
 
         if (!obj.situacao)
             obj.situacao = "C";
@@ -395,6 +397,7 @@ module.exports = function (app) {
         const tipoFichaRepository = new app.dao.TipoFichaDAO(connection);
         const participanteAtividadeColetivaRepository = new app.dao.AtendimentoParticipanteAtividadeColetivaDAO(connection);
         const profissionalAtividadeColetivaRepository = new app.dao.AtendimentoProfissionalAtividadeColetivaDAO(connection);
+        const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
 
         try {
             console.log('Iniciando transacao do paciente: ' + obj.idPaciente + ', at: ' + new Date());
@@ -573,6 +576,10 @@ module.exports = function (app) {
                 }
 
             }
+
+            if(agendamentoId)
+                var responseAgendamento = await teleAtendimentoRepository.atualizarAtendimentoId(agendamentoId, obj.id);
+
 
             await connection.commit();
             console.log('Commit transacao do atendimento: ' + obj.id + ', at: ' + new Date());

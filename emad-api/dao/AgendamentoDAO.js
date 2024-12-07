@@ -25,12 +25,16 @@ AgendamentoDAO.prototype.buscaPorId = function (id, callback) {
                                 te.nome as especialidadeNome,
                                 te.id as especialidadeId,
                                 e.idEstabelecimento equipeEstabelecimetoId,
-                                pc.idEstabelecimentoCadastro pacienteEstabeleciomentoId
+                                pc.idEstabelecimentoCadastro pacienteEstabeleciomentoId,
+                                tele.idTeleAtendimento,
+    							tele.situacaoTeleAtendimento,
+    							tele.sessaoId 
                                 FROM tb_agendamento a 
                                 left join tb_profissional p ON (a.idProfissional = p.id)
                                 left join tb_especialidade te on p.idEspecialidade = te.id
                                 left join tb_equipe e ON (a.idEquipe = e.id)
                                 inner join tb_paciente pc ON(a.idPaciente = pc.id)
+                                left join vw_agenda_paciente tele on tele.idAgenda = a.id
                             where a.id = ?`, id, callback);
 }
 

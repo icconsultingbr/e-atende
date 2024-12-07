@@ -19,6 +19,7 @@ import { CalendarModule } from 'angular-calendar';
 import localePt from '@angular/common/locales/pt';
 import { AlertModule, TimepickerModule } from 'ngx-bootstrap';
 import { SharedServiceModule } from '../../shared/services/shared-service.module';
+import { AtendimentoService } from '../atendimento/atendimento.service';
 
 registerLocaleData(localePt);
 
@@ -48,7 +49,8 @@ registerLocaleData(localePt);
         PlanoTerapeuticoComponent
     ],
     providers: [
-        PlanoTerapeuticoService, { provide: LOCALE_ID, useValue: 'pt-BR' }
+        PlanoTerapeuticoService, { provide: LOCALE_ID, useValue: 'pt-BR' },
+        AtendimentoService
     ],
     exports: [
         PlanoTerapeuticoComponent

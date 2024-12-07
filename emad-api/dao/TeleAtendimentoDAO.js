@@ -62,6 +62,20 @@ TeleAtendimentoDAO.prototype.atualizar = async function (teleAtendimento) {
     await this._connection.query(`UPDATE ${this._table} SET ?  where id= ?`, [teleAtendimento, teleAtendimento.id]);
 }
 
+/**
+ * Atualiza um registro de teleatendimento no banco de dados com a informação do número de atendimento
+ * @param {Object} teleAtendimento - Objeto contendo os dados atualizados do teleatendimento
+ * @param {number} teleAtendimento.id - ID do teleatendimento a ser atualizado
+ * @returns {Promise<void>} Promise que resolve quando a atualização é concluída
+ */
+TeleAtendimentoDAO.prototype.atualizarAtendimentoId = async function (agendamentoId, atendimentoId) {
+    if(!agendamentoId && !atendimentoId){
+        return;
+    }
+
+    await this._connection.query(`UPDATE ${this._table} SET ?  where agendamentoId= ?`, [atendimentoId, agendamentoId]);
+}
+
 module.exports = function(){
     return TeleAtendimentoDAO;
 };
