@@ -90,8 +90,8 @@ function generateToken(body) {
 
 // Generate API Token
 function generateAPIToken() {
-    const API_KEY = config.zoomConfig.videoSdkApiKey;
-    const API_SECRET = config.zoomConfig.videoSdkApiSecret;
+    const API_KEY = config.zoomConfig.apiKey;
+    const API_SECRET = config.zoomConfig.apiSecret;
     const header = { alg: 'HS256', typ: 'JWT' };
     const iat = Math.round((Date.now() - 30000) / 1000);
     const exp = iat + 60 * 60 * 2;

@@ -335,6 +335,38 @@
 </ng-template>
 
 
+<ng-template #contentConfirmacao>
+    <div class="modal-header">
+      <h4 class="modal-title">Teleatendimento - Início da sessão</h4>
+      <button type="button" class="close" (click)="close()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Deseja confirmar o início da sessão?</p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" (click)="simIniciarSessao()">Sim</button>
+      <button type="button" class="btn btn-danger"  (click)="close()">Não</button>
+    </div>
+  </ng-template>
+
+  <ng-template #contentConfirmacaoAtendimento>
+    <div class="modal-header">
+      <h4 class="modal-title">Abertura de atendimento</h4>
+      <button type="button" class="close" (click)="closeSemAtendimento()">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p>Deseja abrir um atendimento para registrar a sessão?</p>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-primary" (click)="simAbrirAtendimento()">Sim</button>
+        <button type="button" class="btn btn-danger"  (click)="closeSemAtendimento()">Não</button>
+    </div>
+  </ng-template>
+
 <!-- Consulta agendamento -->
 <ng-template #modalInfoAgendamento let-close="close">
     <div class="modal-header">
@@ -401,16 +433,16 @@
             <h5>Teleatendimento</h5>            
             <div style="text-align: left; " class="col-xl-10">
                 <span class="input-group-btn ml-2">
-                    <a class="btn btn-primary" style="color: #fff !important" (click)="abreSessao()">
+                    <a class="btn btn-primary" style="color: #fff !important" (click)="inicioSessao()">
                       <i class="far fa-video"></i> Iniciar Sessão
                     </a>
                 </span>
-                <span class="input-group-btn ml-2" *ngIf="urlMeeting">
+                <span class="input-group-btn ml-2">
                     <a class="btn btn-primary" style="color: #fff !important" (click)="copiarLinkSessao()">
                       <i class="far fa-copy"></i> Copiar Link
                     </a>
                 </span>
-                <span class="input-group-btn ml-2" *ngIf="urlMeeting">
+                <span class="input-group-btn ml-2">
                     <a class="btn btn-primary" style="color: #fff !important" (click)="enviarSessaoPorEmail()">
                       <i class="far fa-envelope"></i> Enviar por e-mail
                     </a>

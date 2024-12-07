@@ -51,6 +51,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
   @ViewChild('modalAdicionarAgendamento') modalAdicionarAgendamento: TemplateRef<any>;
   @ViewChild('modalEditarAgendamento') modalEditarAgendamento: TemplateRef<any>;
   @ViewChild('modalConfirmarExclusao') modalConfirmarExclusao: TemplateRef<any>;
+  @ViewChild('contentConfirmacao') contentConfirmacao: any;
+  @ViewChild('contentConfirmacaoAtendimento') contentConfirmacaoAtendimento: any;  
   @Input() public readonly: Boolean = false;
   loading: Boolean = false;
   view: string = 'month';
@@ -94,7 +96,6 @@ export class PlanoTerapeuticoComponent implements OnInit {
   mensagem = '';
   mensagemErro: string;
   msgAlert: any = [];
-  urlMeeting: string = '';
 
   modalData: {
     action: string;
@@ -533,7 +534,6 @@ export class PlanoTerapeuticoComponent implements OnInit {
     this.modalData = { event, action };
     this.openModalConsultaAgendamento(this.modalInfoAgendamento);
     this.consultaAgendamentoId(idAgendamento);
-    this.urlMeeting = '';
   }
 
   openModalConsultaAgendamento(content: any) {
@@ -688,21 +688,40 @@ export class PlanoTerapeuticoComponent implements OnInit {
     return Util.isEmpty(this.paciente.cartaoSus) && Util.isEmpty(this.paciente.nome);
   }
 
-  abreSessao(): void {
-    if(this.urlMeeting){
-      window.open(this.urlMeeting, '_blank');
-      return;
-    }
+  inicioSessao():void{
+    if (this.modalRef) this.modalRef.close(); 
+    this.openConfirmacao(this.contentConfirmacao);    
+  }
 
+  close() {
+    if (this.modalRef) this.modalRef.close();    
+  }
+
+  closeSemAtendimento() {
+    this.abreSessao();
+    if (this.modalRef) this.modalRef.close();  
+  }
+
+  simIniciarSessao():void{
+    if (this.modalRef) this.modalRef.close();  
+    this.openConfirmacao(this.contentConfirmacaoAtendimento);      
+  }
+
+  simAbrirAtendimento():void{
+    //this.simAbrirAtendimento();
+    if (this.modalRef) this.modalRef.close(); 
+    this.abreSessao();    
+    this.router.navigate(['/atendimentos']);
+  }
+
+  abreSessao(): void {
     this.teleAtendimentoService
       .gerarSessao({
         atendimentoId: this.agendamentoSelecionado.id,
         medico: true
       })
       .subscribe(result => {
-        this.urlMeeting = result.url;
-
-        window.open(this.urlMeeting, '_blank');
+        window.open(result.url, '_blank');
       });
   }
 
@@ -713,13 +732,29 @@ export class PlanoTerapeuticoComponent implements OnInit {
       return;
     }
 
-    clipboard.writeText(this.urlMeeting).then(() => {
-    }).catch(err => {
-      console.error('Erro ao copiar o link: ', err);
-    });
+    this.teleAtendimentoService
+      .gerarSessao({
+        atendimentoId: this.agendamentoSelecionado.id,
+        medico: false
+      })
+      .subscribe(result => {
+        clipboard.writeText(result.url).then(() => {
+        }).catch(err => {
+          console.error('Erro ao copiar o link: ', err);
+        });
+      });    
   }
 
   enviarSessaoPorEmail(): void {
     let url = '';
+  }
+
+  openConfirmacao(content: any) {
+    this.modalRef = this.modalService.open(content, {
+      backdrop: 'static',
+      keyboard: false,
+      centered: true,
+      windowClass: 'modal-gg',
+    });
   }
 }

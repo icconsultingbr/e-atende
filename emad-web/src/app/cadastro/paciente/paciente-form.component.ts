@@ -28,6 +28,7 @@ import { Estabelecimento } from '../../_core/_models/Estabelecimento';
 import { EstabelecimentoService } from '../../seguranca/estabelecimento/estabelecimento.service';
 import { FileUploadService } from '../../_core/_components/app-file-upload/services/file-upload.service';
 import { AgendaPacienteImpressaoService } from '../../shared/services/agenda-paciente-impressao.service';
+import { TeleAtendimentoService } from '../../shared/services/tele-atendimento.service';
 
 @Component({
   selector: 'app-paciente-form',
@@ -97,6 +98,7 @@ export class PacienteFormComponent implements OnInit {
     private router: Router,
     private fileUploadService: FileUploadService,
     private agendaPacienteImpressao: AgendaPacienteImpressaoService,
+    private readonly teleAtendimentoService: TeleAtendimentoService
   ) {
     this.fields = service.fields;
   }
@@ -834,5 +836,33 @@ export class PacienteFormComponent implements OnInit {
       dataFinalConvertida,
       this.object.nome
     );
+  }
+
+  abreSessao(item: number): void {
+    this.teleAtendimentoService
+      .gerarSessao({
+        atendimentoId: item,
+        medico: false
+      })
+      .subscribe(result => {
+        window.open(result.url, '_blank');
+      });
+  }
+
+  download(sessaoId: string): void {
+    this.teleAtendimentoService.downloadVideo(sessaoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-${sessaoId}.mp4`; // Nome do arquivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Erro ao fazer download:', error);
+      },
+    });
   }
 }

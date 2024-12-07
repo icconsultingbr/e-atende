@@ -1321,10 +1321,23 @@
                         <td class="text-secondary">{{ item.dataInicial | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
                         <td class="text-secondary">{{ item.dataFinal | date: 'dd/MM/yyyy HH:mm:ss'}}</td>
                         <td class="text-secondary">{{ item.observacao }}</td>
-                        <td class="text-secondary">                          
-                          <a *ngIf="item.formaAtendimentoId === 2" [href]="item.urlConferencia" target="_blank">
-                              Acessar conferência  <i class="fa fa-solid fa-video"></i>
-                          </a>
+                        <td class="text-secondary">                                                    
+                          <button *ngIf="item.formaAtendimentoId === 2 && !item.situacaoTeleAtendimento" type="button" class="btn btn-danger">
+                            <i class="fa fa-solid fa-video"></i> Agendado
+                          </button>
+                          <button *ngIf="item.formaAtendimentoId === 2 && item.situacaoTeleAtendimento === 1" type="button" class="btn btn-danger">
+                            <i class="fa fa-solid fa-video"></i> Aguardando início
+                          </button>
+                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 3" type="button" class="btn btn-danger" (click)="abreSessao(item.idAgenda)">
+                            <i class="fa fa-solid fa-video"></i> Aguardando paciente
+                          </button>
+                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 4" type="button" class="btn btn-danger" (click)="abreSessao(item.idAgenda)">
+                            <i class="fa fa-solid fa-video"></i> Finalizado - Aguardando download
+                          </button>
+                          <button *ngIf="item.formaAtendimentoId === 2  && item.situacaoTeleAtendimento === 5" type="button" class="btn btn-danger" (click)="download(item.sessaoId)">
+                            <i class="fa fa-solid fa-video"></i> Download
+                          </button>
+
                         </td>
                         <td class="text-secondary">
                           <span *ngIf="item.deletedAt">
