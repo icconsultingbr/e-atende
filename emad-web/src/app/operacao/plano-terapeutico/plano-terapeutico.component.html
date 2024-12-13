@@ -95,7 +95,43 @@
                         </select>
                     </div>
                 </div>
-               
+
+                
+
+                <!-- forma de atendimento -->
+                <div *ngIf="form.get('idPaciente').value" class="row itemAgendamento">
+                    <label class="col-xl-3 col-form-label text-left">
+                        Atendimento <span class="text-danger font-weight-bold"> *</span>
+                    </label>
+                    <div class="col-xl-9">
+                        <select class="custom-select d-block w-100" formControlName="formaAtendimento">
+                            <option [value]="null">Selecione...</option>
+                            <!-- Iterando sobre as opções em this.formaAtendimento -->
+                            <option *ngFor="let item of formaAtendimento" [value]="item.id">{{ item.nome }}</option>
+                        </select>
+                    </div>
+                </div>
+
+                 <!-- Especialidade -->
+                <div *ngIf="!mensagemErro && form.get('idPaciente').value && form.get('tipoAtendimento').value == 1" class="row itemAgendamento">
+                    <label class="col-xl-3 col-form-label text-left">
+                        Especialidade <span class="text-danger font-weight-bold"> *</span>
+                    </label>
+                    <div class="col-xl-9">
+                        <select class="custom-select d-block w-100" formControlName="especialidade">
+                            <option [value]="null">Selecione...</option>
+                            <!-- Iterando sobre as opções em this.formaAtendimento -->
+                            <option *ngFor="let item of listaEspecialidade" [value]="item.id">{{ item.nome }}</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div *ngIf="!mensagemErro && form.get('idPaciente').value && form.get('tipoAtendimento').value == 1" class="row itemAgendamento">
+                    <div>
+                        <button class="btn btn-primary ml-3 rounded" type="button" (click)="openModalAgendaDisponivel(modalAgendaDisponivel)">Ver disponibilidade</button>
+                    </div>
+                </div>                
+
                 <!-- data -->
                 <div *ngIf="form.get('tipoAtendimento').value" class="row">
                     <div style="text-align: left;" class="col-sm-3 itemAgendamento">
@@ -115,41 +151,11 @@
                             <label class="col-sm-2 p-0">Fim
                                 <span class="text-danger font-weight-bold">*</span>
                             </label>
-                            <div class="col-sm-4 p-0">
+                            <div class="col-sm-4 p-0" *ngIf="form.get('tipoAtendimento').value">
                                 <input formControlName="dataFinal" type="datetime-local" [min]="dataSelecionada"
-                                    (blur)="focoCampoData('dataFinal')" class="w-100">
+                                    (blur)="focoCampoData('dataFinal')" class="w-100" >
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- forma de atendimento -->
-                <div *ngIf="form.get('idPaciente').value && form.get('dataInicial').value && form.get('dataFinal').value"
-                    class="row itemAgendamento">
-                    <label class="col-xl-3 col-form-label text-left">
-                        Atendimento <span class="text-danger font-weight-bold"> *</span>
-                    </label>
-                    <div class="col-xl-9">
-                        <select class="custom-select d-block w-100" formControlName="formaAtendimento">
-                            <option [value]="null">Selecione...</option>
-                            <!-- Iterando sobre as opções em this.formaAtendimento -->
-                            <option *ngFor="let item of formaAtendimento" [value]="item.id">{{ item.nome }}</option>
-                        </select>
-                    </div>
-                </div>
-
-                 <!-- Especialidade -->
-                <div *ngIf="!mensagemErro && form.get('dataInicial').value && form.get('dataFinal').value && 
-                            form.get('tipoAtendimento').value == 1" class="row itemAgendamento">
-                    <label class="col-xl-3 col-form-label text-left">
-                        Especialidade <span class="text-danger font-weight-bold"> *</span>
-                    </label>
-                    <div class="col-xl-9">
-                        <select class="custom-select d-block w-100" formControlName="especialidade">
-                            <option [value]="null">Selecione...</option>
-                            <!-- Iterando sobre as opções em this.formaAtendimento -->
-                            <option *ngFor="let item of listaEspecialidade" [value]="item.id">{{ item.nome }}</option>
-                        </select>
                     </div>
                 </div>
                
@@ -172,10 +178,7 @@
                     class="row itemAgendamento">
                     <label class="col-xl-3 col-form-label text-left">Profissional</label>
                     <div class="col-xl-9">
-                        <select class="custom-select d-block w-100" formControlName="idProfissional">
-                            <option [value]="null">Selecione...</option>
-                            <option *ngFor="let item of listaProfissional" [value]="item.id">{{item.nome}}</option>
-                        </select>
+                        <input type="text" class="form-control" formControlName="profissionalNome" disabled>
                     </div>
                 </div>
                 <!-- comenatario -->
@@ -663,4 +666,66 @@
             </div>
         </div>
     </div>
+</ng-template>
+
+<!-- Editar agendamento -->
+<ng-template #modalAgendaDisponivel let-close="close">
+    <form [formGroup]="form">
+        <div class="modal-header">
+            <h4 class="modal-title">Agenda dos profissionais</h4>
+            <button type="button" class="close" aria-lab-el="Close" (click)="closeAgendaDisponivel()">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" style="max-height: 500px; overflow-y: auto;">            
+            <div class="form-group">
+                <label for="dataDesejada">Escolha a Data:</label>
+                <input type="date" formControlName="dataSelecionadaNova" (change)="buscarHorarios()">
+            </div>
+            <div *ngFor="let medico of medicos">
+                <div class="mb-2" style="text-align: left;">
+                    <h5 class="d-inline-block mb-0 mr-2" style="display: inline;">Profissional:</h5>
+                    <h6 class="d-inline-block text-primary" style="display: inline;">{{ medico.nome }}</h6>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <b>Horários disponíveis</b>
+                </div>
+                <div class="d-flex flex-wrap" *ngIf="medico.horariosLivres.length == 0">                    
+                    Nenhum horário livre disponível
+                </div>
+                <div class="d-flex flex-wrap" *ngIf="medico.horariosLivres.length > 0">                    
+                    <button 
+                        type="button" 
+                        class="btn btn-outline-success btn-sm m-1" 
+                        *ngFor="let horario of medico.horariosLivres" 
+                        (click)="selecionarHorario(medico, horario)">
+                        {{ horario.inicio }}
+                    </button>
+                </div>
+                <div class="d-flex flex-wrap">
+                    <b>Horários ocupados</b>
+                </div>
+                <div class="d-flex flex-wrap" *ngIf="medico.horariosOcupados.length == 0">                    
+                    Nenhum horário ocupado
+                </div>
+                <div class="d-flex flex-wrap" *ngIf="medico.horariosOcupados.length > 0">                    
+                    <button 
+                        type="button" 
+                        class="btn btn-outline-danger btn-sm m-1" 
+                        *ngFor="let horario of medico.horariosOcupados" 
+                        (click)="selecionarHorario(medico, horario)" disabled>
+                        {{ horario.inicio }}
+                    </button>
+                </div>
+                <hr>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div>
+                <button *ngIf="!(form.invalid)" class="btn btn-primary ml-3 rounded" type="button" (click)="salvar()">Salvar</button>
+            </div>
+            
+        </div>
+    </form>
+
 </ng-template>

@@ -140,6 +140,7 @@ export class EscalaProfissionalFormComponent implements OnInit {
       situacao: [Validators.required],
       idEstabelecimento: [Validators.required],
       tipoFicha: [Validators.required],
+      tempoMedioConsulta: ['', ''],
     });
   }
 
@@ -275,6 +276,7 @@ export class EscalaProfissionalFormComponent implements OnInit {
       this.object.sextaHorarioFinal = result[0] ? result[0].sextaHorarioFinal : '';
       this.object.sabadoHorarioInicial = result[0] ? result[0].sabadoHorarioInicial : '';
       this.object.sabadoHorarioFinal = result[0] ? result[0].sabadoHorarioFinal : '';
+      this.object.tempoMedioConsulta = result[0] ? result[0].tempoMedioConsulta : 0;
       this.loading = false;
 
     }, error => {

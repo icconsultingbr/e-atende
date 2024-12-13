@@ -3,6 +3,10 @@ function AgendamentoDAO(connection) {
     this._table = "tb_agendamento";
 }
 
+module.exports = function () {
+    return AgendamentoDAO;
+};
+
 AgendamentoDAO.prototype.salva = function (obj, callback) {
     this._connection.query(`INSERT INTO ${this._table} SET ?`, obj, callback);
 }
@@ -223,6 +227,95 @@ AgendamentoDAO.prototype.tipoAtendimento = function (callback) {
     this._connection.query("SELECT * from tb_agendamento_tipo_atendimento ata", callback)
 }
 
-module.exports = function () {
-    return AgendamentoDAO;
-};
+AgendamentoDAO.prototype.buscaEquipeDisponivelParaAgendamentoPorEspecialidade = async function (idEspecialidade, dataDesejada, formaAtendimento, idEstabelecimento, callback) {
+    const anoMes = dataDesejada.substring(0, 4) + dataDesejada.substring(5, 7);
+    
+    let teleatendimentoCondition = "";
+    if (formaAtendimento == 2) {
+        teleatendimentoCondition = "AND tp.teleatendimento = 'S'";
+    }
+
+    const query = `
+        SELECT 
+            tp.id,
+            tp.nome, 
+            CASE DAYOFWEEK(?)
+                WHEN 1 THEN ep.domingoHorarioInicial
+                WHEN 2 THEN ep.segundaHorarioInicial
+                WHEN 3 THEN ep.tercaHorarioInicial
+                WHEN 4 THEN ep.quartaHorarioInicial
+                WHEN 5 THEN ep.quintaHorarioInicial
+                WHEN 6 THEN ep.sextaHorarioInicial
+                WHEN 7 THEN ep.sabadoHorarioInicial
+            END AS escalaInicio,
+            CASE DAYOFWEEK(?)
+                WHEN 1 THEN ep.domingoHorarioFinal
+                WHEN 2 THEN ep.segundaHorarioFinal
+                WHEN 3 THEN ep.tercaHorarioFinal
+                WHEN 4 THEN ep.quartaHorarioFinal
+                WHEN 5 THEN ep.quintaHorarioFinal
+                WHEN 6 THEN ep.sextaHorarioFinal
+                WHEN 7 THEN ep.sabadoHorarioFinal
+            END AS escalaFim,
+            IFNULL(TIME_FORMAT(agenda.dataInicial, '%H:%i'), 'Livre') AS inicio, 
+            IFNULL(TIME_FORMAT(agenda.dataFinal, '%H:%i'), 'Livre') AS fim,
+            ep.tempoMedioConsulta
+        FROM tb_profissional tp
+        INNER JOIN tb_estabelecimento_usuario as eu ON (tp.idUsuario = eu.idUsuario)
+        LEFT JOIN tb_agendamento agenda ON tp.id = agenda.idProfissional AND DATE(agenda.dataInicial) = ? AND agenda.situacao != 0
+        INNER JOIN tb_escala_profissional ep ON tp.id = ep.idProfissional AND ep.anoMes = ?
+        WHERE tp.idEspecialidade = ? 
+        AND eu.idEstabelecimento = ?      
+        ${teleatendimentoCondition}
+        ORDER BY tp.nome, agenda.dataInicial;
+    `;
+
+    this._connection.query(query, [dataDesejada, dataDesejada, dataDesejada, anoMes, idEspecialidade, idEstabelecimento], function (error, results, fields) {
+        if (error) {
+            console.error('Error during database query:', error);
+            return callback(error);
+        }
+
+         const medicos = results.reduce((acc, cur) => {
+            if (!acc[cur.nome]) {
+                acc[cur.nome] = { 
+                    nome: cur.nome, 
+                    id: cur.id,
+                    escalaInicio: cur.escalaInicio, 
+                    escalaFim: cur.escalaFim,
+                    horariosOcupados: [], 
+                    horariosLivres: [],
+                    tempoMedioConsulta: cur.tempoMedioConsulta
+                };
+            }
+            if (cur.inicio !== 'Livre') {
+                acc[cur.nome].horariosOcupados.push({ inicio: cur.inicio, fim: cur.fim });
+            }
+            return acc;
+        }, {});
+
+        for (let medico in medicos) {
+            let horariosLivres = [];
+            let horaInicio = new Date(`${dataDesejada}T${medicos[medico].escalaInicio}`);
+            const horaFim = new Date(`${dataDesejada}T${medicos[medico].escalaFim}`);
+
+            while (horaInicio < horaFim) {
+                let fimIntervalo = new Date(horaInicio.getTime() + medicos[medico].tempoMedioConsulta * 60000); // Adiciona 30 minutos
+                if (!medicos[medico].horariosOcupados.some(ocupado =>
+                    new Date(`${dataDesejada}T${ocupado.inicio}`) < fimIntervalo &&
+                    new Date(`${dataDesejada}T${ocupado.fim}`) > horaInicio
+                )) {
+                    horariosLivres.push({ 
+                        inicio: horaInicio.toTimeString().slice(0, 5), 
+                        fim: fimIntervalo.toTimeString().slice(0, 5) 
+                    });
+                }
+                horaInicio = fimIntervalo;
+            }
+
+            medicos[medico].horariosLivres = horariosLivres;
+        }
+
+        callback(null, Object.values(medicos));
+    });    
+}

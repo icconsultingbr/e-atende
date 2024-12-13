@@ -35,7 +35,8 @@ EscalaProfissionalDAO.prototype.buscaPorProfissionalId = function (idProfissiona
     e.sextaHorarioInicial,
     e.sextaHorarioFinal,
     e.sabadoHorarioInicial,
-    e.sabadoHorarioFinal
+    e.sabadoHorarioFinal,
+    e.tempoMedioConsulta
     FROM ${this._table} e       
     INNER JOIN tb_profissional p on e.idProfissional = p.id         
     WHERE e.idProfissional = ${idProfissional} AND e.anoMes = '${anomes}'

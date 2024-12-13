@@ -18,6 +18,7 @@ export class EscalaProfissional {
     @Input() sextaHorarioFinal: string;
     @Input() sabadoHorarioInicial: string;
     @Input() sabadoHorarioFinal: string;
+    @Input() tempoMedioConsulta: Number;
 }
 
 export class EscalaProfissionalAnoMes {

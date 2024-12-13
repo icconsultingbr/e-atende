@@ -10,7 +10,9 @@ module.exports = function (app) {
         const filters = {
             idEspecialidade: params.idEspecialidade,
             dataInicial: queryParams.dataInicial,
-            dataFinal: queryParams.dataFinal
+            dataFinal: queryParams.dataFinal,
+            formaAtendimento: queryParams.formaAtendimento,
+            idEstabelecimento: queryParams.idEstabelecimento
         }
 
         listaProfissionalDisponivelParaAgendamentoPorEspecialidade(filters, res).then(function (response) {

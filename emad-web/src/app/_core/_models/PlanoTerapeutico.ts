@@ -13,4 +13,5 @@ export class PlanoTerapeutico {
     @Input() dataVigencia: string = null;
     @Input() daysFlag: string = null;
     @Input() observacoes: string = null;
+    @Input() idEstabelecimento: number = +JSON.parse(localStorage.getItem('est'),)[0].id;
 }

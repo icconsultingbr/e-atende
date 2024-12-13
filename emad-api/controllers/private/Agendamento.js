@@ -35,6 +35,22 @@ module.exports = function (app) {
         });
     });
 
+    app.get('/agendamento/especialidade/:id/data/:dataSelecionada/formaAtendimento/:formaAtendimento', function (req, res) {
+        let usuario = req.usuario;
+        let id = parseInt(req.params.id);
+        let data = req.params.dataSelecionada.split('T')[0];
+        let formaAtendimento = parseInt(req.params.formaAtendimento);
+        let util = new app.util.Util();
+        let errors = [];
+        let queryParams = req.query;
+        let idEstabelecimento = queryParams.idEstabelecimento;
+
+        buscarPorEspecialidade(id, data, formaAtendimento, idEstabelecimento, res).then(function (response) {
+            res.status(200).json(response);
+            return;
+        });
+    });
+
     app.get('/agendamento/equipe/:id', function (req, res) {
         let usuario = req.usuario;
         let id = parseInt(req.params.id);
@@ -366,6 +382,32 @@ module.exports = function (app) {
         });
         return d.promise;
     };
+
+    function buscarPorEspecialidade(id, data, formaAtendimento, idEstabelecimento, res) {
+        let q = require('q');
+        let d = q.defer();
+        let util = new app.util.Util();
+
+        var connection = app.dao.ConnectionFactory();
+
+        var objDAO = new app.dao.AgendamentoDAO(connection);
+        let errors = [];
+
+        objDAO.buscaEquipeDisponivelParaAgendamentoPorEspecialidade(id, data, formaAtendimento, idEstabelecimento, function (exception, horariosLivres) {
+            if (exception) {
+                d.reject(exception);
+                console.log(exception);
+                errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
+                res.status(500).send(errors);
+                return;
+            } else {
+                d.resolve(horariosLivres);
+            }
+        });
+
+        return d.promise;
+    };
+
 }
 
 

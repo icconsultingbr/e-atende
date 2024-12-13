@@ -508,6 +508,7 @@ ProfissionalDAO.prototype.buscaProfissionalDisponivelParaAgendamentoPorEspeciali
     return await this._connection.query(
         `SELECT *
             FROM tb_profissional as pfst
+            INNER JOIN tb_estabelecimento_usuario as ep ON (pfst.idUsuario = ep.idUsuario)
             WHERE pfst.idEspecialidade = ${params.idEspecialidade}
                 AND NOT EXISTS (
                     SELECT 1
@@ -535,7 +536,9 @@ ProfissionalDAO.prototype.buscaProfissionalDisponivelParaAgendamentoPorEspeciali
                             OR
                             (agt.dataInicial BETWEEN '${params.dataInicial}' AND '${params.dataFinal}'
                             OR agt.dataFinal BETWEEN '${params.dataInicial}' AND '${params.dataFinal}'))
-        )`, res
+        )
+        AND ep.idEstabelecimento = ${params.idEstabelecimento}                    
+        `, res
     )
 }
 
