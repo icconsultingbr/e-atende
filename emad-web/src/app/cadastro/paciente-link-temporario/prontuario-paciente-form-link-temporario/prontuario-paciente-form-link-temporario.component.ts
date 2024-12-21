@@ -188,7 +188,8 @@ export class ProntuarioPacienteFormLinkTemporarioComponent implements OnInit {
     vacinasEmDia: 1,
     condicaoAvaliada: 1,
     idProfissionalCompartilhado: 123,
-    integracaoPEC: true
+    integracaoPEC: true,
+    idAgendamento: 0
   };
   pacienteHipotese: PacienteHipotese = {
     id: 1,

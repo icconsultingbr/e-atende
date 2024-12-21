@@ -57,6 +57,8 @@ export class AtendimentoFormComponent implements OnInit {
   modalRef: NgbModalRef = null;
   modalLocalizacaoPacienteRef: NgbModalRef = null;
   modalFormularioRef: NgbModalRef = null;
+  idPacienteAgenda: number;
+  idAgendamento: number;
 
   //FORMS
   form: FormGroup;
@@ -195,6 +197,7 @@ export class AtendimentoFormComponent implements OnInit {
   constructor(
     private service: AtendimentoService,
     private pagerService: PagerService,
+    private planoTerapeuticoService: PlanoTerapeuticoService,
     private pacienteService: PlanoTerapeuticoService,
     private reciboReceitaService: ReciboReceitaImpressaoService,
     private exameService: ExameService,
@@ -207,7 +210,7 @@ export class AtendimentoFormComponent implements OnInit {
     private ref: ChangeDetectorRef,
     private fileUploadService: FileUploadService,
   ) {
-    for (let field of this.pacienteService.fields) {
+    for (let field of this.planoTerapeuticoService.fields) {
       if (field.grid) {
         this.fieldsPacientes.push(field);
       }
@@ -223,10 +226,34 @@ export class AtendimentoFormComponent implements OnInit {
   ngOnInit() {
     this.loading = true;
 
-    this.route.params.subscribe((params) => {
+    this.route.params.subscribe(params => {
       this.id = params['id'];
       this.idHistorico = params['idHistorico'];
       this.carregaEntidadeCampoPorEspecialidade();
+    });
+
+    this.route.queryParams.subscribe(queryParams => {
+      this.idPacienteAgenda = parseInt(queryParams['idPaciente'] ? queryParams['idPaciente'] : 0);
+      this.idAgendamento = parseInt(queryParams['idAgendamento'] ? queryParams['idAgendamento'] : 0);
+
+      if(this.idPacienteAgenda){
+        this.pacienteService.findById(this.idPacienteAgenda,"paciente").subscribe(
+          (result) => {
+            if(result){
+              this.pacienteSelecionado = {}; 
+              this.pacienteSelecionado.id = result.id;
+              this.pacienteSelecionado.nome = result.nome;
+              this.object.idPaciente = this.pacienteSelecionado.id;
+              this.object.pacienteNome = this.pacienteSelecionado.nome;
+              this.form.get('idAgendamento').setValue(this.idAgendamento);
+            }
+          },
+          (erro) => {
+            setTimeout(() => (this.loading = false), 300);
+            this.errors = Util.customHTTPResponse(erro);
+          },
+        ); 
+      }           
     });
 
     this.buscaProfissionais();
@@ -307,6 +334,7 @@ export class AtendimentoFormComponent implements OnInit {
       condicaoAvaliada: ['', ''],
       dataCriacao: ['', ''],
       idProfissionalCompartilhado: ['', ''],
+      idAgendamento: ['', ''],
     });
 
     this.formHipotese = this.fbHipotese.group({

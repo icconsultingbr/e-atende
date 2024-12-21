@@ -255,8 +255,9 @@ module.exports = function (app) {
         let idEstabelecimento = req.headers.est;
         let mail = new app.util.Mail();
         let errors = [];
-        //var agendamentoId = Object.assign({}, obj.agendamentoId);
-        //delete obj.agendamentoId;
+        var idAgendamento = obj.idAgendamento; 
+        delete obj.idAgendamento; 
+        delete objHistorico.idAgendamento; 
 
         if (!obj.situacao)
             obj.situacao = "C";
@@ -347,31 +348,6 @@ module.exports = function (app) {
             }
         }
 
-        //else if (obj.tipoFicha == '9' || obj.tipoFicha == '8') { //Ficha de Atendimento Domiciliar E Ficha de Atendimento Odontologico Individual
-
-        //  req.assert("tipoAtendimento").notEmpty().withMessage("Preencha o campo tipo de atendimento");
-
-        //if (obj.modalidade == null) {
-        //req.assert("modalidade").notEmpty().withMessage("Modalidade é um campo obrigatório;");
-        //}
-
-        // CAMPO = atencaoDomiciliarModalidade
-        // Apenas as opções 1, 2 e 3 são aceitas;
-        //if (obj.modalidade && obj.modalidade.length > 0 && obj.modalidade != '1' && obj.modalidade != '2' && obj.modalidade != '3') {
-        //errors = util.customError(errors, "header","Apenas as modalidades AD1, AD2 e AD3 são aceitas para esse tipo de ficha." , "");
-        //res.status(400).send(errors);
-        // return;
-        //}
-        //}
-        //else {
-        // CAMPO = localDeAtendimento
-        // 11, 12 e 13 Utilizado apenas na Ficha de Atendimento Domiciliar
-        //if (obj.localDeAtendimento && (obj.localDeAtendimento == '11' || obj.localDeAtendimento == '12' || obj.localDeAtendimento == '13')) {
-        //errors = util.customError(errors, "header", "Esse local de atendimento só é permitido para Ficha de atendimento domiciliar", "");
-        //res.status(400).send(errors);
-        //return;
-        //}
-        //}
 
         errors = req.validationErrors();
 
@@ -577,8 +553,8 @@ module.exports = function (app) {
 
             }
 
-            if(agendamentoId)
-                var responseAgendamento = await teleAtendimentoRepository.atualizarAtendimentoId(agendamentoId, obj.id);
+            if(idAgendamento)
+                var responseAgendamento = await teleAtendimentoRepository.atualizarAtendimentoId(idAgendamento, obj.id);
 
 
             await connection.commit();
@@ -630,6 +606,9 @@ module.exports = function (app) {
         objHistorico.idUsuario = usuario.id;
         delete obj.idTipoAtendimentoHistorico;
         delete obj.textoHistorico;
+        var idAgendamento = obj.idAgendamento; 
+        delete obj.idAgendamento; 
+        delete objHistorico.idAgendamento; 
 
         req.assert("idPaciente").notEmpty().withMessage("Paciente um campo obrigatório;");
         req.assert("situacao").notEmpty().withMessage("Situação é um campo obrigatório;");
@@ -747,6 +726,7 @@ module.exports = function (app) {
         const atendimentoMedicamentoRepository = new app.dao.AtendimentoMedicamentoDAO(connection);
         const atendimentoCondicaoAvaliadaRepository = new app.dao.AtendimentoCondicaoAvaliadaDAO(connection);
         const atendimentoTipoVigilanciaSaudeOdontoRepository = new app.dao.AtendimentoTipoVigilanciaOdontoDAO(connection);
+        const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
 
         try {
 
@@ -936,6 +916,9 @@ module.exports = function (app) {
             var responseAtendimento = await atendimentoRepository.salvaHistoricoSync(objHistorico);
 
             res.status(201).send(obj);
+
+            if(idAgendamento)
+                var responseAgendamento = await teleAtendimentoRepository.atualizarAtendimentoId(idAgendamento, obj.id);
 
             await connection.commit();
         }

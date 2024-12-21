@@ -704,27 +704,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
     if (this.modalConsultaAgendamento) this.modalConsultaAgendamento.close();     
     this.abreSessao();    
 
-    this.form = this.fb.group({
-      idPaciente: this.dadosAgendamento.idPaciente,
-      situacao: 'C',
-      idEstabelecimento: this.dadosAgendamento.pacienteEstabeleciomentoId,
-      tipoFicha: 1,
-      idClassificacaoRisco: 1,
-      integracaoPEC: new FormControl({ value: 1, disabled: false }),
-      localDeAtendimento: new FormControl({ value: '1', disabled: false }),
-      dataCriacao: new Date(),
-      agendamentoId: this.dadosAgendamento.idAgendamento
-    });
-        this.atendimentoService.save(this.form.getRawValue(), 'atendimento').subscribe(
-          (res: any) => {
-            this.object.id = res.id;
-            this.router.navigate(['/atendimentos/cadastros/'+this.object.id]);  
-          },
-          (erro) => {
-            setTimeout(() => (this.loading = false), 300);
-            this.errors = Util.customHTTPResponse(erro);
-          },
-        );
+    this.router.navigate(['/atendimentos/cadastro'], { queryParams: { idPaciente: this.dadosAgendamento.idPaciente, idAgendamento: this.dadosAgendamento.idAgendamento } });
+  
   }
 
   abreSessao(): void {

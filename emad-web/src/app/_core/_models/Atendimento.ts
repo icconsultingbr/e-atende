@@ -64,6 +64,7 @@ export class Atendimento {
   @Input() condicaoAvaliada: number;
   @Input() idProfissionalCompartilhado: number;
   @Input() integracaoPEC: boolean;
+  @Input() idAgendamento: number;
 }
 
 export class AtendimentoHistorico {

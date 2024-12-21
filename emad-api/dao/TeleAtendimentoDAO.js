@@ -73,7 +73,8 @@ TeleAtendimentoDAO.prototype.atualizarAtendimentoId = async function (agendament
         return;
     }
 
-    await this._connection.query(`UPDATE ${this._table} SET ?  where agendamentoId= ?`, [atendimentoId, agendamentoId]);
+    const response = await this._connection.query(`UPDATE ${this._table} SET atendimentoId = ?  where agendamentoId= ?`, [atendimentoId, agendamentoId]);
+    return [response];
 }
 
 module.exports = function(){
