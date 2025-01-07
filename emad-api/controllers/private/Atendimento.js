@@ -182,6 +182,7 @@ module.exports = function (app) {
         const connection = await app.dao.connections.EatendConnection.connection();
 
         const atendimentoRepository = new app.dao.AtendimentoDAO(connection);
+        const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
 
         try {
             var response = await atendimentoRepository.buscaPorPacienteIdProntuario(id, tipo, 0, 0);
@@ -190,6 +191,9 @@ module.exports = function (app) {
                 for (const itemAtendimento of atendimentos) {
                     var historicos = await atendimentoRepository.buscaHistoricoPorAtendimento(itemAtendimento.id);
                     itemAtendimento.historicos = historicos ? historicos : null;
+
+                    var teleAtendimento = await teleAtendimentoRepository.obterPorAtendimentoId(itemAtendimento.id);
+                    itemAtendimento.teleAtendimento = teleAtendimento ? teleAtendimento : null;
                 }
             }
             res.status(200).json(atendimentos);
@@ -1097,6 +1101,32 @@ module.exports = function (app) {
             return;
         });
 
+    });
+
+    app.get('/atendimento/teleatendimento/:idAtendimento', async function (req, res) {        
+        let usuario = req.usuario;
+        let util = new app.util.Util();
+        let queryFilter = req.query;
+        let errors = [];
+        let id = req.params.idAtendimento ;
+  
+        const connection = await app.dao.connections.EatendConnection.connection();
+  
+        try {
+            const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
+  
+            const response = await teleAtendimentoRepository.obterPorAtendimentoId(id);
+  
+            return ApiResponse.ok(res, response);
+          }
+          catch (exception) {
+            errors = util.customError(errors, "data", "Erro ao acessar os dados", "objs");
+  
+            return ApiResponse.serverError(res, errors);
+          }
+          finally {
+              await connection.close();
+          }
     });
 
     function lista(addFilter, res) {

@@ -542,6 +542,15 @@ ProfissionalDAO.prototype.buscaProfissionalDisponivelParaAgendamentoPorEspeciali
     )
 }
 
+ProfissionalDAO.prototype.buscaProfissionalPorUsuarioTeleAtendimentoSync = async function (idUsuario) {
+    let profissional = await this._connection.query(`SELECT p.*, te.codigoCBO FROM tb_profissional as p 
+        left join tb_especialidade te on te.id = p.idEspecialidade
+         WHERE p.idUsuario = ? AND p.situacao = 1
+         and p.teleatendimento = 'S'`, [idUsuario]);
+
+    return profissional[0];
+}
+
 module.exports = function () {
     return ProfissionalDAO;
 };

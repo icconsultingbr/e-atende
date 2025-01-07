@@ -168,6 +168,8 @@ export class AtendimentoFormComponent implements OnInit {
   obrigaCondAvaliada: any;
   localAtendimento: number;
 
+  profissionalPermiteTeleatendimento: boolean = false;
+
   pathFiles = `${environment.apiUrl}/fotos/`;
 
   paging: any = {
@@ -933,6 +935,10 @@ export class AtendimentoFormComponent implements OnInit {
 
     this.service.findById(this.id, this.method).subscribe(
       (result) => {
+        this.service.list(`profissional/teleatendimento`).subscribe((result) => {
+          if(result && result.profissional)
+            this.profissionalPermiteTeleatendimento = true;
+        });
         this.object = result;
         this.object.pacienteNome = result.nome;
         this.object.pacienteHistoriaProgressa =
@@ -1061,7 +1067,6 @@ export class AtendimentoFormComponent implements OnInit {
 
           if (this.form.value.id) {
             this.message = 'Atendimento alterado com sucesso';
-
             if (
               !Util.isEmpty(this.object.ano_receita) &&
               !Util.isEmpty(this.object.numero_receita) &&
@@ -1074,6 +1079,11 @@ export class AtendimentoFormComponent implements OnInit {
               );
           } else {
             this.abreFichaDigital(this.object.id, false);
+            this.service.list(`profissional/teleatendimento`).subscribe((result) => {
+              if(result && result.profissional)
+                this.profissionalPermiteTeleatendimento = true;
+            });            
+
           }
 
           if (!this.message) {
@@ -2647,11 +2657,17 @@ export class AtendimentoFormComponent implements OnInit {
     });
   }
 
+  abrirTeleAtendimento():void{
+    if (this.modalRef) this.modalRef.close(); 
+        this.service.list(`atendimento/teleatendimento/${this.object.id}`).subscribe((result) => {
+          this.dadosAgendamento = result;          
+          this.openConfirmacao(this.modalInfoAgendamento, 'xs');
+        });
+  }
+
   inicioSessao():void{
     if (this.modalRef) this.modalRef.close(); 
-    //this.openConfirmacao(this.contentConfirmacaoTeleatendimento);    
-
-    this.openConfirmacao(this.modalInfoAgendamento);
+    this.openConfirmacao(this.contentConfirmacaoTeleatendimento, 'xs');        
   }
 
   simIniciarSessao():void{ 
@@ -2677,7 +2693,7 @@ export class AtendimentoFormComponent implements OnInit {
       return;
     }
 
-    document.body.focus(); // Forçar o foco no documento
+    document.body.focus();
 
     this.teleAtendimentoService
       .gerarSessaoAtendimento({
@@ -2713,5 +2729,10 @@ export class AtendimentoFormComponent implements OnInit {
         console.error('Erro ao fazer download:', error);
       },
     });
+  }
+
+  profissionalFazTeleAtendimento(): boolean {
+    
+    return false;    
   }
 }

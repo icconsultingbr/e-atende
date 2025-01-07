@@ -31,6 +31,7 @@ import { Exame } from '../../../_core/_models/Exame';
 import { ProntuarioPacienteImpressaoService } from '../../../shared/services/prontuario-paciente-impressao.service';
 import { ReciboExameImpressaoService } from '../../../shared/services/recibo-exame-impressao.service';
 import { FileUploadService } from '../../../_core/_components/app-file-upload/services/file-upload.service';
+import { TeleAtendimentoService } from '../../../shared/services/tele-atendimento.service';
 
 @Component({
   selector: 'app-prontuario-paciente-form',
@@ -107,6 +108,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
   dataFinal: Date;
   tipoFichaFiltro: number;
   profissionalFiltro: number;
+  dadosAgendamento: any;
 
   @ViewChild('addresstext') addresstext: ElementRef;
 
@@ -158,6 +160,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
     private reciboExameService: ReciboExameImpressaoService,
     private prontuarioPacienteImpressao: ProntuarioPacienteImpressaoService,
     private fileUploadService: FileUploadService,
+    private teleAtendimentoService: TeleAtendimentoService
   ) {
     this.fields = service.fields;
   }
@@ -896,6 +899,7 @@ export class ProntuarioPacienteFormComponent implements OnInit {
           this.findEncaminhamentoPorAtendimento(idAtendimento);
           this.findMedicamentoPorAtendimento(idAtendimento);
           this.findProcedimentoPorAtendimento(idAtendimento);
+
         },
         (error) => {
           this.loading = false;
@@ -1210,5 +1214,22 @@ export class ProntuarioPacienteFormComponent implements OnInit {
       const w = window.open('');
       w.document.write(image.outerHTML);
     }
+  }
+
+  download(sessaoId: string): void {
+    this.teleAtendimentoService.downloadVideo(sessaoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-${sessaoId}.mp4`; // Nome do arquivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Erro ao fazer download:', error);
+      },
+    });
   }
 }

@@ -887,6 +887,10 @@
                                   ">
                                   <i class="fa fa-search"></i> Visualizar
                                 </button>
+
+                                <button *ngIf="itemHistorico.idTipoAtendimentoHistorico == 3 && itemAtendimento.teleAtendimento" class="btn btn-primary" type="button" (click)="download(itemAtendimento.teleAtendimento?.sessaoId)">
+                                  <i class="fas fa-video"></i> Download Teleatendimento
+                                </button>
                               </p>
                             </div>
                           </div>
