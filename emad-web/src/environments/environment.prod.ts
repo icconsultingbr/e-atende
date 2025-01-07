@@ -1,12 +1,12 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://telemedicina.icconsulting.com.br/api-eatende',
+  apiUrl: 'https://saude.icconsulting.com.br/api-eatende',
   superAdmin: 3,
   avancado : 2,
   admin: 1,
-  socketUrl: 'https://telemedicina.icconsulting.com.br',
+  socketUrl: 'https://saude.icconsulting.com.br',
   socketPath: '/api-eatende',
   utc : 3,
   virtualDirectory: 'e-atende',
-  meetingUrl: 'https://telemedicina.icconsulting.com.br/meeting'
+  meetingUrl: 'https://saude.icconsulting.com.br/meeting'
 };
