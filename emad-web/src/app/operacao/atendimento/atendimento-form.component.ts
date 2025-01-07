@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { AtendimentoService } from './atendimento.service';
 import { NgbModalRef, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import {
@@ -37,6 +37,7 @@ import { VigilanciaSaudeBucal } from '../../_core/_models/VigilanciaSaudeBucal';
 import { CondicaoAvaliada } from '../../_core/_models/CondicaoAvaliada';
 import { PacienteCondicaoAvaliada } from '../../_core/_models/PacienteCondicaoAvaliada';
 import { FileUploadService } from '../../_core/_components/app-file-upload/services/file-upload.service';
+import { TeleAtendimentoService } from '../../shared/services/tele-atendimento.service';
 
 @Component({
   selector: 'app-atendimento-form',
@@ -46,6 +47,8 @@ import { FileUploadService } from '../../_core/_components/app-file-upload/servi
 })
 export class AtendimentoFormComponent implements OnInit {
   @ViewChild('contentConfirmacao') contentConfirmacao: any;
+  @ViewChild('contentConfirmacaoTeleatendimento') contentConfirmacaoTeleatendimento: any;
+  @ViewChild('modalInfoAgendamento') modalInfoAgendamento: TemplateRef<any>;
 
   //upload
   public images;
@@ -102,7 +105,7 @@ export class AtendimentoFormComponent implements OnInit {
 
   ListcondutaEncaminhamento: any[];
   listTipoAtendimento: any[];
-
+  dadosAgendamento: any;
   medicamentoSelecionado: any = null;
   hipoteseDiagnosticaSelecionada: any = null;
   domains: any[] = [];
@@ -209,6 +212,7 @@ export class AtendimentoFormComponent implements OnInit {
     private router: Router,
     private ref: ChangeDetectorRef,
     private fileUploadService: FileUploadService,
+    private readonly teleAtendimentoService: TeleAtendimentoService,
   ) {
     for (let field of this.planoTerapeuticoService.fields) {
       if (field.grid) {
@@ -745,12 +749,12 @@ export class AtendimentoFormComponent implements OnInit {
     });
   }
 
-  openConfirmacao(content: any) {
+  openConfirmacao(content: any, tamanho: string = 'modal-gg') {
     this.modalRef = this.modalService.open(content, {
       backdrop: 'static',
       keyboard: false,
       centered: true,
-      windowClass: 'modal-gg',
+      windowClass: tamanho,
     });
   }
 
@@ -2640,6 +2644,74 @@ export class AtendimentoFormComponent implements OnInit {
         .subscribe((arquivo) => {
           this.listaArquivosUpload = arquivo;
         });
+    });
+  }
+
+  inicioSessao():void{
+    if (this.modalRef) this.modalRef.close(); 
+    //this.openConfirmacao(this.contentConfirmacaoTeleatendimento);    
+
+    this.openConfirmacao(this.modalInfoAgendamento);
+  }
+
+  simIniciarSessao():void{ 
+    this.abreSessao();     
+  }
+
+  abreSessao(): void {
+    this.teleAtendimentoService
+      .gerarSessaoAtendimento({
+        atendimentoId: this.object.id,
+        medico: true
+      })
+      .subscribe(result => {
+        window.open(result.url, '_blank');
+      });
+      this.close();
+  }
+
+  copiarLinkSessao(): void {
+    const clipboard = (navigator as any).clipboard;
+
+    if (!clipboard) {
+      return;
+    }
+
+    document.body.focus(); // Forçar o foco no documento
+
+    this.teleAtendimentoService
+      .gerarSessaoAtendimento({
+        atendimentoId: this.object.id,
+        medico: false
+      })
+      .subscribe(result => {
+        setTimeout(() => {
+          clipboard.writeText(result.url).then(() => {
+          }).catch(err => {
+            console.error('Erro ao copiar o link: ', err);
+          });
+        }, 100);
+      });    
+  }
+
+  enviarSessaoPorEmail(): void {
+    let url = '';
+  }
+
+    download(sessaoId: string): void {
+    this.teleAtendimentoService.downloadVideo(sessaoId).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session-${sessaoId}.mp4`; // Nome do arquivo
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      },
+      error: (error) => {
+        console.error('Erro ao fazer download:', error);
+      },
     });
   }
 }

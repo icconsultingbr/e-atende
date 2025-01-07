@@ -181,20 +181,13 @@ module.exports = function (app) {
         const body = req.body || {};
         const payload = {
             atendimentoId: body.atendimentoId,
+            agendamentoId: body.agendamentoId,
             perfil: body.medico ? 'medico' : 'paciente'
         };
 
-        req.assert("atendimentoId").notEmpty().withMessage("Informe o Id do atendimento");
 
-        const errors = req.validationErrors();
-
-        if (errors) {
-            res.status(400).send(errors);
-            return;
-        }
-
-        if (!payload.atendimentoId) {
-            res.status(400).json({ error: 'Informe o número do atendimento' });
+        if (!payload.atendimentoId && !payload.agendamentoId) {
+            res.status(400).json({ error: 'Informe o número do agendamento ou atendimento' });
             return;
         }
 
@@ -207,7 +200,8 @@ module.exports = function (app) {
         try {
             const teleAtendimentoRepository = new app.dao.TeleAtendimentoDAO(connection);
 
-            let teleAtendimento = await teleAtendimentoRepository.obterPorAgendamentoId(payload.atendimentoId);
+            let teleAtendimento =  payload.atendimentoId ? await teleAtendimentoRepository.obterPorAtendimentoId(payload.atendimentoId) : 
+                                await teleAtendimentoRepository.obterPorAgendamentoId(payload.agendamentoId);
 
             if (teleAtendimento) {
                 const url = `${config.meeting.url}/tele-atendimento/${teleAtendimento.sessaoId}/${teleAtendimento.sessaoPassword}/1/${payload.perfil}`;
@@ -217,7 +211,8 @@ module.exports = function (app) {
 
             teleAtendimento = {
                 id: 0,
-                agendamentoId: payload.atendimentoId,
+                agendamentoId: payload.agendamentoId,
+                atendimentoId: payload.atendimentoId,
                 sessaoId: uuidv4(),
                 sessaoPassword: generatePassword(),
                 situacao: 1,

@@ -39,6 +39,17 @@ TeleAtendimentoDAO.prototype.obterPorAgendamentoId = async function(id){
 }
 
 /**
+ * Busca um teleatendimento pelo ID do atendimento
+ * @param {number} id - ID do atendimento a ser pesquisado
+ * @returns {Promise<Object|null>} Promise que resolve com o objeto do teleatendimento encontrado ou null se não existir
+ */
+TeleAtendimentoDAO.prototype.obterPorAtendimentoId = async function(id){
+    let result = await this._connection.query(`SELECT a.* FROM ${this._table} a where a.atendimentoId=?`, [id]);
+    return result ? result[0] : null;
+}
+
+
+/**
  * Busca um teleatendimento pelo ID da sessão
  * @param {string} sessaoId - ID da sessão a ser pesquisada
  * @returns {Promise<Object|null>} Promise que resolve com o objeto do teleatendimento encontrado ou null se não existir
@@ -75,6 +86,7 @@ TeleAtendimentoDAO.prototype.atualizarAtendimentoId = async function (agendament
 
     const response = await this._connection.query(`UPDATE ${this._table} SET atendimentoId = ?  where agendamentoId= ?`, [atendimentoId, agendamentoId]);
     return [response];
+
 }
 
 module.exports = function(){

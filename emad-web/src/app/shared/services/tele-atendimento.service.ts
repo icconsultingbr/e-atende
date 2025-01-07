@@ -8,7 +8,11 @@ export class TeleAtendimentoService {
   constructor(private readonly http: HttpClient) {
   }
 
-  gerarSessao(data :Required<{atendimentoId: number, medico: boolean}>): Observable<Required<{url: string}>>{
+  gerarSessaoAgendamento(data :Required<{agendamentoId: number, medico: boolean}>): Observable<Required<{url: string}>>{
+    return this.http.post<Required<{url: string}>>(`tele-atendimento/sessoes`, JSON.stringify(data));
+  }
+
+  gerarSessaoAtendimento(data :Required<{atendimentoId: number, medico: boolean}>): Observable<Required<{url: string}>>{
     return this.http.post<Required<{url: string}>>(`tele-atendimento/sessoes`, JSON.stringify(data));
   }
 
