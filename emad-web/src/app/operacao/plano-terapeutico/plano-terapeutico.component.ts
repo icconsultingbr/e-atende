@@ -710,8 +710,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
 
   abreSessao(): void {
     this.teleAtendimentoService
-      .gerarSessao({
-        atendimentoId: this.agendamentoSelecionado.id,
+      .gerarSessaoAgendamento({
+        agendamentoId: this.agendamentoSelecionado.id,
         medico: true
       })
       .subscribe(result => {
@@ -727,8 +727,8 @@ export class PlanoTerapeuticoComponent implements OnInit {
     }
 
     this.teleAtendimentoService
-      .gerarSessao({
-        atendimentoId: this.agendamentoSelecionado.id,
+      .gerarSessaoAgendamento({
+        agendamentoId: this.agendamentoSelecionado.id,
         medico: false
       })
       .subscribe(result => {

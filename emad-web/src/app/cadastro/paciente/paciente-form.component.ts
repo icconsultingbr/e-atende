@@ -840,8 +840,8 @@ export class PacienteFormComponent implements OnInit {
 
   abreSessao(item: number): void {
     this.teleAtendimentoService
-      .gerarSessao({
-        atendimentoId: item,
+      .gerarSessaoAgendamento({
+        agendamentoId: item,
         medico: false
       })
       .subscribe(result => {
